@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.1 (2022-10-31)
+### Fix
+* Fix lock file and add a dummy test ([`ba5626f`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/ba5626f2d4cc811b472a93d39a8d49e1c710dcb7))
+
 ## v0.1.0 (2022-10-31)
 ### Feature
 * Init repo ([`7449521`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/7449521e7bcea717c90d5948f7c30f390801edbd))
