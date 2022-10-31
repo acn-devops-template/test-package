@@ -62,8 +62,8 @@ class Task(ABC):
         ps.add_argument("--module", required=False, type=str, help="module name")
         module_nsp = ps.parse_known_args(sys.argv[1:])[0]
 
-        if module_nsp.module is None:
-            raise ValueError(" module argument is not found ")
+        # if module_nsp.module is None:
+        #     raise ValueError(" module argument is not found ")
         return module_nsp.module
 
     def _create_spark_conf(self):
