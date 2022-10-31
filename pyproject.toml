@@ -1,0 +1,90 @@
+[tool.poetry]
+name = "datax-utils-deployment-helper"
+version = "0.0.0"
+description = "common lib for deployment-related"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [
+    { include = "datax", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pyspark = { version = "3.2.1", source = "PyPI" }
+pydantic = { version = "^1.10.2", source = "PyPI" }
+
+[tool.poetry.group.test.dependencies]
+pre-commit = { version = "^2.20.0", source = "PyPI" }
+pytest = { version = "^7.0.0", source = "PyPI" }
+pytest-mock = { version = "^3.7.0", source = "PyPI" }
+black = { version = "^22.6.0", source = "PyPI" }
+flake8 = { version = "4.0.1", source = "PyPI" }
+isort = { version = "^5.10.1", source = "PyPI" }
+flakeheaven = { version = "^3.0.0", source = "PyPI" }
+absolufy-imports = { version = "^0.3.1", source = "PyPI" }
+mypy = { version = "^0.982", source = "PyPI" }
+
+[tool.poetry.group.release.dependencies]
+datax-semantic-release = {git = "https://github.com/datax-tmp/datax-semantic-release.git"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.black]
+line-length = 120
+force-exclude = "/(docs|conf|experiments)/"
+
+
+[tool.isort]
+profile = "black"
+known_pyspark = ["pyspark"]
+sections = ["FUTURE", "STDLIB", "PYSPARK", "FIRSTPARTY", "THIRDPARTY", "LOCALFOLDER"]
+import_heading_stdlib = "import: standard" # a module as part of Python's standard library.
+import_heading_pyspark = "import: pyspark"
+import_heading_firstparty = "import: internal" # a module as being part of the current python project.
+import_heading_future = "import: future" # a module as part of Python's internal future compatibility libraries. 
+import_heading_thirdparty = "import: external" # a module as being part of a third party library.
+import_heading_localfolder = "import: private/local" # a module as being a local folder. Generally, this is reserved for relative imports (from . import module).
+force_single_line = "true"
+include_trailing_comma = "false"
+line_length = 120
+skip_glob = ["docs/*", "conf/*", "experiments/*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[tool.semantic_release]
+version_variable = [
+    "src/datax/utils/deployment_helper/__init__.py:__version__"
+]
+version_toml = "pyproject.toml:tool.poetry.version"
+changelog_file = "CHANGELOG.md"
+build_command = "poetry build -f wheel"
+major_on_zero = false
+upload_to_release = true
+upload_to_repository = false
+branch = "dev"
+
+[tool.flakeheaven]
+max-line-length = 120
+max-complexity = 18
+exclude = ["README.md","experiments/*", "docs/*"]
+# https://github.com/flakehell/flakehell/issues/10#issuecomment-822720074
+extended_default_ignore=[]
+
+[tool.flakeheaven.plugins]
+pycodestyle = ["+B*", "+C*", "+E*", "+F*", "+W*", "+T4*", "-E203", "-E266", "-E501", "-W503", "-F403", "-F401"]
+pyflakes = ["+B*", "+C*", "+E*", "+F*", "+W*", "+T4*", "-E203", "-E266", "-E501", "-W503", "-F403", "-F401"]
+
+[tool.mypy]
+exclude = ["README.md", '/docs/', '/experiments/', '/conf/']  ## TO DO: revise to regex to skip these folder
+ignore_missing_imports = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_untyped_decorators = true
+disallow_incomplete_defs = true
+no_strict_optional = true
+show_error_context = true
+pretty = true

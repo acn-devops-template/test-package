@@ -1,0 +1,46 @@
+name: main
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
+    branches:
+      - main
+  
+jobs:
+  cd-pipeline:
+    runs-on: ubuntu-latest
+
+    env:
+      GH_TOKEN: ${{ secrets.GH_PAT }} # for semantic release
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
+
+      - uses: fregante/setup-git-user@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+          
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies and project
+        run: |
+          poetry install -v --without test
+
+      - name: Semantic Release
+        run: |
+          poetry run semantic-release publish -v DEBUG
