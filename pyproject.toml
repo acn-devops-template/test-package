@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "datax-utils-deployment-helper"
-version = "0.0.0"
+version = "0.1.1"
 description = "common lib for deployment-related"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
