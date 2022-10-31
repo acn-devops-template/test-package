@@ -23,6 +23,7 @@ isort = { version = "^5.10.1", source = "PyPI" }
 flakeheaven = { version = "^3.0.0", source = "PyPI" }
 absolufy-imports = { version = "^0.3.1", source = "PyPI" }
 mypy = { version = "^0.982", source = "PyPI" }
+conventional-pre-commit = { version = "^2.1.1", source = "PyPI" }
 
 [tool.poetry.group.release.dependencies]
 datax-semantic-release = {git = "https://github.com/datax-tmp/datax-semantic-release.git"}
