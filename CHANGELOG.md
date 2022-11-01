@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.0 (2022-11-01)
+### Fix
+* Pyproject and pre-commit ([`e40351c`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/e40351cd8ea87b6c326bea67fb46b03aef266b46))
+
 ## v0.1.1 (2022-10-31)
 ### Fix
 * Fix lock file and add a dummy test ([`ba5626f`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/ba5626f2d4cc811b472a93d39a8d49e1c710dcb7))
