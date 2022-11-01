@@ -40,7 +40,9 @@ def set_pipeline_obj(function: F) -> F:
                 _pipeline_var_dict[key_kw] = value_kw
         return _pipeline_var_dict
 
-    def _set_default_vars_to_pipeline_obj(_pipeline_var_dict: Dict, var_list: List) -> None:
+    def _set_default_vars_to_pipeline_obj(
+        _pipeline_var_dict: Dict, var_list: List
+    ) -> None:
         """
         Assign vars in ['conf', 'logger', 'dbutils', 'spark'] to _pipeline_obj
         """
@@ -178,7 +180,11 @@ def set_tfm_obj(function: F) -> F:
                     if kw_key in _var_dict.keys():
                         _var_dict.pop(kw_key, None)
             if len(args) > 0:
-                args_name = [i for i in list(function.__code__.co_varnames)[0 : len(args) + 1] if i != "self"]
+                args_name = [
+                    i
+                    for i in list(function.__code__.co_varnames)[0 : len(args) + 1]
+                    if i != "self"
+                ]
                 for ar_key in args_name:
                     if ar_key in _var_dict.keys():
                         _var_dict.pop(ar_key, None)

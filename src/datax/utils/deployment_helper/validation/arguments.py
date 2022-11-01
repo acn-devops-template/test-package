@@ -22,11 +22,15 @@ class CommandlineArgumentValidator(BaseModel):
             parsed_date = datetime.strptime(v, "%Y-%m-%d")
             return parsed_date
         except ValueError:
-            raise ValueError(f"Incorrect date format for `{v}`, the date should have format of YYYY-MM-DD")
+            raise ValueError(
+                f"Incorrect date format for `{v}`, the date should have format of YYYY-MM-DD"
+            )
 
     @root_validator
     def check_start_date_is_before_end_date(cls: Callable, values: Dict) -> Dict:
         start_date, end_date = values.get("start_date"), values.get("end_date")
         if all([start_date is not None, end_date is not None, start_date > end_date]):
-            raise ValueError(f"{start_date} > {end_date}. `start_date` must be before `end_date`")
+            raise ValueError(
+                f"{start_date} > {end_date}. `start_date` must be before `end_date`"
+            )
         return values

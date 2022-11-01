@@ -34,23 +34,25 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.black]
-line-length = 120
+line-length = 90
 force-exclude = "/(docs|conf|experiments)/"
 
 
 [tool.isort]
 profile = "black"
 known_pyspark = ["pyspark"]
-sections = ["FUTURE", "STDLIB", "PYSPARK", "FIRSTPARTY", "THIRDPARTY", "LOCALFOLDER"]
+known_datax=["datax"]
+sections = ["FUTURE", "STDLIB", "PYSPARK", "DATAX" ,"FIRSTPARTY", "THIRDPARTY", "LOCALFOLDER"]
 import_heading_stdlib = "import: standard" # a module as part of Python's standard library.
 import_heading_pyspark = "import: pyspark"
+import_heading_datax = "import: datax in-house"
 import_heading_firstparty = "import: internal" # a module as being part of the current python project.
 import_heading_future = "import: future" # a module as part of Python's internal future compatibility libraries. 
 import_heading_thirdparty = "import: external" # a module as being part of a third party library.
 import_heading_localfolder = "import: private/local" # a module as being a local folder. Generally, this is reserved for relative imports (from . import module).
 force_single_line = "true"
-include_trailing_comma = "false"
-line_length = 120
+include_trailing_comma = "true"
+line_length = 90
 skip_glob = ["docs/*", "conf/*", "experiments/*"]
 
 [tool.pytest.ini_options]
@@ -69,7 +71,7 @@ upload_to_repository = false
 branch = "dev"
 
 [tool.flakeheaven]
-max-line-length = 120
+max-line-length = 90
 max-complexity = 18
 exclude = ["README.md","experiments/*", "docs/*"]
 # https://github.com/flakehell/flakehell/issues/10#issuecomment-822720074
