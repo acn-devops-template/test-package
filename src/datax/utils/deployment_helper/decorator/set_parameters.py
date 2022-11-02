@@ -9,6 +9,14 @@ from typing import Tuple
 from typing import TypeVar
 from typing import cast
 
+# import: datax in-house
+from datax.utils.deployment_helper.validation.common import (
+    PipelineConfigArgumentValidators,
+)
+from datax.utils.deployment_helper.validation.common import (
+    TransformationConfigArgumentValidator,
+)
+
 # func type annotation
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -40,7 +48,9 @@ def set_pipeline_obj(function: F) -> F:
                 _pipeline_var_dict[key_kw] = value_kw
         return _pipeline_var_dict
 
-    def _set_default_vars_to_pipeline_obj(_pipeline_var_dict: Dict, var_list: List) -> None:
+    def _set_default_vars_to_pipeline_obj(
+        _pipeline_var_dict: Dict, var_list: List
+    ) -> None:
         """
         Assign vars in ['conf', 'logger', 'dbutils', 'spark'] to _pipeline_obj
         """
@@ -129,12 +139,44 @@ def set_pipeline_obj(function: F) -> F:
         _set_pipeline_obj(*args, **kwargs)
         _var_dict = set_var_dict(self)
 
+        cleaned_configs = PipelineConfigArgumentValidators(**_var_dict["conf"]).dict()
+        _var_dict["conf"] = cleaned_configs
+
         if _default_obj["from_handler"]:
             function(self, *args, **kwargs, **_var_dict)
         else:
             function(self, *args, **kwargs)
 
     return cast(F, wrap_set_pipeline_obj)
+
+
+def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict):
+    """
+    Validate `input_schema_path` and `ref_schema_path` in a configuration dictionary
+    at the key named `data_source`. The configuration dictionary can have any depth
+    and only the depth level where both `input_schema_path` and `ref_schema_path` are
+    found at the same time will be validated and any values that go after will be ignored
+    and have their values maintained.
+    """
+
+    schema_related_keys = ["input_schema_path", "ref_schema_path"]
+    # Validate and parse (if possible) whenever `input_schema_path` and `ref_schema_path`
+    # are found at the same time.
+    if all([cfg_dict.get(x, False) for x in schema_related_keys]):
+        cleaned_schema_paths = TransformationConfigArgumentValidator(**cfg_dict).dict()
+        return cleaned_schema_paths
+
+    # Recursively walking through each of the depth levels of the configuration dictionary
+    # in a mission of searching for `input_schema_path` and `ref_schema_path`.
+    for key, value in cfg_dict.items():
+        if isinstance(value, dict):
+            ret = validate_schema_path_in_cfg_endswith_dot_json(value)
+
+            # If the return value is not None, then it means we got the cleaned version
+            # of the values, i.e. the cleaned_schema_paths was created and validated.
+            # In this case, we replace the unvalidated values with the validated ones.
+            if ret is not None:
+                cfg_dict[key] = ret
 
 
 def set_tfm_obj(function: F) -> F:
@@ -178,10 +220,21 @@ def set_tfm_obj(function: F) -> F:
                     if kw_key in _var_dict.keys():
                         _var_dict.pop(kw_key, None)
             if len(args) > 0:
-                args_name = [i for i in list(function.__code__.co_varnames)[0 : len(args) + 1] if i != "self"]
+                args_name = [
+                    i
+                    for i in list(function.__code__.co_varnames)[0 : len(args) + 1]
+                    if i != "self"
+                ]
                 for ar_key in args_name:
                     if ar_key in _var_dict.keys():
                         _var_dict.pop(ar_key, None)
+
+            # Validate _var_dict here. The reason we ignore the return value here is because
+            # within the recursive calls of the function we already have a step that replace
+            # the unvalidated values with the validated ones, i.e., the line that has a code:
+            # if ret is not None: cfg_dict[key] = ret.
+            _ = validate_schema_path_in_cfg_endswith_dot_json(_var_dict["data_source"])
+
             function(self, *args, **kwargs, **_var_dict)
         else:
             function(self, *args, **kwargs)

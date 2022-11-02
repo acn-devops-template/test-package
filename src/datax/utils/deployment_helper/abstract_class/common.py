@@ -85,9 +85,15 @@ class Task(ABC):
 
             if self._set_config:
                 sp_config = self._create_spark_conf()
-                spark_ss = SparkSession.builder.appName(f"{dp_name}.{mt_name}").config(conf=sp_config).getOrCreate()
+                spark_ss = (
+                    SparkSession.builder.appName(f"{dp_name}.{mt_name}")
+                    .config(conf=sp_config)
+                    .getOrCreate()
+                )
             else:
-                spark_ss = SparkSession.builder.appName(f"{dp_name}.{mt_name}").getOrCreate()
+                spark_ss = SparkSession.builder.appName(
+                    f"{dp_name}.{mt_name}"
+                ).getOrCreate()
             return spark_ss
         else:
             return spark
