@@ -9,8 +9,13 @@ from typing import Tuple
 from typing import TypeVar
 from typing import cast
 
-from datax.utils.deployment_helper.validation.common import PipelineConfigArgumentValidators
-from datax.utils.deployment_helper.validation.common import TransformationConfigArgumentValidator
+# import: datax in-house
+from datax.utils.deployment_helper.validation.common import (
+    PipelineConfigArgumentValidators,
+)
+from datax.utils.deployment_helper.validation.common import (
+    TransformationConfigArgumentValidator,
+)
 
 # func type annotation
 F = TypeVar("F", bound=Callable[..., Any])
@@ -148,13 +153,13 @@ def set_pipeline_obj(function: F) -> F:
 def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict):
     """
     Validate `input_schema_path` and `ref_schema_path` in a configuration dictionary
-    at the key named `data_source`. The configuration dictionary can have any depth 
-    and only the depth level where both `input_schema_path` and `ref_schema_path` are 
+    at the key named `data_source`. The configuration dictionary can have any depth
+    and only the depth level where both `input_schema_path` and `ref_schema_path` are
     found at the same time will be validated and any values that go after will be ignored
     and maintain their old values.
     """
-    
-    schema_related_keys = ['input_schema_path', 'ref_schema_path']
+
+    schema_related_keys = ["input_schema_path", "ref_schema_path"]
     # Validate and parse (if possible) whenever `input_schema_path` and `ref_schema_path`
     # are found at the same time.
     if all([cfg_dict.get(x, False) for x in schema_related_keys]):
@@ -223,7 +228,7 @@ def set_tfm_obj(function: F) -> F:
                         _var_dict.pop(ar_key, None)
 
             # Validate _var_dict here
-            _ = validate_schema_path_in_cfg_endswith_dot_json(_var_dict['data_source'])
+            _ = validate_schema_path_in_cfg_endswith_dot_json(_var_dict["data_source"])
 
             function(self, *args, **kwargs, **_var_dict)
         else:
