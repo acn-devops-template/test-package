@@ -156,7 +156,7 @@ def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict):
     at the key named `data_source`. The configuration dictionary can have any depth
     and only the depth level where both `input_schema_path` and `ref_schema_path` are
     found at the same time will be validated and any values that go after will be ignored
-    and maintain their old values.
+    and their values maintained.
     """
 
     schema_related_keys = ["input_schema_path", "ref_schema_path"]
@@ -166,6 +166,8 @@ def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict):
         cleaned_schema_paths = TransformationConfigArgumentValidator(**cfg_dict).dict()
         return cleaned_schema_paths
 
+    # Recursively walking through each of the depth levels of the configuration dictionary
+    # in a mission of searching for `input_schema_path` and `ref_schema_path`.
     for key, value in cfg_dict.items():
         if isinstance(value, dict):
             ret = validate_schema_path_in_cfg_endswith_dot_json(value)
@@ -227,7 +229,10 @@ def set_tfm_obj(function: F) -> F:
                     if ar_key in _var_dict.keys():
                         _var_dict.pop(ar_key, None)
 
-            # Validate _var_dict here
+            # Validate _var_dict here. The reason we ignore the return value here is because
+            # within the recursive calls of the functions we already have a step that replace
+            # the unvalidated values with the validated ones, i.e., the line that has a code:
+            # if ret is not None: cfg_dict[key] = ret.
             _ = validate_schema_path_in_cfg_endswith_dot_json(_var_dict["data_source"])
 
             function(self, *args, **kwargs, **_var_dict)
