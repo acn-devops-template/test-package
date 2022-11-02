@@ -230,7 +230,7 @@ def set_tfm_obj(function: F) -> F:
                         _var_dict.pop(ar_key, None)
 
             # Validate _var_dict here. The reason we ignore the return value here is because
-            # within the recursive calls of the functions we already have a step that replace
+            # within the recursive calls of the function we already have a step that replace
             # the unvalidated values with the validated ones, i.e., the line that has a code:
             # if ret is not None: cfg_dict[key] = ret.
             _ = validate_schema_path_in_cfg_endswith_dot_json(_var_dict["data_source"])
