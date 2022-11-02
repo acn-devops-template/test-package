@@ -156,7 +156,7 @@ def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict):
     at the key named `data_source`. The configuration dictionary can have any depth
     and only the depth level where both `input_schema_path` and `ref_schema_path` are
     found at the same time will be validated and any values that go after will be ignored
-    and their values maintained.
+    and have their values maintained.
     """
 
     schema_related_keys = ["input_schema_path", "ref_schema_path"]
