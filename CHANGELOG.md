@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.0 (2022-11-03)
+### Feature
+* Reuse Pydantic validators and add pipeline cfg validation logic ([`b80145f`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/b80145fc4d8c826535903257966b869b8769f38c))
+
+### Fix
+* Change main workflow back to previous state ([`f6b4219`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/f6b4219c1d0e403b8c2df5e172fb43fbca023750))
+* **main.yml:** Change the main workflow ([`bf82687`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/bf82687a28607aecab6d8a35a6aa771cac1da659))
+* Typo ([`3a9ad30`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/3a9ad308b2e67bf74f2094b828e5f11a2a101bfa))
+* Fix typo ([`aa4a208`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/aa4a2086762fd2308277dd77afa24c3f0760d078))
+* Add more commments ([`5955068`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/59550684b2afe5dbbc16b9e1db50fb2719a719c7))
+* Run pre-commit manually ([`30edcc8`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/30edcc86a6e779674d0a67efea042d4d60c6cbdb))
+
 ## v0.2.0 (2022-11-01)
 ### Fix
 * Pyproject and pre-commit ([`e40351c`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/e40351cd8ea87b6c326bea67fb46b03aef266b46))
