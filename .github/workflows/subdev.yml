@@ -20,6 +20,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
