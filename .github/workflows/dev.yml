@@ -1,23 +1,32 @@
-name: dev
+name: dev # ??? PR -> dev or ??? PR -> staging
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   types: [opened, reopened]
-  #   branches:
-  #     - dev
-  
+  pull_request:
+    types: [opened, reopened]
+    branches:
+      - dev
+      - staging
+
 jobs:
   dev-ci-pipeline:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: "3.8"
 
       - name: Install pip
         run: |

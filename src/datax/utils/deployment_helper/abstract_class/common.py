@@ -111,16 +111,29 @@ class Task(ABC):
     def _provide_config(self):
 
         conf_file = self._get_conf_file()
-
-        if not pathlib.Path(conf_file).is_file():
-            raise FileNotFoundError(
-                f""" Cannot find {self.module_name} configuration file, please make sure that the module name is correct and the configuration file exists"""
-            )
-        else:
-            return self._read_config(conf_file)
+        return self._read_config(conf_file)
 
     def _get_conf_file(self):
-        return f"./conf/pipeline/{self.module_name}.yml"
+        # the tuple of file types
+        types = (
+            f"**/*pipeline*/**/{self.module_name}.yml",
+            f"**/*pipeline*/**/{self.module_name}.yaml",
+        )
+
+        files_grabbed = []
+        for each in types:
+            files_grabbed.extend(pathlib.Path("./conf").glob(each))
+
+        conf_list = [x for x in files_grabbed if x.is_file()]
+
+        if len(conf_list) == 0:
+            raise FileNotFoundError(
+                f"""Cannot file the pipeline conf via this glob pattern: './conf/**/*pipeline*/**/{self.module_name}.yml', please make sure the module name is correct and the configuration file exists"""
+            )
+        elif len(conf_list) > 1:
+            raise ValueError(f" Found more than one conf, {conf_list} ")
+
+        return conf_list[0]
 
     @staticmethod
     def _read_config(conf_file) -> Dict[str, Any]:
