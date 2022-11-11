@@ -1,1 +1,1 @@
-__version__ = "0.3.0"  # will be overwritten by semantic release
+__version__ = "0.3.1"  # will be overwritten by semantic release

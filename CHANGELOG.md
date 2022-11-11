@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.1 (2022-11-11)
+### Fix
+* Use glob to find conf ([`b4ba657`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/b4ba657c8a1da7a600fc1c480dea1d824ec08cf3))
+
 ## v0.3.0 (2022-11-03)
 ### Feature
 * Reuse Pydantic validators and add pipeline cfg validation logic ([`b80145f`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/b80145fc4d8c826535903257966b869b8769f38c))
