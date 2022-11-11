@@ -128,8 +128,7 @@ class Task(ABC):
 
         if len(conf_list) == 0:
             raise FileNotFoundError(
-                f"""Cannot file the pipeline conf via this glob pattern: './conf/**/*pipeline*/**/{self.module_name}.yml',
-                 please make sure the module name is correct and the configuration file exists"""
+                f"""Cannot file the pipeline conf via this glob pattern: './conf/**/*pipeline*/**/{self.module_name}.yml', please make sure the module name is correct and the configuration file exists"""
             )
         elif len(conf_list) > 1:
             raise ValueError(f" Found more than one conf, {conf_list} ")
