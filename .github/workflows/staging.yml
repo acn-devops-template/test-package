@@ -1,27 +1,33 @@
-name: dev # ??? PR -> dev or ??? PR -> staging
+name: staging
 
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, reopened]
+    types: [closed]
     branches:
-      - dev
       - staging
 
 jobs:
-  dev-ci-pipeline:
+  staging-ci-pipeline:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+
+    env:
+      GH_TOKEN: ${{ secrets.GH_PAT }}
 
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.base.ref }}
 
       - uses: webfactory/ssh-agent@v0.6.0
         with:
           ssh-private-key: |
+            ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
             ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
+
+      - uses: fregante/setup-git-user@v1
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -37,13 +43,8 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without release
+          poetry install -v --without test
 
-      - name: Linting
+      - name: Intrgration Test
         run: |
-          poetry run pre-commit run --all-files
-
-      - name: Run unit tests
-        run: |
-          echo "Launching unit tests"
-          poetry run pytest tests/ -k 'test and not integration'
+          poetry run pytest tests/ -k 'integration'

@@ -42,10 +42,14 @@ class Task(ABC):
     * self.conf provides access to the parsed configuration of the job
     """
 
-    def __init__(self, spark=None, init_conf=None):
+    def __init__(self, spark=None, init_conf=None, module_name=None, conf_dir="./conf"):
         self._set_config = False
+        self.conf_dir = conf_dir
 
-        self.module_name = self._get_module_name()
+        if module_name:
+            self.module_name = module_name
+        else:
+            self.module_name = self._get_module_name()
 
         if init_conf:
             self.conf = init_conf
@@ -62,8 +66,8 @@ class Task(ABC):
         ps.add_argument("--module", required=False, type=str, help="module name")
         module_nsp = ps.parse_known_args(sys.argv[1:])[0]
 
-        # if module_nsp.module is None:
-        #     raise ValueError(" module argument is not found ")
+        if module_nsp.module is None:
+            raise ValueError(" module argument is not found ")
         return module_nsp.module
 
     def _create_spark_conf(self):
@@ -122,13 +126,13 @@ class Task(ABC):
 
         files_grabbed = []
         for each in types:
-            files_grabbed.extend(pathlib.Path("./conf").glob(each))
+            files_grabbed.extend(pathlib.Path(self.conf_dir).glob(each))
 
         conf_list = [x for x in files_grabbed if x.is_file()]
 
         if len(conf_list) == 0:
             raise FileNotFoundError(
-                f"""Cannot file the pipeline conf via this glob pattern: './conf/**/*pipeline*/**/{self.module_name}.yml', please make sure the module name is correct and the configuration file exists"""
+                f"""Cannot file the pipeline conf via this glob pattern: '{self.conf_dir}/**/*pipeline*/**/{self.module_name}.yml', please make sure the module name is correct and the configuration file exists"""
             )
         elif len(conf_list) > 1:
             raise ValueError(f" Found more than one conf, {conf_list} ")

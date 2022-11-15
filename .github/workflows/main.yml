@@ -53,3 +53,10 @@ jobs:
           git checkout dev
           git merge ${{ github.event.pull_request.base.ref }}
           git push
+
+      - name: Sync back to Staging
+        run: |
+          git checkout staging
+          git merge ${{ github.event.pull_request.base.ref }}
+          git push
+          git checkout ${{ github.event.pull_request.base.ref }}
