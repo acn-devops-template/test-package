@@ -1,6 +1,7 @@
 <a name="readme-top"></a>
 
 ... add shield.io
+![Alt text](interrogate_badge.svg?raw=true "interrogate")
 
 <br />
 <div align="center">
