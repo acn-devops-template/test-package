@@ -359,28 +359,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "interrogate"
-version = "1.5.0"
-description = "Interrogate a codebase for docstring coverage."
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-attrs = "*"
-click = ">=7.1"
-colorama = "*"
-py = "*"
-tabulate = "*"
-toml = "*"
-
-[package.extras]
-dev = ["cairosvg", "pre-commit", "pytest", "pytest-cov", "pytest-mock", "sphinx", "sphinx-autobuild", "wheel"]
-docs = ["sphinx", "sphinx-autobuild"]
-png = ["cairosvg"]
-tests = ["pytest", "pytest-cov", "pytest-mock"]
-
-[[package]]
 name = "invoke"
 version = "1.7.3"
 description = "Pythonic task execution"
@@ -1466,7 +1444,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "0fe461d8222b49b44c71b05819eafc9ca4344c181f618ebd59f0dc79ac63a5be"
+content-hash = "8a766b71d131d42fc0152c42ec39e990fef4af8bc29f4ec67b4af84dff92a96e"
 
 [metadata.files]
 attrs = [
@@ -1671,10 +1649,6 @@ importlib-resources = [
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
-]
-interrogate = [
-    {file = "interrogate-1.5.0-py3-none-any.whl", hash = "sha256:a4ccc5cbd727c74acc98dee6f5e79ef264c0bcfa66b68d4e123069b2af89091a"},
-    {file = "interrogate-1.5.0.tar.gz", hash = "sha256:b6f325f0aa84ac3ac6779d8708264d366102226c5af7d69058cecffcff7a6d6c"},
 ]
 invoke = [
     {file = "invoke-1.7.3-py3-none-any.whl", hash = "sha256:d9694a865764dd3fd91f25f7e9a97fb41666e822bbb00e670091e3f43933574d"},

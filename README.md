@@ -1,6 +1,5 @@
 <a name="readme-top"></a>
 
-[![Interrogate](docs/icons/interrogate_badge.svg?raw=true "interrogate")](https://interrogate.readthedocs.io/en/latest/#)
 [![main-status](https://github.com/datax-tmp/datax-utils-deployment-helper/workflows/main/badge.svg)](https://github.com/datax-tmp/datax-utils-deployment-helper/actions)
 [![staging-status](https://github.com/datax-tmp/datax-utils-deployment-helper/workflows/staging/badge.svg)](https://github.com/datax-tmp/datax-utils-deployment-helper/actions)
 

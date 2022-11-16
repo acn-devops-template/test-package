@@ -20,7 +20,6 @@ pytest-mock = { version = "^3.7.0", source = "PyPI" }
 datax-semantic-release = { git = "https://github.com/datax-tmp/datax-semantic-release.git" }
 
 [tool.poetry.group.docs.dependencies]
-interrogate = { version = "^1.5.0", source = "PyPI" }
 mkdocs = { version = "^1.4.2", source = "PyPI" }
 mkdocs-material = { version = "^8.5.9", source = "PyPI" }
 mkdocs-git-revision-date-localized-plugin = { version = "^1.1.0", source = "PyPI" }

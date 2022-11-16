@@ -72,6 +72,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.base.ref }}
 
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
+            ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
+
       - uses: fregante/setup-git-user@v1
 
       - name: Set up Python
@@ -90,11 +96,9 @@ jobs:
         run: |
           poetry install -v --only docs
 
-      - name: Generate badges
+      - name: Mike Deploy to gh-pages
         run: |
-          poetry run interrogate --generate-badge ./docs/icons --badge-format svg
-
-      - name: Commit if changes
-        run: |
-          git diff --quiet && git diff --staged --quiet || git commit -am 'gen badges'
-          git push
+          A="$(echo $(poetry version --dry-run -s) | cut -d'.' -f1)"
+          B="$(echo $(poetry version --dry-run -s) | cut -d'.' -f2)"
+          echo "${A}.${B}"
+          poetry run mike deploy --push --update-aliases ${A}.${B} latest
