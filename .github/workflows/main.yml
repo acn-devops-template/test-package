@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without test,badge
+          poetry install -v --without test,docs
 
       - name: Semantic Release
         run: |
@@ -62,8 +62,7 @@ jobs:
           git push
           git checkout ${{ github.event.pull_request.base.ref }}
 
-  main-badge-pipeline:
-    if: ${{ (success() || failure()) && (github.event.pull_request.merged == true) }}
+  main-docs-pipeline:
     needs: cd-pipeline
     runs-on: ubuntu-latest
 
@@ -89,11 +88,11 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --only badge
+          poetry install -v --only docs
 
       - name: Generate badges
         run: |
-          poetry run interrogate --generate-badge ./icons --badge-format svg
+          poetry run interrogate --generate-badge ./docs/icons --badge-format svg
 
       - name: Commit if changes
         run: |

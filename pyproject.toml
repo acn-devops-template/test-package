@@ -26,7 +26,7 @@ conventional-pre-commit = { version = "^2.1.1", source = "PyPI" }
 [tool.poetry.group.release.dependencies]
 datax-semantic-release = { git = "https://github.com/datax-tmp/datax-semantic-release.git" }
 
-[tool.poetry.group.badge.dependencies]
+[tool.poetry.group.docs.dependencies]
 interrogate = { version = "^1.5.0", source = "PyPI" }
 
 [build-system]

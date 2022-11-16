@@ -43,46 +43,8 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without test,badge
+          poetry install -v --without test,docs
 
       - name: Intrgration Test
         run: |
           poetry run pytest tests/ -k 'integration'
-
-  staging-badge-pipeline:
-    if: ${{ (success() || failure()) && (github.event.pull_request.merged == true) }}
-    needs: staging-ci-pipeline
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.base.ref }}
-
-      - uses: fregante/setup-git-user@v1
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
-
-      - name: Install pip
-        run: |
-          pip install --upgrade pip
-
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-
-      - name: Install dependencies and project
-        run: |
-          poetry install -v --only badge
-
-      - name: Generate badges
-        run: |
-          poetry run interrogate --generate-badge ./icons --badge-format svg
-
-      - name: Commit if changes
-        run: |
-          git diff --quiet && git diff --staged --quiet || git commit -am 'gen badges'
-          git push
