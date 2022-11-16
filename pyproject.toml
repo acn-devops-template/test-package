@@ -15,13 +15,6 @@ pydantic = { version = "^1.10.2", source = "PyPI" }
 pre-commit = { version = "^2.20.0", source = "PyPI" }
 pytest = { version = "^7.0.0", source = "PyPI" }
 pytest-mock = { version = "^3.7.0", source = "PyPI" }
-black = { version = "^22.6.0", source = "PyPI" }
-flake8 = { version = "4.0.1", source = "PyPI" }
-isort = { version = "^5.10.1", source = "PyPI" }
-flakeheaven = { version = "^3.0.0", source = "PyPI" }
-absolufy-imports = { version = "^0.3.1", source = "PyPI" }
-mypy = { version = "^0.982", source = "PyPI" }
-conventional-pre-commit = { version = "^2.1.1", source = "PyPI" }
 
 [tool.poetry.group.release.dependencies]
 datax-semantic-release = { git = "https://github.com/datax-tmp/datax-semantic-release.git" }
