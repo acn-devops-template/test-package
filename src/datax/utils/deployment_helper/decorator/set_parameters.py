@@ -1,5 +1,3 @@
-"""decorator set_default_obj, set_pipeline_obj, set_tfm_obj modules"""
-
 # import: standard
 import functools
 from typing import Any
