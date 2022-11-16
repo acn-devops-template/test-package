@@ -18,13 +18,20 @@ from pydantic import ValidationError
 
 
 class Test_CommandlineArgumentValidator(unittest.TestCase):
-    """
-    Class for testing CommandlineArgumentValidator
+    """Test Class for testing CommandlineArgumentValidator.
+
+    Class for testing CommandlineArgumentValidator.
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
     """
 
     def test(self):
-        """
-        main test function of Test_CommandlineArgumentValidator
+        """Test function for Test_CommandlineArgumentValidator.
+
+        Main test function of Test_CommandlineArgumentValidator.
+
         """
         test_dict = {
             "module": "test_module",
@@ -64,13 +71,20 @@ class Test_CommandlineArgumentValidator(unittest.TestCase):
 
 
 class Test_PipelineConfigArgumentValidators(unittest.TestCase):
-    """
-    Class for testing PipelineConfigArgumentValidators
+    """Test Class for testing PipelineConfigArgumentValidators.
+
+    Class for testing PipelineConfigArgumentValidators.
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
     """
 
     def test(self):
-        """
-        main test function of Test_PipelineConfigArgumentValidators
+        """Test function for Test_PipelineConfigArgumentValidators.
+
+        Main test function of Test_PipelineConfigArgumentValidators.
+
         """
         test_dict = {
             "data_processor_name": "test",
@@ -104,13 +118,20 @@ class Test_PipelineConfigArgumentValidators(unittest.TestCase):
 
 
 class Test_TransformationConfigArgumentValidator(unittest.TestCase):
-    """
-    Class for testing TransformationConfigArgumentValidator
+    """Test Class for testing TransformationConfigArgumentValidator.
+
+    Class for testing TransformationConfigArgumentValidator.
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
     """
 
     def test(self):
-        """
-        main test function of Test_TransformationConfigArgumentValidator
+        """Test function for Test_TransformationConfigArgumentValidator.
+
+        Main test function of Test_TransformationConfigArgumentValidator.
+
         """
         test_dict = {
             "input_data_endpoint": "test",

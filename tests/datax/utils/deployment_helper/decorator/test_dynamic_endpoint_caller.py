@@ -5,7 +5,11 @@ import subprocess
 
 
 def test_dynamic_endpoint_caller_with_default_arg():
-    """test function to call test_dynamic_endpoint.py"""
+    """Test function for testing test_dynamic_endpoint.py
+
+    Test function to call test_dynamic_endpoint.py.
+
+    """
 
     output = subprocess.run(
         [

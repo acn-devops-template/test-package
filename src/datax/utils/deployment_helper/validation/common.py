@@ -15,8 +15,19 @@ from pydantic.class_validators import root_validator
 
 
 def check_path_endswith_dot_json(v: str) -> str:
-    """
-    Check if the input str ends with '.json'
+    """Function to check inputs that end with '.json'.
+
+    Check if the input str ends with '.json'.
+
+    Args:
+        v (str): An input str.
+
+    Returns:
+        str: An input str.
+
+    Raises:
+        ValueError: If v doea not end with '.json'.
+
     """
     _, file_extension = os.path.splitext(v)
     if file_extension != ".json":
@@ -27,8 +38,20 @@ def check_path_endswith_dot_json(v: str) -> str:
 
 
 def check_start_date_is_before_end_date(cls: Callable, values: Dict) -> Dict:
-    """
+    """Function to check if start_date is before end_date.
+
     Check if start_date is before end_date
+
+    Args:
+        cls (Callable): cls.
+        values (Dict): An input dict.
+
+    Returns:
+        Dict: An input dict.
+
+    Raises:
+        ValueError: If start_date > end_date.
+
     """
     start_date, end_date = values.get("start_date"), values.get("end_date")
     if all([start_date is not None, end_date is not None, start_date > end_date]):
@@ -39,8 +62,20 @@ def check_start_date_is_before_end_date(cls: Callable, values: Dict) -> Dict:
 
 
 def check_date_format(cls: Callable, v: str) -> datetime:
-    """
-    Check if the input str is in a correct datetime format (%Y-%m-%d)
+    """Function to check if start_date and end_date are in the correct format.
+
+    Check if the input str is in a correct datetime format (YYYY-MM-DD)
+
+    Args:
+        cls (Callable): cls.
+        values (str): An input str.
+
+    Returns:
+        datetime: An input str casted into datetime.
+
+    Raises:
+        ValueError: If incorrect date format (YYYY-MM-DD).
+
     """
     try:
         parsed_date = datetime.strptime(v, "%Y-%m-%d")
@@ -52,9 +87,13 @@ def check_date_format(cls: Callable, v: str) -> datetime:
 
 
 class CommandlineArgumentValidator(BaseModel):
-    """
-    pydantic class
-    For checking commandline arguments
+    """Pydantic class for validating commandline arguments.
+
+    For checking commandline arguments.
+
+    Args:
+        BaseModel: pydantic BaseModel.
+
     """
 
     module: str
@@ -70,9 +109,14 @@ class CommandlineArgumentValidator(BaseModel):
 
 
 class PipelineConfigArgumentValidators(BaseModel, extra=Extra.allow):
-    """
-    pydantic class
-    For checking pipeline conf arguments
+    """Pydantic class for validating pipeline arguments.
+
+     For checking pipeline conf arguments
+
+    Args:
+        BaseModel: pydantic BaseModel.
+        extra: pydantic Extra.allow
+
     """
 
     data_processor_name: str
@@ -86,9 +130,14 @@ class PipelineConfigArgumentValidators(BaseModel, extra=Extra.allow):
 
 
 class TransformationConfigArgumentValidator(BaseModel, extra=Extra.allow):
-    """
-    pydantic class
-    For checking transformation conf arguments
+    """Pydantic class for validating transformation conf arguments.
+
+     For checking transformation conf arguments
+
+    Args:
+        BaseModel: pydantic BaseModel.
+        extra: pydantic Extra.allow
+
     """
 
     input_schema_path: str
