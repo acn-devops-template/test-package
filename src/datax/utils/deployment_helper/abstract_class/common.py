@@ -1,3 +1,5 @@
+"""abstract_class common module"""
+
 # import: standard
 import pathlib
 import sys
@@ -15,9 +17,11 @@ from pyspark.sql import SparkSession
 import yaml
 
 
-def get_dbutils(
-    spark: SparkSession,
-):  # please note that this function is used in mocking by its name
+def get_dbutils(spark: SparkSession):
+    """
+    Get DBUtils from pyspark.dbutils if error return None
+    please note that this function is used in mocking by its name
+    """
     try:
         # import: pyspark
         from pyspark.dbutils import DBUtils  # noqa
@@ -43,6 +47,14 @@ class Task(ABC):
     """
 
     def __init__(self, spark=None, init_conf=None, module_name=None, conf_dir="./conf"):
+        """
+        Set following useful objects: self.conf, self.spark, self.logger, self.dbutils
+        Input parameters:
+        * spark is a SparkSession; if this input is not None, use the input spark as self.spark
+        * init_conf is a conf dict; if this input is not None, use init_conf as self.conf
+        * module_name is a conf dict; if this input is not None, use module_name as self.module_name (mainly for testing)
+        * conf_dir is a path to conf dir; default vault is './conf' (mainly for testing)
+        """
         self._set_config = False
         self.conf_dir = conf_dir
 
@@ -62,6 +74,9 @@ class Task(ABC):
         self._log_conf()
 
     def _get_module_name(self):
+        """
+        Return module name from 'module' argument in ArgumentParser
+        """
         ps = ArgumentParser()
         ps.add_argument("--module", required=False, type=str, help="module name")
         module_nsp = ps.parse_known_args(sys.argv[1:])[0]
@@ -71,16 +86,30 @@ class Task(ABC):
         return module_nsp.module
 
     def _create_spark_conf(self):
+        """
+        WIP (may change in the future)
+        Take all of spark conf in conf and Create SparkConf
+        """
         sp_config_list = list(self.conf[self.module_name]["spark_config"].items())
         sp_config = SparkConf().setAll(sp_config_list)
         return sp_config
 
     def _check_for_spark_conf(self):
+        """
+        WIP (may change in the future)
+        If there is a spark conf in conf, set self._set_config to True
+        """
         if "spark_config" in self.conf[self.module_name].keys():
             if len(self.conf[self.module_name]["spark_config"]) > 0:
                 self._set_config = True
 
     def _prepare_spark(self, spark) -> SparkSession:
+        """
+        WIP (may change in the future)
+        If the input spark is None, Create a SparkSession else Use the input spark.
+        Use data_processor_name and main_transformation_name in conf to determine an appName.
+        Apply spark conf if there is any in conf.
+        """
         if not spark:
             # TODO: Get appName from the configuration file.
             dp_name = self.conf[self.module_name]["data_processor_name"]
@@ -103,6 +132,9 @@ class Task(ABC):
             return spark
 
     def get_dbutils(self):
+        """
+        Get DBUtils and log the status
+        """
         utils = get_dbutils(self.spark)
 
         if not utils:
@@ -113,11 +145,17 @@ class Task(ABC):
         return utils
 
     def _provide_config(self):
-
+        """
+        Get a conf file from pipeline dir and Read a conf file
+        """
         conf_file = self._get_conf_file()
         return self._read_config(conf_file)
 
     def _get_conf_file(self):
+        """
+        Find a conf file based on Glob pattern '**/*pipeline*/**/{module_name}.yml' (yml or yaml)
+        The root path is based on self.conf_dir
+        """
         # the tuple of file types
         types = (
             f"**/*pipeline*/**/{self.module_name}.yml",
@@ -141,14 +179,23 @@ class Task(ABC):
 
     @staticmethod
     def _read_config(conf_file) -> Dict[str, Any]:
+        """
+        Return a conf using yaml safe_load
+        """
         config = yaml.safe_load(pathlib.Path(conf_file).read_text())
         return config
 
     def _prepare_logger(self):
+        """
+        Return a log4j logger
+        """
         log4j_logger = self.spark._jvm.org.apache.log4j  # noqa
         return log4j_logger.LogManager.getLogger(self.__class__.__name__)
 
     def _log_conf(self):
+        """
+        Log the detail of conf
+        """
         # log parameters
         self.logger.info("Launching job with configuration parameters:")
         for key, item in self.conf.items():

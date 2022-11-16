@@ -1,3 +1,5 @@
+"""decorator integration test of set_default_obj, set_pipeline_obj, set_tfm_obj modules"""
+
 # import: standard
 import unittest
 
@@ -13,8 +15,15 @@ from datax.utils.deployment_helper.decorator.set_parameters import set_tfm_obj
 
 
 class Test_Integration_Set_Parameters(unittest.TestCase):
+    """
+    Class for integration test of set_parameters
+    """
+
     @classmethod
     def setUpClass(self):
+        """
+        Set conf, spark, logger, dbutils to self before test function
+        """
         self.conf = {
             "_Pipeline": {
                 "key1": "value_1",
@@ -42,6 +51,9 @@ class Test_Integration_Set_Parameters(unittest.TestCase):
 
     @set_default_obj
     def test(self):
+        """
+        main test function of Test_Integration_Set_Parameters
+        """
         self.logger.info("Launching task")
         pipeline_obj = _Pipeline("2022-01-01", "2022-01-01")
         ret = pipeline_obj.execute()
@@ -59,6 +71,10 @@ class Test_Integration_Set_Parameters(unittest.TestCase):
 
 
 class _Pipeline:
+    """
+    _Pipeline mock class for integration test of set_parameters
+    """
+
     @set_pipeline_obj
     def __init__(
         self,
@@ -69,6 +85,9 @@ class _Pipeline:
         logger=None,
         dbutils=None,
     ):
+        """
+        __init__ of _Pipeline for set_pipeline_obj
+        """
         self.start_date = start_date
         self.end_date = end_date
 
@@ -77,6 +96,10 @@ class _Pipeline:
         self.logger = logger
 
     def execute(self):
+        """
+        main function of _Pipeline
+        execute _Agg prepare_data function
+        """
         mul_src_obj = _Agg(
             self.start_date,
             self.end_date,
@@ -88,6 +111,10 @@ class _Pipeline:
 
 
 class _Agg:
+    """
+    _Agg mock class for integration test of set_parameters
+    """
+
     @set_tfm_obj
     def __init__(
         self,
@@ -100,6 +127,9 @@ class _Agg:
         logger=None,
         dbutils=None,
     ):
+        """
+        __init__ of _Agg for set_tfm_obj
+        """
         self.spark = spark
         self.data_source = data_source
         self.logger = logger
@@ -111,6 +141,9 @@ class _Agg:
         self.key2 = key2
 
     def load_source(self):
+        """
+        load input_data_endpoint from 'data_source'
+        """
 
         df = self.spark.read.json(self.data_source["input_data_endpoint"])
 
@@ -124,6 +157,10 @@ class _Agg:
         return df
 
     def prepare_data(self):
+        """
+        main function of _Agg
+        load data source and use conf to add columns
+        """
         self.logger.warn(self.spark.sparkContext._conf.get("spark.app.name"))
 
         df = self.load_source()

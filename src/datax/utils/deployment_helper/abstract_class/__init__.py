@@ -1,0 +1,1 @@
+"""for abstract class modules"""

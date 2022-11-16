@@ -22,6 +22,7 @@ flakeheaven = { version = "^3.0.0", source = "PyPI" }
 absolufy-imports = { version = "^0.3.1", source = "PyPI" }
 mypy = { version = "^0.982", source = "PyPI" }
 conventional-pre-commit = { version = "^2.1.1", source = "PyPI" }
+interrogate = { version = "^1.5.0", source = "PyPI" }
 
 [tool.poetry.group.release.dependencies]
 datax-semantic-release = { git = "https://github.com/datax-tmp/datax-semantic-release.git" }
@@ -126,3 +127,25 @@ disallow_incomplete_defs = true
 no_strict_optional = true
 show_error_context = true
 pretty = true
+
+[tool.interrogate]
+ignore-init-method = false              # Ignore __init__ method of classes. [default: False]
+ignore-init-module = false              # Ignore __init__.py modules. [default: False]
+ignore-magic = false                    # Ignore all magic methods of classes. [default: False]
+ignore-semiprivate = false              # Ignore semiprivate classes, methods, and functions starting with a single underscore.
+ignore-private = false                  # Ignore private classes, methods, and functions starting with two underscores. [default: False]
+ignore-property-decorators = false      # Ignore methods with property setter/getter decorators. [default: False]
+ignore-module = false                   # Ignore module-level docstrings. [default: False]
+ignore-nested-functions = false         # Ignore nested functions and methods. [default: False]
+ignore-nested-classes = true            # Ignore nested classes. [default: False]
+ignore-setters = false                  # Ignore methods with property setter decorators. [default: False]
+fail-under = 95                         # Fail when coverage % is less than a given amount. [default: 80.0]
+exclude = ["setup.py", "docs", "build"]
+verbose = 0                             # possible values: 0 (minimal output), 1 (-v), 2 (-vv)
+quiet = false                           # Do not print output [default: False]
+whitelist-regex = []
+color = true                            # Toggle color output on/off when printing to stdout. [default: color] or no-color
+omit-covered-files = false              # Omit reporting files that have 100% documentation coverage.
+generate-badge = "."                    # Generate a shields.io status badge (an SVG image) in at a given file or directory.
+badge-format = "svg"
+ignore-regex = []

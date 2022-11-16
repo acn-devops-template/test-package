@@ -1,3 +1,5 @@
+"""abstract_class test of common modules"""
+
 # import: standard
 import pathlib
 import unittest
@@ -13,8 +15,15 @@ import yaml
 
 
 class Test_ABC_Common(unittest.TestCase):
+    """
+    Class for testing Task(ABC)
+    """
+
     @unittest.mock.patch.multiple(Task, __abstractmethods__=set())
     def test(self):
+        """
+        main test function of Test_ABC_Common
+        """
         self.instance = Task(module_name="Test_ABC_Module", conf_dir="./tests/resources/")
 
         firstValue = yaml.safe_load(
