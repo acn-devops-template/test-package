@@ -1,19 +1,19 @@
-name: main
+name: staging
 
 on:
   workflow_dispatch:
   pull_request:
     types: [closed]
     branches:
-      - main
+      - staging
 
 jobs:
-  cd-pipeline:
+  staging-ci-pipeline:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     env:
-      GH_TOKEN: ${{ secrets.GH_PAT }} # for semantic release
+      GH_TOKEN: ${{ secrets.GH_PAT }}
 
     steps:
       - uses: actions/checkout@v3
@@ -45,26 +45,13 @@ jobs:
         run: |
           poetry install -v --without test,badge
 
-      - name: Semantic Release
+      - name: Intrgration Test
         run: |
-          poetry run semantic-release publish -v DEBUG
+          poetry run pytest tests/ -k 'integration'
 
-      - name: Sync back to Dev
-        run: |
-          git checkout dev
-          git merge ${{ github.event.pull_request.base.ref }}
-          git push
-
-      - name: Sync back to Staging
-        run: |
-          git checkout staging
-          git merge ${{ github.event.pull_request.base.ref }}
-          git push
-          git checkout ${{ github.event.pull_request.base.ref }}
-
-  main-badge-pipeline:
+  staging-badge-pipeline:
     if: ${{ (success() || failure()) && (github.event.pull_request.merged == true) }}
-    needs: cd-pipeline
+    needs: staging-ci-pipeline
     runs-on: ubuntu-latest
 
     steps:

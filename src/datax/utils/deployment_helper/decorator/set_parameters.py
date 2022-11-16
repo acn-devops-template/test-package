@@ -1,3 +1,5 @@
+"""decorator set_default_obj, set_pipeline_obj, set_tfm_obj modules"""
+
 # import: standard
 import functools
 from typing import Any
@@ -71,6 +73,9 @@ def set_pipeline_obj(function: F) -> F:
         default_conf_list = []
 
         def _collect_all_spark_conf(dict_val: Any) -> None:
+            """
+            Collect spark_config from an input dict to 'spark_conf_list' (WIP)
+            """
             if type(dict_val) is dict:
                 if "spark_config" in dict_val.keys():
                     for sc_key in dict_val["spark_config"].keys():
@@ -250,6 +255,10 @@ def set_default_obj(func: F) -> F:
 
     @functools.wraps(func)
     def wrap_add_default_obj(self: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Main function for setting default obj
+        put conf, logger, dbutils, spark in '_default_obj' dict and set 'from_handler' flag to True
+        """
         _default_obj["default"] = {
             "conf": self.conf,
             "logger": self.logger,

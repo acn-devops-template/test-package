@@ -1,0 +1,29 @@
+{
+    "type": "struct",
+    "fields": [
+        {
+            "name": "address",
+            "type": "string",
+            "nullable": true,
+            "metadata": {}
+        },
+        {
+            "name": "age",
+            "type": "long",
+            "nullable": true,
+            "metadata": {}
+        },
+        {
+            "name": "first_name",
+            "type": "string",
+            "nullable": true,
+            "metadata": {}
+        },
+        {
+            "name": "last_name",
+            "type": "string",
+            "nullable": true,
+            "metadata": {}
+        }
+    ]
+}

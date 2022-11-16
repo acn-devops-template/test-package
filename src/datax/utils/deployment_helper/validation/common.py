@@ -1,3 +1,5 @@
+"""validation common module"""
+
 # import: standard
 import os
 from datetime import datetime
@@ -13,6 +15,9 @@ from pydantic.class_validators import root_validator
 
 
 def check_path_endswith_dot_json(v: str) -> str:
+    """
+    Check if the input str ends with '.json'
+    """
     _, file_extension = os.path.splitext(v)
     if file_extension != ".json":
         raise ValueError(
@@ -22,6 +27,9 @@ def check_path_endswith_dot_json(v: str) -> str:
 
 
 def check_start_date_is_before_end_date(cls: Callable, values: Dict) -> Dict:
+    """
+    Check if start_date is before end_date
+    """
     start_date, end_date = values.get("start_date"), values.get("end_date")
     if all([start_date is not None, end_date is not None, start_date > end_date]):
         raise ValueError(
@@ -31,6 +39,9 @@ def check_start_date_is_before_end_date(cls: Callable, values: Dict) -> Dict:
 
 
 def check_date_format(cls: Callable, v: str) -> datetime:
+    """
+    Check if the input str is in a correct datetime format (%Y-%m-%d)
+    """
     try:
         parsed_date = datetime.strptime(v, "%Y-%m-%d")
         return parsed_date
@@ -41,6 +52,11 @@ def check_date_format(cls: Callable, v: str) -> datetime:
 
 
 class CommandlineArgumentValidator(BaseModel):
+    """
+    pydantic class
+    For checking commandline arguments
+    """
+
     module: str
     start_date: str
     end_date: str
@@ -54,6 +70,11 @@ class CommandlineArgumentValidator(BaseModel):
 
 
 class PipelineConfigArgumentValidators(BaseModel, extra=Extra.allow):
+    """
+    pydantic class
+    For checking pipeline conf arguments
+    """
+
     data_processor_name: str
     main_transformation_name: str
     output_data_path: str
@@ -65,6 +86,11 @@ class PipelineConfigArgumentValidators(BaseModel, extra=Extra.allow):
 
 
 class TransformationConfigArgumentValidator(BaseModel, extra=Extra.allow):
+    """
+    pydantic class
+    For checking transformation conf arguments
+    """
+
     input_schema_path: str
     ref_schema_path: str
 
