@@ -48,7 +48,7 @@ jobs:
       - name: Run unit tests # change pytest path here
         run: |
           echo "Launching unit tests"
-          poetry run pytest tests/datax/utils/deployment_helper/dummy_test/test_dummy.py
+          poetry run pytest tests/datax/utils/deployment_helper/decorator/test_dynamic_endpoint.py
 
   badge-pipeline:
     if: ${{ always() }}
