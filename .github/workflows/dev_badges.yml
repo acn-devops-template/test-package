@@ -1,0 +1,45 @@
+name: dev_badges
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches:
+      - dev
+
+jobs:
+  dev-badge-pipeline:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: fregante/setup-git-user@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies and project
+        run: |
+          poetry install -v --only badge
+
+      - name: Generate badges
+        run: |
+          poetry run interrogate --generate-badge ./icons --badge-format svg
+
+      - name: Commit badges
+        run: |
+          git commit -am "gen badges"
+          git push

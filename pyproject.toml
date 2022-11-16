@@ -22,10 +22,12 @@ flakeheaven = { version = "^3.0.0", source = "PyPI" }
 absolufy-imports = { version = "^0.3.1", source = "PyPI" }
 mypy = { version = "^0.982", source = "PyPI" }
 conventional-pre-commit = { version = "^2.1.1", source = "PyPI" }
-interrogate = { version = "^1.5.0", source = "PyPI" }
 
 [tool.poetry.group.release.dependencies]
 datax-semantic-release = { git = "https://github.com/datax-tmp/datax-semantic-release.git" }
+
+[tool.poetry.group.badge.dependencies]
+interrogate = { version = "^1.5.0", source = "PyPI" }
 
 [build-system]
 requires = ["poetry-core"]
@@ -146,6 +148,6 @@ quiet = false                           # Do not print output [default: False]
 whitelist-regex = []
 color = true                            # Toggle color output on/off when printing to stdout. [default: color] or no-color
 omit-covered-files = false              # Omit reporting files that have 100% documentation coverage.
-generate-badge = "."                    # Generate a shields.io status badge (an SVG image) in at a given file or directory.
-badge-format = "svg"
 ignore-regex = []
+# generate-badge = "./icons"              # Generate a shields.io status badge (an SVG image) in at a given file or directory.
+# badge-format = "svg"

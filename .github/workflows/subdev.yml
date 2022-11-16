@@ -39,13 +39,54 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without release
+          poetry install -v --without release,badge
 
       - name: Linting
         run: |
           poetry run pre-commit run --all-files
 
+      - name: Generate badges
+        run: |
+          poetry run interrogate --generate-badge ./icons --badge-format svg
+
       - name: Run unit tests # change pytest path here
         run: |
           echo "Launching unit tests"
           poetry run pytest tests/datax/utils/deployment_helper/dummy_test/test_dummy.py
+
+  badge-pipeline:
+    if: ${{ always() }}
+    needs: subdev-pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: fregante/setup-git-user@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies and project
+        run: |
+          poetry install -v --only badge
+
+      - name: Generate badges
+        run: |
+          poetry run interrogate --generate-badge ./icons --badge-format svg
+
+      - name: Commit badges
+        run: |
+          git commit -am "gen badges"
+          git push

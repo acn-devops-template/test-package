@@ -37,7 +37,7 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without release
+          poetry install -v --without release,badge
 
       - name: Linting
         run: |
