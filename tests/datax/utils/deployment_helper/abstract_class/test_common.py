@@ -15,14 +15,21 @@ import yaml
 
 
 class Test_ABC_Common(unittest.TestCase):
-    """
-    Class for testing Task(ABC)
+    """Test Class for testing Task(ABC).
+
+    Class for testing Task(ABC).
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
     """
 
     @unittest.mock.patch.multiple(Task, __abstractmethods__=set())
     def test(self):
-        """
-        main test function of Test_ABC_Common
+        """Test function for testing Task(ABC).
+
+        Main test function of Test_ABC_Common.
+
         """
         self.instance = Task(module_name="Test_ABC_Module", conf_dir="./tests/resources/")
 

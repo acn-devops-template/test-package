@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without test,badge
+          poetry install -v --without test,docs
 
       - name: Semantic Release
         run: |
@@ -62,8 +62,7 @@ jobs:
           git push
           git checkout ${{ github.event.pull_request.base.ref }}
 
-  main-badge-pipeline:
-    if: ${{ (success() || failure()) && (github.event.pull_request.merged == true) }}
+  main-docs-pipeline:
     needs: cd-pipeline
     runs-on: ubuntu-latest
 
@@ -72,6 +71,12 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.base.ref }}
+
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
+            ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
 
       - uses: fregante/setup-git-user@v1
 
@@ -89,13 +94,21 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --only badge
+          poetry install -v --only docs
+
+      - name: Mike Deploy to gh-pages
+        run: |
+          A="$(echo $(poetry version --dry-run -s) | cut -d'.' -f1)"
+          B="$(echo $(poetry version --dry-run -s) | cut -d'.' -f2)"
+          echo "${A}.${B}"
+          poetry run mike deploy --push --update-aliases ${A}.${B} latest
 
       - name: Generate badges
         run: |
-          poetry run interrogate --generate-badge ./icons --badge-format svg
+          poetry run interrogate --generate-badge ./docs/content/asset --badge-format svg
 
       - name: Commit if changes
         run: |
-          git diff --quiet && git diff --staged --quiet || git commit -am 'gen badges'
+          git add docs/content/asset/interrogate_badge.svg
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update interrogate_badge.svg" -a
           git push

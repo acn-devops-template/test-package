@@ -2,6 +2,8 @@
 
 # import: standard
 import unittest
+from typing import Any
+from typing import Dict
 
 # import: pyspark
 from pyspark.sql import SparkSession
@@ -15,14 +17,21 @@ from datax.utils.deployment_helper.decorator.set_parameters import set_tfm_obj
 
 
 class Test_Set_Default_Obj(unittest.TestCase):
-    """
-    Class for testing set_default_obj
+    """Test Class for testing set_default_obj.
+
+    Class for testing set_default_obj.
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
     """
 
     @classmethod
-    def setUpClass(self):
-        """
-        Set conf, spark, logger, dbutils to self before test function
+    def setUpClass(self) -> None:
+        """Setup function for testing set_default_obj.
+
+        Set conf, spark, logger, dbutils to self before test function.
+
         """
         self.conf = {"key1": "value1", "key2": "value2"}
         self.spark = SparkSession.builder.getOrCreate()
@@ -32,10 +41,13 @@ class Test_Set_Default_Obj(unittest.TestCase):
         self.dbutils = None
 
     @set_default_obj
-    def test(self):
+    def test(self) -> None:
+        """Test function for testing set_default_obj.
+
+        Main test function of Test_Set_Default_Obj.
+
         """
-        main test function of Test_Set_Default_Obj
-        """
+
         self.assertIsInstance(_default_obj["spark"], SparkSession)
         self.assertEqual(_default_obj["default"]["conf"], self.conf)
         self.assertTrue(_default_obj["from_handler"], "from_handler is not True")
@@ -46,14 +58,21 @@ class Test_Set_Default_Obj(unittest.TestCase):
 
 
 class Test_Set_Pipeline_Obj(unittest.TestCase):
-    """
-    Class for testing set_pipeline_obj
+    """Test Class for testing set_pipeline_obj.
+
+    Class for testing set_pipeline_obj.
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
     """
 
     @classmethod
-    def setUpClass(self):
-        """
+    def setUpClass(self) -> None:
+        """Setup function for testing set_pipeline_obj.
+
         Set conf, spark, logger, dbutils to _default_obj before test function
+
         """
         conf = {
             "Test_Set_Pipeline_Obj": {
@@ -76,9 +95,23 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
         _default_obj["from_handler"] = True
 
     @set_pipeline_obj
-    def test(self, spark, conf=None, logger=None, dbutils=None):
-        """
-        main test function of Test_Set_Pipeline_Obj
+    def test(
+        self,
+        spark: SparkSession,
+        conf: Dict = None,
+        logger: Any = None,
+        dbutils: Any = None,
+    ) -> None:
+        """Test function for testing set_pipeline_obj.
+
+        Main test function of Test_Set_Pipeline_Obj.
+
+        Args:
+            spark (SparkSession): A SparkSession.
+            conf (Dict): conf dict.
+            logger: Log4j logger
+            dbutils: DBUtils
+
         """
         self.assertIsInstance(spark, SparkSession)
         self.assertEqual(conf, self.test_conf["Test_Set_Pipeline_Obj"])
@@ -92,14 +125,21 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
 
 
 class Test_Set_Tfm_Obj(unittest.TestCase):
-    """
-    Class for testing set_tfm_obj
+    """Test Class for testing set_tfm_obj.
+
+    Class for testing set_tfm_obj.
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
     """
 
     @classmethod
-    def setUpClass(self):
-        """
+    def setUpClass(self) -> None:
+        """Setup function for testing set_tfm_obj.
+
         Set conf, spark, logger, dbutils to _pipeline_obj before test function
+
         """
         conf = {
             "Test_Set_Tfm_Obj": {
@@ -124,9 +164,27 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
         _default_obj["from_pipeline"] = True
 
     @set_tfm_obj
-    def test(self, key1, key2, data_source, spark, logger=None, dbutils=None):
-        """
-        main test function of Test_Set_Tfm_Obj
+    def test(
+        self,
+        key1: str,
+        key2: str,
+        data_source: Dict,
+        spark: SparkSession,
+        logger: Any = None,
+        dbutils: Any = None,
+    ) -> None:
+        """Test function for testing set_tfm_obj.
+
+        Main test function of Test_Set_Tfm_Obj.
+
+        Args:
+            key1: test variable 1
+            key2: test variable 2
+            data_source (Dict): data_source dict
+            spark (SparkSession): A SparkSession.
+            logger: Log4j logger
+            dbutils: DBUtils
+
         """
         self.assertIsInstance(spark, SparkSession)
         self.assertEqual(key1, "value1")

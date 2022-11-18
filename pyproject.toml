@@ -15,18 +15,22 @@ pydantic = { version = "^1.10.2", source = "PyPI" }
 pre-commit = { version = "^2.20.0", source = "PyPI" }
 pytest = { version = "^7.0.0", source = "PyPI" }
 pytest-mock = { version = "^3.7.0", source = "PyPI" }
-black = { version = "^22.6.0", source = "PyPI" }
-flake8 = { version = "4.0.1", source = "PyPI" }
-isort = { version = "^5.10.1", source = "PyPI" }
-flakeheaven = { version = "^3.0.0", source = "PyPI" }
-absolufy-imports = { version = "^0.3.1", source = "PyPI" }
-mypy = { version = "^0.982", source = "PyPI" }
-conventional-pre-commit = { version = "^2.1.1", source = "PyPI" }
 
 [tool.poetry.group.release.dependencies]
 datax-semantic-release = { git = "https://github.com/datax-tmp/datax-semantic-release.git" }
 
-[tool.poetry.group.badge.dependencies]
+[tool.poetry.group.docs.dependencies]
+mkdocs = { version = "^1.4.2", source = "PyPI" }
+mkdocs-material = { version = "^8.5.9", source = "PyPI" }
+mkdocs-git-revision-date-localized-plugin = { version = "^1.1.0", source = "PyPI" }
+mknotebooks = { version = "^0.7.1", source = "PyPI" }
+mkdocstrings = { version = "^0.19.0", source = "PyPI" }
+mkdocstrings-python = { version = "^0.7.1", source = "PyPI" }
+mkdocs-section-index = { version = "^0.3.4", source = "PyPI" }
+mkdocs-literate-nav = { version = "^0.5.0", source = "PyPI" }
+mkdocs-gen-files = { version = "^0.4.0", source = "PyPI" }
+mike = { version = "^1.1.2", source = "PyPI" }
+mkdocs-table-reader-plugin = { version = "^1.2", source = "PyPI" }
 interrogate = { version = "^1.5.0", source = "PyPI" }
 
 [build-system]
@@ -115,12 +119,6 @@ pyflakes = [
 ]
 
 [tool.mypy]
-exclude = [
-    "README.md",
-    '/docs/',
-    '/experiments/',
-    '/conf/',
-] ## TO DO: revise to regex to skip these folder
 ignore_missing_imports = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true
@@ -141,7 +139,7 @@ ignore-module = false                   # Ignore module-level docstrings. [defau
 ignore-nested-functions = false         # Ignore nested functions and methods. [default: False]
 ignore-nested-classes = true            # Ignore nested classes. [default: False]
 ignore-setters = false                  # Ignore methods with property setter decorators. [default: False]
-fail-under = 95                         # Fail when coverage % is less than a given amount. [default: 80.0]
+fail-under = 90                         # Fail when coverage % is less than a given amount. [default: 80.0]
 exclude = ["setup.py", "docs", "build"]
 verbose = 0                             # possible values: 0 (minimal output), 1 (-v), 2 (-vv)
 quiet = false                           # Do not print output [default: False]

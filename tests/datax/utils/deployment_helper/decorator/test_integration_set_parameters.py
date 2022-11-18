@@ -15,14 +15,19 @@ from datax.utils.deployment_helper.decorator.set_parameters import set_tfm_obj
 
 
 class Test_Integration_Set_Parameters(unittest.TestCase):
-    """
-    Class for integration test of set_parameters
+    """Test Class for integration test of set_parameters.
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
     """
 
     @classmethod
     def setUpClass(self):
-        """
+        """Test Function for setting up self vars.
+
         Set conf, spark, logger, dbutils to self before test function
+
         """
         self.conf = {
             "_Pipeline": {
@@ -51,8 +56,10 @@ class Test_Integration_Set_Parameters(unittest.TestCase):
 
     @set_default_obj
     def test(self):
-        """
-        main test function of Test_Integration_Set_Parameters
+        """Test function for set_parameters.
+
+        Main test function of Test_Integration_Set_Parameters.
+
         """
         self.logger.info("Launching task")
         pipeline_obj = _Pipeline("2022-01-01", "2022-01-01")
@@ -73,6 +80,7 @@ class Test_Integration_Set_Parameters(unittest.TestCase):
 class _Pipeline:
     """
     _Pipeline mock class for integration test of set_parameters
+
     """
 
     @set_pipeline_obj
@@ -85,8 +93,16 @@ class _Pipeline:
         logger=None,
         dbutils=None,
     ):
-        """
-        __init__ of _Pipeline for set_pipeline_obj
+        """Mock __init__ of _Pipeline for set_pipeline_obj.
+
+        Args:
+            start_date: start_date
+            end_date: end_date
+            spark (SparkSession): A SparkSession.
+            conf (Dict): conf dict.
+            logger: Log4j logger
+            dbutils: DBUtils
+
         """
         self.start_date = start_date
         self.end_date = end_date
@@ -96,9 +112,13 @@ class _Pipeline:
         self.logger = logger
 
     def execute(self):
-        """
-        main function of _Pipeline
-        execute _Agg prepare_data function
+        """Main Test function of _Pipeline.
+
+        Execute _Agg prepare_data function.
+
+        Returns:
+            Dataframe
+
         """
         mul_src_obj = _Agg(
             self.start_date,
@@ -113,6 +133,7 @@ class _Pipeline:
 class _Agg:
     """
     _Agg mock class for integration test of set_parameters
+
     """
 
     @set_tfm_obj
@@ -127,8 +148,18 @@ class _Agg:
         logger=None,
         dbutils=None,
     ):
-        """
-        __init__ of _Agg for set_tfm_obj
+        """Mock __init__ of _Agg for set_tfm_obj.
+
+        Args:
+            start_date: start_date
+            end_date: end_date
+            key1: test var 1
+            key2: test var 2
+            data_source (Dict): data_source dict
+            spark (SparkSession): A SparkSession.
+            logger: Log4j logger
+            dbutils: DBUtils
+
         """
         self.spark = spark
         self.data_source = data_source
@@ -141,8 +172,13 @@ class _Agg:
         self.key2 = key2
 
     def load_source(self):
-        """
-        load input_data_endpoint from 'data_source'
+        """Test function of _Agg for loading data source.
+
+        Load input_data_endpoint from 'data_source'.
+
+        Returns:
+            Dataframe
+
         """
 
         df = self.spark.read.json(self.data_source["input_data_endpoint"])
@@ -157,10 +193,16 @@ class _Agg:
         return df
 
     def prepare_data(self):
+        """Test function of _Agg for preparing dataframe.
+
+        Main function of _Agg.
+        Load data source and use conf to add columns.
+
+        Returns:
+            Dataframe
+
         """
-        main function of _Agg
-        load data source and use conf to add columns
-        """
+
         self.logger.warn(self.spark.sparkContext._conf.get("spark.app.name"))
 
         df = self.load_source()
