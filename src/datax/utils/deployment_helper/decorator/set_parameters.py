@@ -1,13 +1,19 @@
+"""decorator set_default_obj, set_pipeline_obj, set_tfm_obj modules"""
+
 # import: standard
 import functools
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
 from typing import TypeVar
 from typing import cast
+
+# import: pyspark
+from pyspark.sql import SparkSession
 
 # import: datax in-house
 from datax.utils.deployment_helper.validation.common import (
@@ -27,16 +33,33 @@ _pipeline_obj: Dict = {}
 
 
 def set_pipeline_obj(function: F) -> F:
-    """
+    """Decorator function for setting pipeline objects.
+
     Take conf, logger, spark from _default_obj (created from __main__)
     and pass these variables to function as keyword arguments
     but if not being run from pipeline, this decorator does nothing.
+
+    Args:
+        function (Callable): A __init__ function of a pipeline class.
+
+    Returns:
+        Callable: 'wrap_set_pipeline_obj' function.
+
     """
 
     def _create_pipeline_var_dict(args: Tuple, kwargs: Dict) -> Dict:
-        """
+        """Function for creating a pipeline variable dict.
+
         Create a dict that contains key:value of all variables
         that were passed into __init__ by users
+
+        Args:
+            args (Tuple): Input arguments.
+            kwargs (Dict): Input keyword arguments.
+
+        Returns:
+            Dict: A dict containing key:vaule of pipeline variables that users provide.
+
         """
         _pipeline_var_dict = {}
         _pipeline_var_list = [i for i in function.__code__.co_varnames if i != "self"]
@@ -51,8 +74,14 @@ def set_pipeline_obj(function: F) -> F:
     def _set_default_vars_to_pipeline_obj(
         _pipeline_var_dict: Dict, var_list: List
     ) -> None:
-        """
-        Assign vars in ['conf', 'logger', 'dbutils', 'spark'] to _pipeline_obj
+        """Function for setting '_pipeline_obj' dict.
+
+        Assign vars in ['conf', 'logger', 'dbutils', 'spark'] to '_pipeline_obj' dict.
+
+        Args:
+            _pipeline_var_dict (Dict): A dict containing key:vaule from '_create_pipeline_var_dict'.
+            var_list (List): List of keys to select, e.g. ["conf", "logger", "dbutils", "spark"]
+
         """
         _pl_obj_dict = {}
         for each_obj in var_list:
@@ -63,14 +92,34 @@ def set_pipeline_obj(function: F) -> F:
         _pipeline_obj["default"] = _pl_obj_dict
         _pipeline_obj["spark"] = _pl_spark_ss
 
-    def _get_default_spark_conf(spark: Any, conf: Dict) -> Sequence[Tuple[Any, Any]]:
-        """
-        Reserved for changing spark conf on the fly (WIP)
+    def _get_default_spark_conf(
+        spark: SparkSession, conf: Dict
+    ) -> Sequence[Tuple[Any, Any]]:
+        """Function for changing spark conf on the fly.
+
+        Reserved for changing spark conf on the fly (WIP).
+
+        Args:
+            spark (SparkSession): Input SparkSession.
+            conf (Dict): Input pipeline conf.
+
+        Returns:
+            Sequence[Tuple]: A List of tuples of spark conf.
+
         """
         spark_conf_list = []
         default_conf_list = []
 
         def _collect_all_spark_conf(dict_val: Any) -> None:
+            """Function for collecting spark conf.
+
+            Check if the input value is a dict;
+            if yes, search for spark_config and collect into 'spark_conf_list' (WIP).
+
+            Args:
+                dict_val (Any): Input SparkSession.
+
+            """
             if type(dict_val) is dict:
                 if "spark_config" in dict_val.keys():
                     for sc_key in dict_val["spark_config"].keys():
@@ -88,10 +137,16 @@ def set_pipeline_obj(function: F) -> F:
 
         return default_conf_list
 
-    def _set_pipeline_obj(*args: Any, **kwargs: Any) -> None:
-        """
+    def _set_pipeline_obj(args: Tuple, kwargs: Dict) -> None:
+        """Function for setting '_pipeline_obj'.
+
         if from_handler, takes vars from _default_obj
-        else takes vars from args and kwargs
+        else takes vars from args and kwargs.
+
+        Args:
+            args (Tuple): Input arguments.
+            kwargs (Dict): Input keyword arguments.
+
         """
         to_pass_list = ["conf", "logger", "dbutils", "spark"]
 
@@ -107,8 +162,13 @@ def set_pipeline_obj(function: F) -> F:
         # _pipeline_obj["default_spark_conf"] = _get_default_spark_conf(_pipeline_obj["spark"], _pipeline_obj["default"]["conf"])
 
     def set_var_dict(self: Any) -> Dict:
-        """
-        Set self vars and create _var_dict to be passed as kwargs
+        """Function for setting kwargs.
+
+        Set self vars and create _var_dict to be passed as kwargs.
+
+        Returns:
+            Dict: A Dict to be passed as kwargs.
+
         """
         _var_dict = {}
         for key, value in _pipeline_obj["default"].items():
@@ -131,12 +191,19 @@ def set_pipeline_obj(function: F) -> F:
 
     @functools.wraps(function)
     def wrap_set_pipeline_obj(self: Any, *args: Any, **kwargs: Any) -> None:
-        """
+        """Main function of set_pipeline_obj.
+
         Main function for setting pipeline vars
         set from_pipeline flag and provide kwargs if run from __main__
+
+        Args:
+            self: Class passed from __init__
+            *args (Any): Input arguments.
+            **kwargs (Any): Input keyword arguments.
+
         """
         _default_obj["from_pipeline"] = True
-        _set_pipeline_obj(*args, **kwargs)
+        _set_pipeline_obj(args, kwargs)
         _var_dict = set_var_dict(self)
 
         cleaned_configs = PipelineConfigArgumentValidators(**_var_dict["conf"]).dict()
@@ -150,13 +217,21 @@ def set_pipeline_obj(function: F) -> F:
     return cast(F, wrap_set_pipeline_obj)
 
 
-def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict):
-    """
+def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict: Dict) -> Optional[Dict]:
+    """Function for validating schema paths.
+
     Validate `input_schema_path` and `ref_schema_path` in a configuration dictionary
     at the key named `data_source`. The configuration dictionary can have any depth
     and only the depth level where both `input_schema_path` and `ref_schema_path` are
     found at the same time will be validated and any values that go after will be ignored
     and have their values maintained.
+
+    Args:
+        cfg_dict (Dict): Conf dict.
+
+    Returns:
+        Dict: Conf dict after validated.
+
     """
 
     schema_related_keys = ["input_schema_path", "ref_schema_path"]
@@ -177,18 +252,32 @@ def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict):
             # In this case, we replace the unvalidated values with the validated ones.
             if ret is not None:
                 cfg_dict[key] = ret
+    return None
 
 
 def set_tfm_obj(function: F) -> F:
-    """
+    """Decorator function for setting transformation class objects.
+
     Take conf, logger, spark from _pipeline_obj (created from pipeline)
     and pass these variables to function as keyword arguments
     but if not being run from pipeline, this decorator does nothing.
+
+    Args:
+        function (Callable): A __init__ function of a pipeline class.
+
+    Returns:
+        Callable: 'wrap_set_tfm_obj' function.
+
     """
 
     def set_var_dict() -> Dict:
-        """
-        Set variables to be pass into function
+        """Function for setting a variable dict.
+
+        Set variables to be pass into function as kwargs.
+
+        Returns:
+            Dict: A variable dict.
+
         """
         _var_dict = {}
         for key, value in _pipeline_obj["default"].items():
@@ -207,10 +296,19 @@ def set_tfm_obj(function: F) -> F:
 
     @functools.wraps(function)
     def wrap_set_tfm_obj(self: Any, *args: Any, **kwargs: Any) -> None:
-        """
+        """Main function of set_tfm_obj.
+
+        Main function for setting trnsformation vars
         Determine if executed from a pipeline or not
         if yes, set and pass variables into function
+
+        Args:
+            self: Class passed from __init__
+            *args (Any): Input arguments.
+            **kwargs (Any): Input keyword arguments.
+
         """
+
         if _default_obj["from_pipeline"]:
             # create dict to pass into function
             _var_dict = set_var_dict()
@@ -243,13 +341,32 @@ def set_tfm_obj(function: F) -> F:
 
 
 def set_default_obj(func: F) -> F:
-    """
+    """Decorator function for setting default objects.
+
     Store self.conf, self.logger, self.dbutils, self.spark in a dictionary
     and mark "from_handler" flag for being run from __main__
+
+    Args:
+        function (Callable): A __init__ function of a pipeline class.
+
+    Returns:
+        Callable: 'wrap_add_default_obj' function.
+
     """
 
     @functools.wraps(func)
     def wrap_add_default_obj(self: Any, *args: Any, **kwargs: Any) -> None:
+        """Main function of set_default_obj.
+
+        Main function for setting default obj
+        put conf, logger, dbutils, spark in '_default_obj' dict and set 'from_handler' flag to True
+
+        Args:
+            self: Class passed from __init__
+            *args (Any): Input arguments.
+            **kwargs (Any): Input keyword arguments.
+
+        """
         _default_obj["default"] = {
             "conf": self.conf,
             "logger": self.logger,

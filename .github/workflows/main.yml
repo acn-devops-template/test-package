@@ -9,6 +9,7 @@ on:
 
 jobs:
   cd-pipeline:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     env:
@@ -42,7 +43,7 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without test
+          poetry install -v --without test,docs
 
       - name: Semantic Release
         run: |
@@ -52,4 +53,62 @@ jobs:
         run: |
           git checkout dev
           git merge ${{ github.event.pull_request.base.ref }}
+          git push
+
+      - name: Sync back to Staging
+        run: |
+          git checkout staging
+          git merge ${{ github.event.pull_request.base.ref }}
+          git push
+          git checkout ${{ github.event.pull_request.base.ref }}
+
+  main-docs-pipeline:
+    needs: cd-pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
+            ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
+
+      - uses: fregante/setup-git-user@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies and project
+        run: |
+          poetry install -v --only docs
+
+      - name: Mike Deploy to gh-pages
+        run: |
+          A="$(echo $(poetry version --dry-run -s) | cut -d'.' -f1)"
+          B="$(echo $(poetry version --dry-run -s) | cut -d'.' -f2)"
+          echo "${A}.${B}"
+          poetry run mike deploy --push --update-aliases ${A}.${B} latest
+
+      - name: Generate badges
+        run: |
+          poetry run interrogate --generate-badge ./docs/content/asset --badge-format svg
+
+      - name: Commit if changes
+        run: |
+          git add docs/content/asset/interrogate_badge.svg
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update interrogate_badge.svg" -a
           git push
