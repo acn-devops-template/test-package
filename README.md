@@ -7,7 +7,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/datax-tmp/datax-utils-deployment-helper">
-    <img src="https://media-exp1.licdn.com/dms/image/C560BAQGcW4Ekxis_jw/company-logo_200_200/0/1649392412304?e=2147483647&v=beta&t=xhgWmbWKEXSwTI85VO4e8uu3zJ1Ssv6VHm-Q7VTDHn8" alt="Logo" width="150" height="150">
+    <img src="docs/content/asset/datax_logo.png" alt="Logo" width=60% height=60%>
   </a>
 
   <h3 align="center">DataX Deployment Utility</h3>
