@@ -2,6 +2,25 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.2 (2022-11-18)
+### Fix
+* Add mypy ([`bb0557a`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/bb0557a6560ea00e959eeeda72364e82089573bc))
+* Revert back ([`0af3cf3`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/0af3cf37290e0663ffc52a9968845d45f5233409))
+* Del docs ([`1265999`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/1265999c65ad143c0e2f8f1a1675183ee44c337c))
+* Del interrogate badge ([`4fd7bf3`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/4fd7bf3e9dc99109bc585cdfabd10aa704734097))
+* Add mkdocs ([`3139547`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/3139547739ac5bc6c9436d466b8953bfc205a7e3))
+* Del many libs from poetry ([`35f22cf`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/35f22cf829ea1f69a30a9e8706d9d8694e689671))
+* Badges in readme ([`12a5f55`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/12a5f550bc7b8d65a0feff5719faaaec7e8621ee))
+* Run pre-commit ([`19cd671`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/19cd6711e93e77f6c0de59e0831fa73a2214f893))
+* Add interrogate and docstring ([`3757b3a`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/3757b3a5011a2e2e5609d3b067ee4ab65f9b173a))
+
+### Documentation
+* Add mkdocs resources ([`8652014`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/8652014fa0108ea791cff420e7ef6e52bd7166f8))
+* Edit readme logo ([`036a66b`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/036a66b30ef9480b1434c7bf3b64aef9aafdd08e))
+* Add mkdocs ([`5bfb951`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/5bfb9516fbc150ca29a06fd2caac561e1bb8575e))
+* Change docstring to google format ([`aca8cd8`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/aca8cd8945b6b1a0237da2600b8168e48cfef7e9))
+* Readme ([`eca17fd`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/eca17fd9758527f3f143bb9bcb211c23d0e68d3e))
+
 ## v0.3.1 (2022-11-11)
 ### Fix
 * Use glob to find conf ([`b4ba657`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/b4ba657c8a1da7a600fc1c480dea1d824ec08cf3))
