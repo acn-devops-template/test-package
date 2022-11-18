@@ -52,7 +52,7 @@ def dynamic_endpoint_execute(
     return obj[module_name](arg_a, arg_b)
 
 
-def test_dynamic_endpoint_main():
+def test_dynamic_endpoint_main() -> None:
     """Function for testing register_dynamic_endpoint.
 
     Main test function for register_dynamic_endpoint.

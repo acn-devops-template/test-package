@@ -119,12 +119,6 @@ pyflakes = [
 ]
 
 [tool.mypy]
-exclude = [
-    "README.md",
-    '/docs/',
-    '/experiments/',
-    '/conf/',
-] ## TO DO: revise to regex to skip these folder
 ignore_missing_imports = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true

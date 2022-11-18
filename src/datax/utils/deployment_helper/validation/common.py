@@ -2,6 +2,7 @@
 
 # import: standard
 import os
+import typing
 from datetime import datetime
 from typing import Any
 from typing import Callable
@@ -108,7 +109,7 @@ class CommandlineArgumentValidator(BaseModel):
     )
 
 
-class PipelineConfigArgumentValidators(BaseModel, extra=Extra.allow):
+class PipelineConfigArgumentValidators(BaseModel, extra=Extra.allow):  # type: ignore
     """Pydantic class for validating pipeline arguments.
 
      For checking pipeline conf arguments
@@ -129,7 +130,7 @@ class PipelineConfigArgumentValidators(BaseModel, extra=Extra.allow):
     )
 
 
-class TransformationConfigArgumentValidator(BaseModel, extra=Extra.allow):
+class TransformationConfigArgumentValidator(BaseModel, extra=Extra.allow):  # type: ignore
     """Pydantic class for validating transformation conf arguments.
 
      For checking transformation conf arguments

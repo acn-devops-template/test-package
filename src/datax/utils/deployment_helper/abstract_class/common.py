@@ -8,6 +8,8 @@ from abc import abstractmethod
 from argparse import ArgumentParser
 from typing import Any
 from typing import Dict
+from typing import List
+from typing import Optional
 
 # import: pyspark
 from pyspark.conf import SparkConf
@@ -17,7 +19,7 @@ from pyspark.sql import SparkSession
 import yaml
 
 
-def get_dbutils(spark: SparkSession):
+def get_dbutils(spark: SparkSession) -> Optional[Any]:
     """Function to get dbutils.
 
     Get DBUtils from pyspark.dbutils if error return None.
@@ -56,7 +58,13 @@ class Task(ABC):
 
     """
 
-    def __init__(self, spark=None, init_conf=None, module_name=None, conf_dir="./conf"):
+    def __init__(
+        self,
+        spark: SparkSession = None,
+        init_conf: Dict = None,
+        module_name: str = None,
+        conf_dir: str = "./conf",
+    ) -> None:
         """__init__ function of Task class.
 
         Set following useful objects: self.conf, self.spark, self.logger, self.dbutils.
@@ -86,7 +94,7 @@ class Task(ABC):
         self.dbutils = self.get_dbutils()
         self._log_conf()
 
-    def _get_module_name(self):
+    def _get_module_name(self) -> str:
         """Function to get a module name.
 
         Return module name from 'module' argument in ArgumentParser.
@@ -106,7 +114,7 @@ class Task(ABC):
             raise ValueError(" module argument is not found ")
         return module_nsp.module
 
-    def _create_spark_conf(self):
+    def _create_spark_conf(self) -> SparkConf:
         """Function to create SparkConf.
 
         Take all of spark conf in conf and Create SparkConf.
@@ -120,7 +128,7 @@ class Task(ABC):
         sp_config = SparkConf().setAll(sp_config_list)
         return sp_config
 
-    def _check_for_spark_conf(self):
+    def _check_for_spark_conf(self) -> None:
         """Function to set self._set_config flag.
 
         Set self._set_config to True, If there is a spark conf in conf.
@@ -131,7 +139,7 @@ class Task(ABC):
             if len(self.conf[self.module_name]["spark_config"]) > 0:
                 self._set_config = True
 
-    def _prepare_spark(self, spark) -> SparkSession:
+    def _prepare_spark(self, spark: SparkSession) -> SparkSession:
         """Function to get SparkSession.
 
         If the input spark is None, Create a SparkSession else Use the input spark.
@@ -166,7 +174,7 @@ class Task(ABC):
         else:
             return spark
 
-    def get_dbutils(self):
+    def get_dbutils(self) -> Optional[Any]:
         """Function to get DBUtils.
 
         Get DBUtils and log the status.
@@ -184,7 +192,7 @@ class Task(ABC):
 
         return utils
 
-    def _provide_config(self):
+    def _provide_config(self) -> Dict:
         """Function to get conf.
 
         Get a conf file from pipeline dir and Read a conf file.
@@ -196,7 +204,7 @@ class Task(ABC):
         conf_file = self._get_conf_file()
         return self._read_config(conf_file)
 
-    def _get_conf_file(self):
+    def _get_conf_file(self) -> str:
         """Function to get a conf file path.
 
         Find a conf file based on Glob pattern '**/*pipeline*/**/{module_name}.yml' (yml or yaml).
@@ -212,7 +220,7 @@ class Task(ABC):
             f"**/*pipeline*/**/{self.module_name}.yaml",
         )
 
-        files_grabbed = []
+        files_grabbed: List[Any] = []
         for each in types:
             files_grabbed.extend(pathlib.Path(self.conf_dir).glob(each))
 
@@ -228,7 +236,7 @@ class Task(ABC):
         return conf_list[0]
 
     @staticmethod
-    def _read_config(conf_file) -> Dict[str, Any]:
+    def _read_config(conf_file: str) -> Dict[str, Any]:
         """Function to read a conf file.
 
         Return a conf using yaml safe_load.
@@ -243,7 +251,7 @@ class Task(ABC):
         config = yaml.safe_load(pathlib.Path(conf_file).read_text())
         return config
 
-    def _prepare_logger(self):
+    def _prepare_logger(self) -> Any:
         """Function to get a logger.
 
         Return a log4j logger.
@@ -255,7 +263,7 @@ class Task(ABC):
         log4j_logger = self.spark._jvm.org.apache.log4j  # noqa
         return log4j_logger.LogManager.getLogger(self.__class__.__name__)
 
-    def _log_conf(self):
+    def _log_conf(self) -> None:
         """Function to log the detail of conf.
 
         Log the detail of conf, for each key and item.
@@ -267,7 +275,7 @@ class Task(ABC):
             self.logger.info("\t Parameter: %-30s with value => %-30s" % (key, item))
 
     @abstractmethod
-    def launch(self):
+    def launch(self) -> None:
         """Main method of the job.
 
         Note:

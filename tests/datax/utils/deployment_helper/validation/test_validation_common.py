@@ -27,7 +27,7 @@ class Test_CommandlineArgumentValidator(unittest.TestCase):
 
     """
 
-    def test(self):
+    def test(self) -> None:
         """Test function for Test_CommandlineArgumentValidator.
 
         Main test function of Test_CommandlineArgumentValidator.
@@ -80,7 +80,7 @@ class Test_PipelineConfigArgumentValidators(unittest.TestCase):
 
     """
 
-    def test(self):
+    def test(self) -> None:
         """Test function for Test_PipelineConfigArgumentValidators.
 
         Main test function of Test_PipelineConfigArgumentValidators.
@@ -127,7 +127,7 @@ class Test_TransformationConfigArgumentValidator(unittest.TestCase):
 
     """
 
-    def test(self):
+    def test(self) -> None:
         """Test function for Test_TransformationConfigArgumentValidator.
 
         Main test function of Test_TransformationConfigArgumentValidator.

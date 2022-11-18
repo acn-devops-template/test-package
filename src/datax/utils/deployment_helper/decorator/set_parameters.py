@@ -6,6 +6,7 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
 from typing import TypeVar
@@ -216,7 +217,7 @@ def set_pipeline_obj(function: F) -> F:
     return cast(F, wrap_set_pipeline_obj)
 
 
-def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict):
+def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict: Dict) -> Optional[Dict]:
     """Function for validating schema paths.
 
     Validate `input_schema_path` and `ref_schema_path` in a configuration dictionary
@@ -251,6 +252,7 @@ def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict):
             # In this case, we replace the unvalidated values with the validated ones.
             if ret is not None:
                 cfg_dict[key] = ret
+    return None
 
 
 def set_tfm_obj(function: F) -> F:

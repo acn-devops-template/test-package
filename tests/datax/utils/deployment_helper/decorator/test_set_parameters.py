@@ -2,6 +2,8 @@
 
 # import: standard
 import unittest
+from typing import Any
+from typing import Dict
 
 # import: pyspark
 from pyspark.sql import SparkSession
@@ -25,7 +27,7 @@ class Test_Set_Default_Obj(unittest.TestCase):
     """
 
     @classmethod
-    def setUpClass(self):
+    def setUpClass(self) -> None:
         """Setup function for testing set_default_obj.
 
         Set conf, spark, logger, dbutils to self before test function.
@@ -39,7 +41,7 @@ class Test_Set_Default_Obj(unittest.TestCase):
         self.dbutils = None
 
     @set_default_obj
-    def test(self):
+    def test(self) -> None:
         """Test function for testing set_default_obj.
 
         Main test function of Test_Set_Default_Obj.
@@ -66,7 +68,7 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
     """
 
     @classmethod
-    def setUpClass(self):
+    def setUpClass(self) -> None:
         """Setup function for testing set_pipeline_obj.
 
         Set conf, spark, logger, dbutils to _default_obj before test function
@@ -93,7 +95,13 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
         _default_obj["from_handler"] = True
 
     @set_pipeline_obj
-    def test(self, spark, conf=None, logger=None, dbutils=None):
+    def test(
+        self,
+        spark: SparkSession,
+        conf: Dict = None,
+        logger: Any = None,
+        dbutils: Any = None,
+    ) -> None:
         """Test function for testing set_pipeline_obj.
 
         Main test function of Test_Set_Pipeline_Obj.
@@ -127,7 +135,7 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
     """
 
     @classmethod
-    def setUpClass(self):
+    def setUpClass(self) -> None:
         """Setup function for testing set_tfm_obj.
 
         Set conf, spark, logger, dbutils to _pipeline_obj before test function
@@ -156,7 +164,15 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
         _default_obj["from_pipeline"] = True
 
     @set_tfm_obj
-    def test(self, key1, key2, data_source, spark, logger=None, dbutils=None):
+    def test(
+        self,
+        key1: str,
+        key2: str,
+        data_source: Dict,
+        spark: SparkSession,
+        logger: Any = None,
+        dbutils: Any = None,
+    ) -> None:
         """Test function for testing set_tfm_obj.
 
         Main test function of Test_Set_Tfm_Obj.
