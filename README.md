@@ -1,7 +1,8 @@
 <a name="readme-top"></a>
 
-[![main-status](https://github.com/datax-tmp/datax-utils-deployment-helper/workflows/main/badge.svg)](https://github.com/datax-tmp/datax-utils-deployment-helper/actions)
+[![Interrogate](docs/content/asset/interrogate_badge.svg?branch=main "interrogate")](https://interrogate.readthedocs.io/en/latest/#)
 [![staging-status](https://github.com/datax-tmp/datax-utils-deployment-helper/workflows/staging/badge.svg)](https://github.com/datax-tmp/datax-utils-deployment-helper/actions)
+[![main-status](https://github.com/datax-tmp/datax-utils-deployment-helper/workflows/main/badge.svg)](https://github.com/datax-tmp/datax-utils-deployment-helper/actions)
 
 <br />
 <div align="center">
