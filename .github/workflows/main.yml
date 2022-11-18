@@ -106,3 +106,16 @@ jobs:
           git add docs/content/asset/interrogate_badge.svg
           git diff --quiet && git diff --staged --quiet || git commit -m "Update interrogate_badge.svg" -a
           git push
+
+      - name: Sync back to Dev
+        run: |
+          git checkout dev
+          git merge ${{ github.event.pull_request.base.ref }}
+          git push
+
+      - name: Sync back to Staging
+        run: |
+          git checkout staging
+          git merge ${{ github.event.pull_request.base.ref }}
+          git push
+          git checkout ${{ github.event.pull_request.base.ref }}
