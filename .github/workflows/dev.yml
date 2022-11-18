@@ -37,7 +37,7 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without release
+          poetry install -v --without release,docs
 
       - name: Linting
         run: |
@@ -46,4 +46,4 @@ jobs:
       - name: Run unit tests
         run: |
           echo "Launching unit tests"
-          poetry run pytest tests/
+          poetry run pytest tests/ -k 'test and not integration'
