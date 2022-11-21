@@ -32,6 +32,38 @@ _default_obj: Dict = {"from_handler": False, "from_pipeline": False}
 _pipeline_obj: Dict = {}
 
 
+def pop_var_dict(co_var: List, _var_dict: Dict, args: Tuple, kwargs: Dict) -> None:
+    """Function to pop keys of _var_dict, dict containing vars
+
+    If there are hard-coded vars which are called from a pipeline class or handler,
+    those hard-coded vars will take priority over the same vars from conf.
+    If there are vars that the Tfm/Pipeline class does not define in the function,
+    those vars will be taken out from kwargs that will be provided.
+
+    Args:
+        co_var (List) : List of vars that function uses
+        _var_dict (Dict): Input variable dict
+        args (Tuple): Input arguments.
+        kwargs (Dict): Input keyword arguments.
+
+    """
+    # variables in tfm class overwrite config variables
+    if len(kwargs) > 0:
+        for kw_key in kwargs.keys():
+            if kw_key in _var_dict.keys():
+                _var_dict.pop(kw_key, None)
+    if len(args) > 0:
+        args_name = co_var[0 : len(args)]
+        for ar_key in args_name:
+            if ar_key in _var_dict.keys():
+                _var_dict.pop(ar_key, None)
+
+    # pop if tfm class doesn't define these vars, e.g. 'spark','logger','dbutils'.
+    for each_var in list(_var_dict.keys()):
+        if each_var not in co_var:
+            _var_dict.pop(each_var, None)
+
+
 def set_pipeline_obj(function: F) -> F:
     """Decorator function for setting pipeline objects.
 
@@ -174,6 +206,7 @@ def set_pipeline_obj(function: F) -> F:
         for key, value in _pipeline_obj["default"].items():
             if key == "conf":
                 _dict_key = function.__qualname__.split(".", 1)[0]
+                # there must be a pipeline section in conf
                 _dict_each_class = value[_dict_key]
                 _var_dict["conf"] = _dict_each_class
                 for ec_key, ec_value in _dict_each_class.items():
@@ -188,6 +221,24 @@ def set_pipeline_obj(function: F) -> F:
         _var_dict["spark"] = _pipeline_obj["spark"]
         setattr(self, "spark", _pipeline_obj["spark"])
         return _var_dict
+
+    def pop_pipeline_var_dict(_var_dict: Dict, args: Tuple, kwargs: Dict) -> None:
+        """Function to pop keys of _var_dict, dict containing vars for pipeline class
+
+        If there are hard-coded vars of pipeline class which are called from handler,
+        those hard-coded vars will take priority over the same vars from conf.
+        If there are vars of pipeline class that the pipeline class does not define in the function,
+        those vars will be taken out from kwargs that will be provided to pipeline class.
+
+        Args:
+            _var_dict: Input variable dict
+            args (Tuple): Input arguments.
+            kwargs (Dict): Input keyword arguments.
+
+        """
+        pipeline_co_var = [i for i in function.__code__.co_varnames if i != "self"]
+
+        pop_var_dict(pipeline_co_var, _var_dict, args, kwargs)
 
     @functools.wraps(function)
     def wrap_set_pipeline_obj(self: Any, *args: Any, **kwargs: Any) -> None:
@@ -205,6 +256,7 @@ def set_pipeline_obj(function: F) -> F:
         _default_obj["from_pipeline"] = True
         _set_pipeline_obj(args, kwargs)
         _var_dict = set_var_dict(self)
+        pop_pipeline_var_dict(_var_dict, args, kwargs)
 
         cleaned_configs = PipelineConfigArgumentValidators(**_var_dict["conf"]).dict()
         _var_dict["conf"] = cleaned_configs
@@ -283,16 +335,36 @@ def set_tfm_obj(function: F) -> F:
         for key, value in _pipeline_obj["default"].items():
             if key == "conf":
                 _dict_key = function.__qualname__.split(".", 1)[0]
-                _dict_each_class = value[_dict_key]
-                for ec_key, ec_value in _dict_each_class.items():
-                    if ec_key == "spark_config":
-                        pass
-                    else:
-                        _var_dict[ec_key] = ec_value
+                # if there is a tfm class conf, add it into _var_dict
+                if _dict_key in value.keys():
+                    _dict_each_class = value[_dict_key]
+                    for ec_key, ec_value in _dict_each_class.items():
+                        if ec_key == "spark_config":
+                            pass
+                        else:
+                            _var_dict[ec_key] = ec_value
             else:
                 _var_dict[key] = value
         _var_dict["spark"] = _pipeline_obj["spark"]
         return _var_dict
+
+    def pop_tfm_var_dict(_var_dict: Dict, args: Tuple, kwargs: Dict) -> None:
+        """Function to pop keys of _var_dict, dict containing vars for Tfm class
+
+        If there are hard-coded vars of Tfm class which are called from a pipeline class,
+        those hard-coded vars will take priority over the same vars from conf.
+        If there are vars of Tfm class that the Tfm class does not define in the function,
+        those vars will be taken out from kwargs that will be provided to Tfm class.
+
+        Args:
+            _var_dict: Input variable dict
+            args (Tuple): Input arguments.
+            kwargs (Dict): Input keyword arguments.
+
+        """
+        tfm_co_var = [i for i in function.__code__.co_varnames if i != "self"]
+
+        pop_var_dict(tfm_co_var, _var_dict, args, kwargs)
 
     @functools.wraps(function)
     def wrap_set_tfm_obj(self: Any, *args: Any, **kwargs: Any) -> None:
@@ -311,27 +383,18 @@ def set_tfm_obj(function: F) -> F:
 
         if _default_obj["from_pipeline"]:
             # create dict to pass into function
+
             _var_dict = set_var_dict()
-            # variables in tfm class overwrite config variables
-            if len(kwargs) > 0:
-                for kw_key in kwargs.keys():
-                    if kw_key in _var_dict.keys():
-                        _var_dict.pop(kw_key, None)
-            if len(args) > 0:
-                args_name = [
-                    i
-                    for i in list(function.__code__.co_varnames)[0 : len(args) + 1]
-                    if i != "self"
-                ]
-                for ar_key in args_name:
-                    if ar_key in _var_dict.keys():
-                        _var_dict.pop(ar_key, None)
+            pop_tfm_var_dict(_var_dict, args, kwargs)
 
             # Validate _var_dict here. The reason we ignore the return value here is because
             # within the recursive calls of the function we already have a step that replace
             # the unvalidated values with the validated ones, i.e., the line that has a code:
             # if ret is not None: cfg_dict[key] = ret.
-            _ = validate_schema_path_in_cfg_endswith_dot_json(_var_dict["data_source"])
+            if "data_source" in _var_dict.keys():
+                _ = validate_schema_path_in_cfg_endswith_dot_json(
+                    _var_dict["data_source"]
+                )
 
             function(self, *args, **kwargs, **_var_dict)
         else:

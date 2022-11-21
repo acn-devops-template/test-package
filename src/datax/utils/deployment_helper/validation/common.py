@@ -133,7 +133,7 @@ class PipelineConfigArgumentValidators(BaseModel, extra=Extra.allow):  # type: i
 class TransformationConfigArgumentValidator(BaseModel, extra=Extra.allow):  # type: ignore
     """Pydantic class for validating transformation conf arguments.
 
-     For checking transformation conf arguments
+     For checking transformation conf argument (data_source)
 
     Args:
         BaseModel: pydantic BaseModel.
