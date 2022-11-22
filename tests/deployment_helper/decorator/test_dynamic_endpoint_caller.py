@@ -14,7 +14,7 @@ def test_dynamic_endpoint_caller_with_default_arg() -> None:
     output = subprocess.run(
         [
             "python",
-            "./tests/datax/utils/deployment_helper/decorator/test_dynamic_endpoint.py",
+            "./tests/deployment_helper/decorator/test_dynamic_endpoint.py",
             "-m",
             "test_dynamic_endpoint_main",
         ]

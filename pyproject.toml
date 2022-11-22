@@ -15,6 +15,7 @@ pydantic = { version = "^1.10.2", source = "PyPI" }
 pre-commit = { version = "^2.20.0", source = "PyPI" }
 pytest = { version = "^7.0.0", source = "PyPI" }
 pytest-mock = { version = "^3.7.0", source = "PyPI" }
+mypy = "^0.991"
 
 [tool.poetry.group.release.dependencies]
 datax-semantic-release = { git = "https://github.com/datax-tmp/datax-semantic-release.git" }
@@ -123,11 +124,12 @@ pyflakes = [
 ignore_missing_imports = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true
-disallow_untyped_decorators = true
+disallow_untyped_decorators = false
 disallow_incomplete_defs = true
 no_strict_optional = true
 show_error_context = true
 pretty = true
+disable_error_code = ["attr-defined", "call-arg"]
 
 [tool.interrogate]
 ignore-init-method = false              # Ignore __init__ method of classes. [default: False]

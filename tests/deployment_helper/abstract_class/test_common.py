@@ -25,7 +25,7 @@ class Test_ABC_Common(unittest.TestCase):
     """
 
     @unittest.mock.patch.multiple(Task, __abstractmethods__=set())
-    def test(self):
+    def test(self) -> None:
         """Test function for testing Task(ABC).
 
         Main test function of Test_ABC_Common.

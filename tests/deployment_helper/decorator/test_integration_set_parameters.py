@@ -2,6 +2,8 @@
 
 # import: standard
 import unittest
+from typing import Any
+from typing import Dict
 
 # import: pyspark
 import pyspark.sql.functions as F
@@ -23,7 +25,7 @@ class Test_Integration_Set_Parameters(unittest.TestCase):
     """
 
     @classmethod
-    def setUpClass(self):
+    def setUpClass(self) -> None:
         """Test Function for setting up self vars.
 
         Set conf, spark, logger, dbutils to self before test function
@@ -55,7 +57,7 @@ class Test_Integration_Set_Parameters(unittest.TestCase):
         self.dbutils = None
 
     @set_default_obj
-    def test(self):
+    def test(self) -> None:
         """Test function for set_parameters.
 
         Main test function of Test_Integration_Set_Parameters.
@@ -86,13 +88,13 @@ class _Pipeline:
     @set_pipeline_obj
     def __init__(
         self,
-        start_date,
-        end_date,
-        spark,
-        conf=None,
-        logger=None,
-        dbutils=None,
-    ):
+        start_date: str,
+        end_date: str,
+        spark: SparkSession,
+        conf: Dict = None,
+        logger: Any = None,
+        dbutils: Any = None,
+    ) -> None:
         """Mock __init__ of _Pipeline for set_pipeline_obj.
 
         Args:
@@ -111,7 +113,7 @@ class _Pipeline:
         self.spark = spark
         self.logger = logger
 
-    def execute(self):
+    def execute(self) -> DataFrame:
         """Main Test function of _Pipeline.
 
         Execute _Agg prepare_data function.
@@ -139,15 +141,15 @@ class _Agg:
     @set_tfm_obj
     def __init__(
         self,
-        start_date,
-        end_date,
-        key1,
-        key2,
-        data_source,
-        spark=None,
-        logger=None,
-        dbutils=None,
-    ):
+        start_date: str,
+        end_date: str,
+        key1: str,
+        key2: str,
+        data_source: Dict,
+        spark: SparkSession = None,
+        logger: Any = None,
+        dbutils: Any = None,
+    ) -> None:
         """Mock __init__ of _Agg for set_tfm_obj.
 
         Args:
@@ -171,7 +173,7 @@ class _Agg:
         self.key1 = key1
         self.key2 = key2
 
-    def load_source(self):
+    def load_source(self) -> DataFrame:
         """Test function of _Agg for loading data source.
 
         Load input_data_endpoint from 'data_source'.
@@ -192,7 +194,7 @@ class _Agg:
 
         return df
 
-    def prepare_data(self):
+    def prepare_data(self) -> DataFrame:
         """Test function of _Agg for preparing dataframe.
 
         Main function of _Agg.

@@ -80,9 +80,9 @@ class Task(ABC):
         self.conf_dir = conf_dir
 
         if module_name:
-            args_l = ["--module", module_name]
+            args_l: List[Any] = ["--module", module_name]
         else:
-            args_l = sys.argv[1:]
+            args_l: List[Any] = sys.argv[1:]
 
         self.module_name = self._get_module_name(args_l)
 
@@ -129,7 +129,9 @@ class Task(ABC):
             SparkConf: SparkConf created using configuration in self.conf of spark_conf section
 
         """
-        sp_config_list = list(self.conf[self.module_name]["spark_config"].items())
+        sp_config_list: List[Any] = list(
+            self.conf[self.module_name]["spark_config"].items()
+        )
         sp_config = SparkConf().setAll(sp_config_list)
         return sp_config
 
