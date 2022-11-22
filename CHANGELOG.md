@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.3 (2022-11-22)
+### Fix
+* Pop _var_dict in pipeline only from handler ([`3ff6c8d`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/3ff6c8d1ab7b71402258b466c1c8c028a443077d))
+* Del jupyter after finishing the tutorial ([`2d186d1`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/2d186d1ba9ef9aeb88c7b38cd828947eb21868e9))
+* Improve ABC and set_parameters ([`ca541f6`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/ca541f606823bd64df645c569aa1cc1e4e3cac43))
+
 ## v0.3.2 (2022-11-18)
 ### Fix
 * Add mypy ([`bb0557a`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/bb0557a6560ea00e959eeeda72364e82089573bc))
