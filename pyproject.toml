@@ -15,7 +15,6 @@ pydantic = { version = "^1.10.2", source = "PyPI" }
 pre-commit = { version = "^2.20.0", source = "PyPI" }
 pytest = { version = "^7.0.0", source = "PyPI" }
 pytest-mock = { version = "^3.7.0", source = "PyPI" }
-mypy = "^0.991"
 
 [tool.poetry.group.release.dependencies]
 datax-semantic-release = { git = "https://github.com/datax-tmp/datax-semantic-release.git" }
