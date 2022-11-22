@@ -256,12 +256,12 @@ def set_pipeline_obj(function: F) -> F:
         _default_obj["from_pipeline"] = True
         _set_pipeline_obj(args, kwargs)
         _var_dict = set_var_dict(self)
-        pop_pipeline_var_dict(_var_dict, args, kwargs)
 
         cleaned_configs = PipelineConfigArgumentValidators(**_var_dict["conf"]).dict()
         _var_dict["conf"] = cleaned_configs
 
         if _default_obj["from_handler"]:
+            pop_pipeline_var_dict(_var_dict, args, kwargs)
             function(self, *args, **kwargs, **_var_dict)
         else:
             function(self, *args, **kwargs)
