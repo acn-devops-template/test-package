@@ -80,9 +80,11 @@ class Task(ABC):
         self.conf_dir = conf_dir
 
         if module_name:
-            self.module_name = module_name
+            args_l = ["--module", module_name]
         else:
-            self.module_name = self._get_module_name()
+            args_l = sys.argv[1:]
+
+        self.module_name = self._get_module_name(args_l)
 
         if init_conf:
             self.conf = init_conf
@@ -94,10 +96,13 @@ class Task(ABC):
         self.dbutils = self.get_dbutils()
         self._log_conf()
 
-    def _get_module_name(self) -> str:
+    def _get_module_name(self, args_l: List) -> str:
         """Function to get a module name.
 
         Return module name from 'module' argument in ArgumentParser.
+
+        Args:
+            args_l (List): List of arguments from CLI or module_name.
 
         Returns:
             str: 'module' argument from ArgumentParser for success.
@@ -108,7 +113,7 @@ class Task(ABC):
         """
         ps = ArgumentParser()
         ps.add_argument("--module", required=False, type=str, help="module name")
-        module_nsp = ps.parse_known_args(sys.argv[1:])[0]
+        module_nsp = ps.parse_known_args(args_l)[0]
 
         if module_nsp.module is None:
             raise ValueError(" module argument is not found ")
