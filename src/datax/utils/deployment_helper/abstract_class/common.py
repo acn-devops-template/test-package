@@ -80,9 +80,9 @@ class Task(ABC):
         self.conf_dir = conf_dir
 
         if module_name:
-            args_l: List[Any] = ["--module", module_name]
+            args_l = ["--module", module_name]
         else:
-            args_l: List[Any] = sys.argv[1:]
+            args_l = sys.argv[1:]
 
         self.module_name = self._get_module_name(args_l)
 
@@ -282,7 +282,7 @@ class Task(ABC):
             self.logger.info("\t Parameter: %-30s with value => %-30s" % (key, item))
 
     @abstractmethod
-    def launch(self) -> None:
+    def launch(self) -> Any:
         """Main method of the job.
 
         Note:
