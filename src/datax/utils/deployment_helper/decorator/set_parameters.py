@@ -384,8 +384,8 @@ def set_tfm_obj(function: F) -> F:
         if _default_obj["from_pipeline"]:
             # create dict to pass into function
 
-            _var_dict = set_var_dict()
-            pop_tfm_var_dict(_var_dict, args, kwargs)
+            _var_dict = set_var_dict()  # passed
+            pop_tfm_var_dict(_var_dict, args, kwargs)  # passed
 
             # Validate _var_dict here. The reason we ignore the return value here is because
             # within the recursive calls of the function we already have a step that replace
