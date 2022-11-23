@@ -129,7 +129,9 @@ class Task(ABC):
             SparkConf: SparkConf created using configuration in self.conf of spark_conf section
 
         """
-        sp_config_list = list(self.conf[self.module_name]["spark_config"].items())
+        sp_config_list: List[Any] = list(
+            self.conf[self.module_name]["spark_config"].items()
+        )
         sp_config = SparkConf().setAll(sp_config_list)
         return sp_config
 
@@ -280,7 +282,7 @@ class Task(ABC):
             self.logger.info("\t Parameter: %-30s with value => %-30s" % (key, item))
 
     @abstractmethod
-    def launch(self) -> None:
+    def launch(self) -> Any:
         """Main method of the job.
 
         Note:
