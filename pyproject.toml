@@ -67,7 +67,7 @@ import_heading_localfolder = "import: private/local" # a module as being a local
 force_single_line = "true"
 include_trailing_comma = "true"
 line_length = 90
-skip_glob = ["docs/*", "conf/*", "experiments/*"]
+skip_glob = ["docs/*", "conf/*", "experiments/*", "setup/*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
@@ -85,7 +85,7 @@ branch = "main"
 [tool.flakeheaven]
 max-line-length = 90
 max-complexity = 18
-exclude = ["README.md", "experiments/*", "docs/*", "connf/*", "setup/*"]
+exclude = ["README.md", "experiments/*", "docs/*", "conf/*", "setup/*"]
 # https://github.com/flakehell/flakehell/issues/10#issuecomment-822720074
 extended_default_ignore = []
 
