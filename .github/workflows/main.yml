@@ -99,7 +99,7 @@ jobs:
 
       - name: Generate badges
         run: |
-          poetry run interrogate --generate-badge ./docs/content/asset --badge-format svg
+          poetry run interrogate --generate-badge ./docs/content/asset/interrogate_badge.svg --badge-format svg
 
       - name: Commit if changes
         run: |

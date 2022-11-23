@@ -151,5 +151,5 @@ whitelist-regex = []
 color = true                                                # Toggle color output on/off when printing to stdout. [default: color] or no-color
 omit-covered-files = false                                  # Omit reporting files that have 100% documentation coverage.
 ignore-regex = []
-# generate-badge = "./icons"              # Generate a shields.io status badge (an SVG image) in at a given file or directory.
+# generate-badge = "./interrogate_badge.svg"                  # Generate a shields.io status badge (an SVG image) in at a given file or directory.
 # badge-format = "svg"
