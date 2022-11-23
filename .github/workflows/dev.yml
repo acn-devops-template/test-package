@@ -43,7 +43,12 @@ jobs:
         run: |
           poetry run pre-commit run --all-files
 
-      - name: Run unit tests
+      - name: Run Unit tests
         run: |
-          echo "Launching unit tests"
+          echo "Launching Unit tests"
           poetry run pytest tests/ -k 'test and not integration'
+
+      - name: Run Intrgration tests
+        run: |
+          echo "Launching Intrgration tests"
+          poetry run pytest tests/ -k 'integration'
