@@ -205,21 +205,20 @@ def set_pipeline_obj(function: F) -> F:
         _var_dict = {}
         for key, value in _pipeline_obj["default"].items():
             if key == "conf":
+                _var_dict["conf"] = value
                 _dict_key = function.__qualname__.split(".", 1)[0]
                 # there must be a pipeline section in conf
                 _dict_each_class = value[_dict_key]
-                _var_dict["conf"] = _dict_each_class
                 for ec_key, ec_value in _dict_each_class.items():
                     if ec_key == "spark_config":
                         pass
-                    else:
-                        # _var_dict[ec_key] = ec_value
-                        setattr(self, ec_key, ec_value)
+                    # else:
+                    #     setattr(self, ec_key, ec_value)
             else:
                 _var_dict[key] = value
-                setattr(self, key, value)
+                # setattr(self, key, value)
         _var_dict["spark"] = _pipeline_obj["spark"]
-        setattr(self, "spark", _pipeline_obj["spark"])
+        # setattr(self, "spark", _pipeline_obj["spark"])
         return _var_dict
 
     def pop_pipeline_var_dict(_var_dict: Dict, args: Tuple, kwargs: Dict) -> None:
@@ -256,9 +255,12 @@ def set_pipeline_obj(function: F) -> F:
         _default_obj["from_pipeline"] = True
         _set_pipeline_obj(args, kwargs)
         _var_dict = set_var_dict(self)
+        _dict_key = function.__qualname__.split(".", 1)[0]
 
-        cleaned_configs = PipelineConfigArgumentValidators(**_var_dict["conf"]).dict()
-        _var_dict["conf"] = cleaned_configs
+        cleaned_configs = PipelineConfigArgumentValidators(
+            **_var_dict["conf"][_dict_key]
+        ).dict()
+        _var_dict["conf"][_dict_key] = cleaned_configs
 
         if _default_obj["from_handler"]:
             pop_pipeline_var_dict(_var_dict, args, kwargs)

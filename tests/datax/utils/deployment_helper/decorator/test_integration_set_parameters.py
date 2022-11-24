@@ -24,6 +24,11 @@ class Test_Integration_Set_Parameters(unittest.TestCase):
 
     """
 
+    conf: Dict
+    spark: SparkSession
+    logger: Any
+    dbutils: Any
+
     @classmethod
     def setUpClass(self) -> None:
         """Test Function for setting up self vars.
@@ -109,9 +114,11 @@ class _Pipeline:
         self.start_date = start_date
         self.end_date = end_date
 
-        # optional
         self.spark = spark
         self.logger = logger
+
+        self.key1 = conf["_Pipeline"]["key1"]
+        self.key2 = conf["_Pipeline"]["key2"]
 
     def execute(self) -> DataFrame:
         """Main Test function of _Pipeline.
