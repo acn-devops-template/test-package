@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without test,docs
+          poetry install -v --without dev,test,docs
 
       - name: Semantic Release
         run: |

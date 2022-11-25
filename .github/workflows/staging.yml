@@ -43,8 +43,13 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without release,docs
+          poetry install -v --without dev,release,docs
 
-      - name: Functional Tests
+      - name: Run Intrgration tests
         run: |
-          echo "Functional Tests"
+          echo "Launching Intrgration tests"
+          poetry run pytest tests/ -k 'integration'
+
+      - name: Time for Functional Tests
+        run: |
+          echo "Time for Functional Tests"
