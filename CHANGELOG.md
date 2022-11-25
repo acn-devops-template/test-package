@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.4 (2022-11-25)
+### Fix
+* :ambulance: del __init__ from datax and utils ([`63c0341`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/63c03414681d479e4a6da40140c6c34d1d189d4b))
+* **set_parameters:** :art: set_pipeline_obj to only fill missing params ([`9370bff`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/9370bffa436d22448e39181577ba838c3e311c7f))
+
+### Documentation
+* Update readme ([`c6df942`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/c6df942525fd07ea56101a7c367a537c0260a437))
+
 ## v0.3.3 (2022-11-22)
 ### Fix
 * Pop _var_dict in pipeline only from handler ([`3ff6c8d`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/3ff6c8d1ab7b71402258b466c1c8c028a443077d))
