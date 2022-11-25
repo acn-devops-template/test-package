@@ -42,5 +42,5 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: ["types-PyYAML"]
-        args: [.]
+        args: [src]
         pass_filenames: false
