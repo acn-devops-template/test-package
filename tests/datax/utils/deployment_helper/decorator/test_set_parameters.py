@@ -26,6 +26,11 @@ class Test_Set_Default_Obj(unittest.TestCase):
 
     """
 
+    conf: Dict
+    spark: SparkSession
+    logger: Any
+    dbutils: Any
+
     @classmethod
     def setUpClass(self) -> None:
         """Setup function for testing set_default_obj.
@@ -66,6 +71,8 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
         unittest.TestCase: An unittest TestCase.
 
     """
+
+    test_conf: Dict
 
     @classmethod
     def setUpClass(self) -> None:
@@ -114,10 +121,10 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
 
         """
         self.assertIsInstance(spark, SparkSession)
-        self.assertEqual(conf, self.test_conf["Test_Set_Pipeline_Obj"])
+        self.assertEqual(conf, self.test_conf)
         self.assertTrue(_default_obj["from_pipeline"], "from_pipeline is not True")
-        self.assertEqual(self.key1, "value1")
-        self.assertEqual(self.key2, "value2")
+        self.assertEqual(conf["Test_Set_Pipeline_Obj"]["key1"], "value1")
+        self.assertEqual(conf["Test_Set_Pipeline_Obj"]["key2"], "value2")
         try:
             logger.warn("Test logger")
         except KeyError:
@@ -134,6 +141,8 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
 
     """
 
+    test_conf: Dict
+
     @classmethod
     def setUpClass(self) -> None:
         """Setup function for testing set_tfm_obj.
@@ -141,6 +150,7 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
         Set conf, spark, logger, dbutils to _pipeline_obj before test function
 
         """
+
         conf = {
             "Test_Set_Tfm_Obj": {
                 "key1": "value1",
