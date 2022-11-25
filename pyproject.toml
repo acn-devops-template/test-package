@@ -132,7 +132,13 @@ show_error_context = true
 pretty = true
 scripts_are_modules = true
 disable_error_code = ["call-arg"]
-exclude = ['docs/', 'experiments/', 'conf/', 'setup/']
+exclude = [
+    'docs/',
+    'experiments/',
+    'conf/',
+    'setup/',
+    'tests/',
+] # exclude tests for now
 
 [tool.interrogate]
 ignore-init-method = false                                  # Ignore __init__ method of classes. [default: False]
