@@ -2,7 +2,8 @@
 
 # import: standard
 import pathlib
-import unittest
+from typing import Dict
+from typing import Tuple
 
 # import: pyspark
 from pyspark.sql import SparkSession
@@ -11,48 +12,64 @@ from pyspark.sql import SparkSession
 from datax.utils.deployment_helper.abstract_class.common import Task
 
 # import: external
+import pytest
 import yaml
 
 
-class Test_ABC_Common(unittest.TestCase):
+class Mock_ABC(Task):
     """Test Class for testing Task(ABC).
 
-    Class for testing Task(ABC).
-
-    Args:
-        unittest.TestCase: An unittest TestCase.
+    To call Task and return spark and conf
 
     """
 
-    @unittest.mock.patch.multiple(Task, __abstractmethods__=set())
-    def test(self):
+    def launch(self) -> Tuple[SparkSession, Dict]:
         """Test function for testing Task(ABC).
 
-        Main test function of Test_ABC_Common.
+        To return spark and conf
+
+        Return:
+            SparkSession: spark
+            Dict: conf dict
 
         """
-        self.instance = Task(module_name="Test_ABC_Module", conf_dir="./tests/resources/")
+        return self.spark, self.conf
 
-        firstValue = yaml.safe_load(
-            pathlib.Path(
-                "./tests/resources/test_pipeline/test_conf_file/Test_ABC_Module.yml"
-            ).read_text()
-        )
-        message = "First value and second value are not equal !"
 
-        secondValue = self.instance.conf
-        # assertEqual() to check equality of first & second value
-        self.assertEqual(firstValue, secondValue, message)
-        self.assertIsInstance(self.instance.spark, SparkSession)
-        self.assertRaises(
-            ValueError,
-            Task,
-            module_name="Test_ABC_Module_2",
-            conf_dir="./tests/resources/",
-        )
-        self.assertRaises(
-            FileNotFoundError,
-            Task,
-            module_name="Test_ABC_Module_3",
-            conf_dir="./tests/resources/",
-        )
+def test() -> None:
+    """Test function for testing Task(ABC).
+
+    To test spark and conf value of Task(ABC)
+
+    """
+    task = Mock_ABC(module_name="Test_ABC_Module", conf_dir="./tests/resources/")
+    test_spark, test_conf = task.launch()
+
+    firstValue = yaml.safe_load(
+        pathlib.Path(
+            "./tests/resources/test_pipeline/test_conf_file/Test_ABC_Module.yml"
+        ).read_text()
+    )
+
+    assert firstValue == test_conf
+    assert type(test_spark) == SparkSession
+
+
+def test_ValueError() -> None:
+    """Test function for testing Task(ABC).
+
+    To test ValueError if found more than 1 config
+
+    """
+    with pytest.raises(ValueError):
+        Mock_ABC(module_name="Test_ABC_Module_2", conf_dir="./tests/resources/")
+
+
+def test_FileNotFoundError() -> None:
+    """Test function for testing Task(ABC).
+
+    To test FileNotFoundError if could not find any config
+
+    """
+    with pytest.raises(FileNotFoundError):
+        Mock_ABC(module_name="Test_ABC_Module_3", conf_dir="./tests/resources/")

@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without test,docs
+          poetry install -v --without dev,test,docs
 
       - name: Semantic Release
         run: |
@@ -99,7 +99,7 @@ jobs:
 
       - name: Generate badges
         run: |
-          poetry run interrogate --generate-badge ./docs/content/asset --badge-format svg
+          poetry run interrogate --generate-badge ./docs/content/asset/interrogate_badge.svg --badge-format svg
 
       - name: Commit if changes
         run: |
