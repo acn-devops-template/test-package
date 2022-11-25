@@ -121,7 +121,7 @@ pyflakes = [
     "-F401",
 ]
 
-[tool.mypy]
+[tool.mypy] # only run on src
 ignore_missing_imports = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true
@@ -132,13 +132,6 @@ show_error_context = true
 pretty = true
 scripts_are_modules = true
 disable_error_code = ["call-arg"]
-exclude = [
-    'docs/',
-    'experiments/',
-    'conf/',
-    'setup/',
-    'tests/',
-] # exclude tests for now
 
 [tool.interrogate]
 ignore-init-method = false                                  # Ignore __init__ method of classes. [default: False]
