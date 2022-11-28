@@ -383,6 +383,15 @@ def set_tfm_obj(function: F) -> F:
 
         """
 
+        data_source_key_name = (
+            "data_source"  # the key that its value is required to be validated.
+        )
+        function_argument_list = list(
+            function.__code__.co_varnames
+        )  # list of all arguments of __init__() function of the decorated class.
+        data_source_index = (
+            function_argument_list.index(data_source_key_name) - 1
+        )  # find the index of the `data_source`, minus 1 due to `args` skips `self`.
         if _default_obj["from_pipeline"]:
             # create dict to pass into function
 
@@ -393,13 +402,22 @@ def set_tfm_obj(function: F) -> F:
             # within the recursive calls of the function we already have a step that replace
             # the unvalidated values with the validated ones, i.e., the line that has a code:
             # if ret is not None: cfg_dict[key] = ret.
-            if "data_source" in _var_dict.keys():
+            if data_source_key_name in _var_dict.keys():
                 _ = validate_schema_path_in_cfg_endswith_dot_json(
-                    _var_dict["data_source"]
+                    _var_dict[data_source_key_name]
                 )
 
             function(self, *args, **kwargs, **_var_dict)
         else:
+            # handle the case when `data_source` is passed as a keyword argument
+            if kwargs.get(data_source_key_name, None):
+                _ = validate_schema_path_in_cfg_endswith_dot_json(
+                    kwargs[data_source_key_name]
+                )
+            # handle the case when `data_source` is passed as a positional argument
+            elif data_source_index < len(args) and args[data_source_index]:
+                _ = validate_schema_path_in_cfg_endswith_dot_json(args[data_source_index])
+
             function(self, *args, **kwargs)
 
     return cast(F, wrap_set_tfm_obj)
@@ -443,3 +461,36 @@ def set_default_obj(func: F) -> F:
         func(self, *args, **kwargs)
 
     return cast(F, wrap_add_default_obj)
+
+
+if __name__ == "__main__":
+
+    class Test:
+        @set_tfm_obj
+        def __init__(
+            self,
+            start_date: str,
+            end_date: str,
+            data_source: Dict,
+            spark: SparkSession = None,
+            logger: Any = None,
+        ) -> None:
+            self.spark = spark
+            self.data_source = data_source
+            self.logger = logger
+
+            self.start_date = start_date
+            self.end_date = end_date
+
+    data_source = {
+        "A": {"source_1": {"x": "y"}},
+        "source_2": {
+            "input_schema_path": "resources/people_schema.json",
+            "ref_schema_path": "resources/people_schema.json",
+            "input_data_endpoint": "resources/people.json",
+        },
+    }
+    Test(
+        "2022-0630", "20220640", data_source
+    )  # for testing the validation flow for the case of passing data_source as a positional argument
+    # Test("2022-0630", "20220640", data_source=data_source)  # for testing the validation flow for the case of passing data_source as a keyword argument
