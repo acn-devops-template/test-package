@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.5 (2022-11-29)
+### Fix
+* :beers: rename set parameters decorators to auto parameters ([`b6b62a5`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/b6b62a5f5030344d620865dbe1f7b43a3fcc6fdc))
+
+### Documentation
+* :memo: rename tutorial section name ([`86aa9c2`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/86aa9c2c0d7ed726e6a78ef94302522540df7052))
+* :memo: rename tutorial notebook in docs ([`156fc2b`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/156fc2b1714557fe09b76f4c3605cd341b00fb67))
+
 ## v0.3.4 (2022-11-25)
 ### Fix
 * :ambulance: del __init__ from datax and utils ([`63c0341`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/63c03414681d479e4a6da40140c6c34d1d189d4b))
