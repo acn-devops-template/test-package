@@ -1,4 +1,4 @@
-"""decorator test of set_default_obj, set_pipeline_obj, set_tfm_obj modules"""
+"""decorator test of init_auto_parameters, parse_auto_parameters, get_auto_parameters modules"""
 
 # import: standard
 import unittest
@@ -9,17 +9,17 @@ from typing import Dict
 from pyspark.sql import SparkSession
 
 # import: datax in-house
-from datax.utils.deployment_helper.decorator.set_parameters import _default_obj
-from datax.utils.deployment_helper.decorator.set_parameters import _pipeline_obj
-from datax.utils.deployment_helper.decorator.set_parameters import set_default_obj
-from datax.utils.deployment_helper.decorator.set_parameters import set_pipeline_obj
-from datax.utils.deployment_helper.decorator.set_parameters import set_tfm_obj
+from datax.utils.deployment_helper.decorator.auto_parameters import _default_obj
+from datax.utils.deployment_helper.decorator.auto_parameters import _pipeline_obj
+from datax.utils.deployment_helper.decorator.auto_parameters import get_auto_parameters
+from datax.utils.deployment_helper.decorator.auto_parameters import init_auto_parameters
+from datax.utils.deployment_helper.decorator.auto_parameters import parse_auto_parameters
 
 
-class Test_Set_Default_Obj(unittest.TestCase):
-    """Test Class for testing set_default_obj.
+class Test_init_auto_parameters(unittest.TestCase):
+    """Test Class for testing init_auto_parameters.
 
-    Class for testing set_default_obj.
+    Class for testing init_auto_parameters.
 
     Args:
         unittest.TestCase: An unittest TestCase.
@@ -33,7 +33,7 @@ class Test_Set_Default_Obj(unittest.TestCase):
 
     @classmethod
     def setUpClass(self) -> None:
-        """Setup function for testing set_default_obj.
+        """Setup function for testing init_auto_parameters.
 
         Set conf, spark, logger, dbutils to self before test function.
 
@@ -41,15 +41,15 @@ class Test_Set_Default_Obj(unittest.TestCase):
         self.conf = {"key1": "value1", "key2": "value2"}
         self.spark = SparkSession.builder.getOrCreate()
         self.logger = self.spark._jvm.org.apache.log4j.LogManager.getLogger(
-            "test_set_default_obj"
+            "test_init_auto_parameters"
         )
         self.dbutils = None
 
-    @set_default_obj
+    @init_auto_parameters
     def test(self) -> None:
-        """Test function for testing set_default_obj.
+        """Test function for testing init_auto_parameters.
 
-        Main test function of Test_Set_Default_Obj.
+        Main test function of Test_init_auto_parameters.
 
         """
 
@@ -62,10 +62,10 @@ class Test_Set_Default_Obj(unittest.TestCase):
             self.fail("logger raised KeyError unexpectedly!")
 
 
-class Test_Set_Pipeline_Obj(unittest.TestCase):
-    """Test Class for testing set_pipeline_obj.
+class Test_parse_auto_parameters(unittest.TestCase):
+    """Test Class for testing parse_auto_parameters.
 
-    Class for testing set_pipeline_obj.
+    Class for testing parse_auto_parameters.
 
     Args:
         unittest.TestCase: An unittest TestCase.
@@ -76,13 +76,13 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
 
     @classmethod
     def setUpClass(self) -> None:
-        """Setup function for testing set_pipeline_obj.
+        """Setup function for testing parse_auto_parameters.
 
         Set conf, spark, logger, dbutils to _default_obj before test function
 
         """
         conf = {
-            "Test_Set_Pipeline_Obj": {
+            "Test_parse_auto_parameters": {
                 "key1": "value1",
                 "key2": "value2",
                 "data_processor_name": "str",
@@ -93,7 +93,9 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
         }
         self.test_conf = conf
         spark = SparkSession.builder.getOrCreate()
-        logger = spark._jvm.org.apache.log4j.LogManager.getLogger("test_set_pipeline_obj")
+        logger = spark._jvm.org.apache.log4j.LogManager.getLogger(
+            "test_parse_auto_parameters"
+        )
         dbutils = None
         _default_obj["spark"] = spark
         _default_obj["default"]["conf"] = conf
@@ -101,7 +103,7 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
         _default_obj["default"]["dbutils"] = dbutils
         _default_obj["from_handler"] = True
 
-    @set_pipeline_obj
+    @parse_auto_parameters
     def test(
         self,
         spark: SparkSession,
@@ -109,9 +111,9 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
         logger: Any = None,
         dbutils: Any = None,
     ) -> None:
-        """Test function for testing set_pipeline_obj.
+        """Test function for testing parse_auto_parameters.
 
-        Main test function of Test_Set_Pipeline_Obj.
+        Main test function of Test_parse_auto_parameters.
 
         Args:
             spark (SparkSession): A SparkSession.
@@ -123,18 +125,18 @@ class Test_Set_Pipeline_Obj(unittest.TestCase):
         self.assertIsInstance(spark, SparkSession)
         self.assertEqual(conf, self.test_conf)
         self.assertTrue(_default_obj["from_pipeline"], "from_pipeline is not True")
-        self.assertEqual(conf["Test_Set_Pipeline_Obj"]["key1"], "value1")
-        self.assertEqual(conf["Test_Set_Pipeline_Obj"]["key2"], "value2")
+        self.assertEqual(conf["Test_parse_auto_parameters"]["key1"], "value1")
+        self.assertEqual(conf["Test_parse_auto_parameters"]["key2"], "value2")
         try:
             logger.warn("Test logger")
         except KeyError:
             self.fail("logger raised KeyError unexpectedly!")
 
 
-class Test_Set_Tfm_Obj(unittest.TestCase):
-    """Test Class for testing set_tfm_obj.
+class Test_get_auto_parameters(unittest.TestCase):
+    """Test Class for testing get_auto_parameters.
 
-    Class for testing set_tfm_obj.
+    Class for testing get_auto_parameters.
 
     Args:
         unittest.TestCase: An unittest TestCase.
@@ -145,14 +147,14 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
 
     @classmethod
     def setUpClass(self) -> None:
-        """Setup function for testing set_tfm_obj.
+        """Setup function for testing get_auto_parameters.
 
         Set conf, spark, logger, dbutils to _pipeline_obj before test function
 
         """
 
         conf = {
-            "Test_Set_Tfm_Obj": {
+            "Test_get_auto_parameters": {
                 "key1": "value1",
                 "key2": "value2",
                 "data_source": {
@@ -164,7 +166,9 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
         }
         self.test_conf = conf
         spark = SparkSession.builder.getOrCreate()
-        logger = spark._jvm.org.apache.log4j.LogManager.getLogger("test_set_tfm_obj")
+        logger = spark._jvm.org.apache.log4j.LogManager.getLogger(
+            "test_get_auto_parameters"
+        )
         dbutils = None
         _pipeline_obj["spark"] = spark
         _pipeline_obj["default"]["conf"] = conf
@@ -173,7 +177,7 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
 
         _default_obj["from_pipeline"] = True
 
-    @set_tfm_obj
+    @get_auto_parameters
     def test(
         self,
         key1: str,
@@ -183,9 +187,9 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
         logger: Any = None,
         dbutils: Any = None,
     ) -> None:
-        """Test function for testing set_tfm_obj.
+        """Test function for testing get_auto_parameters.
 
-        Main test function of Test_Set_Tfm_Obj.
+        Main test function of Test_get_auto_parameters.
 
         Args:
             key1: test variable 1
@@ -199,7 +203,9 @@ class Test_Set_Tfm_Obj(unittest.TestCase):
         self.assertIsInstance(spark, SparkSession)
         self.assertEqual(key1, "value1")
         self.assertEqual(key2, "value2")
-        self.assertEqual(data_source, self.test_conf["Test_Set_Tfm_Obj"]["data_source"])
+        self.assertEqual(
+            data_source, self.test_conf["Test_get_auto_parameters"]["data_source"]
+        )
         try:
             logger.warn("Test logger")
         except KeyError:

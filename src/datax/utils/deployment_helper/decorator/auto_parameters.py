@@ -1,4 +1,4 @@
-"""decorator set_default_obj, set_pipeline_obj, set_tfm_obj modules"""
+"""decorator init_auto_parameters, parse_auto_parameters, get_auto_parameters modules"""
 
 # import: standard
 import functools
@@ -64,8 +64,8 @@ def pop_var_dict(co_var: List, _var_dict: Dict, args: Tuple, kwargs: Dict) -> No
             _var_dict.pop(each_var, None)
 
 
-def set_pipeline_obj(function: F) -> F:
-    """Decorator function for setting pipeline objects.
+def parse_auto_parameters(function: F) -> F:
+    """Decorator function for setting pipeline parameters.
 
     Take conf, logger, spark from _default_obj (created from __main__)
     and pass these variables to function as keyword arguments
@@ -75,7 +75,7 @@ def set_pipeline_obj(function: F) -> F:
         function (Callable): A __init__ function of a pipeline class.
 
     Returns:
-        Callable: 'wrap_set_pipeline_obj' function.
+        Callable: 'wrap_parse_auto_parameters' function.
 
     """
 
@@ -169,7 +169,7 @@ def set_pipeline_obj(function: F) -> F:
 
         return default_conf_list
 
-    def _set_pipeline_obj(args: Tuple, kwargs: Dict) -> None:
+    def _parse_auto_parameters(args: Tuple, kwargs: Dict) -> None:
         """Function for setting '_pipeline_obj'.
 
         if from_handler, takes vars from _default_obj
@@ -240,10 +240,10 @@ def set_pipeline_obj(function: F) -> F:
         pop_var_dict(pipeline_co_var, _var_dict, args, kwargs)
 
     @functools.wraps(function)
-    def wrap_set_pipeline_obj(self: Any, *args: Any, **kwargs: Any) -> None:
-        """Main function of set_pipeline_obj.
+    def wrap_parse_auto_parameters(self: Any, *args: Any, **kwargs: Any) -> None:
+        """Main function of parse_auto_parameters.
 
-        Main function for setting pipeline vars
+        Main function for setting pipeline parameters
         set from_pipeline flag and provide kwargs if run from __main__
 
         Args:
@@ -253,7 +253,7 @@ def set_pipeline_obj(function: F) -> F:
 
         """
         _default_obj["from_pipeline"] = True
-        _set_pipeline_obj(args, kwargs)
+        _parse_auto_parameters(args, kwargs)
         _var_dict = set_var_dict(self)
         _dict_key = function.__qualname__.split(".", 1)[0]
 
@@ -268,7 +268,7 @@ def set_pipeline_obj(function: F) -> F:
         else:
             function(self, *args, **kwargs)
 
-    return cast(F, wrap_set_pipeline_obj)
+    return cast(F, wrap_parse_auto_parameters)
 
 
 def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict: Dict) -> Optional[Dict]:
@@ -309,8 +309,8 @@ def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict: Dict) -> Optional[Di
     return None
 
 
-def set_tfm_obj(function: F) -> F:
-    """Decorator function for setting transformation class objects.
+def get_auto_parameters(function: F) -> F:
+    """Decorator function for setting transformation class parameters.
 
     Take conf, logger, spark from _pipeline_obj (created from pipeline)
     and pass these variables to function as keyword arguments
@@ -320,7 +320,7 @@ def set_tfm_obj(function: F) -> F:
         function (Callable): A __init__ function of a pipeline class.
 
     Returns:
-        Callable: 'wrap_set_tfm_obj' function.
+        Callable: 'wrap_get_auto_parameters' function.
 
     """
 
@@ -369,8 +369,8 @@ def set_tfm_obj(function: F) -> F:
         pop_var_dict(tfm_co_var, _var_dict, args, kwargs)
 
     @functools.wraps(function)
-    def wrap_set_tfm_obj(self: Any, *args: Any, **kwargs: Any) -> None:
-        """Main function of set_tfm_obj.
+    def wrap_get_auto_parameters(self: Any, *args: Any, **kwargs: Any) -> None:
+        """Main function of get_auto_parameters.
 
         Main function for setting trnsformation vars
         Determine if executed from a pipeline or not
@@ -384,7 +384,8 @@ def set_tfm_obj(function: F) -> F:
         """
 
         data_source_key_name = (
-            "data_source"  # the key that its value is required to be validated.
+            # the key that its value is required to be validated.
+            "data_source"
         )
         function_argument_list = list(
             function.__code__.co_varnames
@@ -420,10 +421,10 @@ def set_tfm_obj(function: F) -> F:
 
             function(self, *args, **kwargs)
 
-    return cast(F, wrap_set_tfm_obj)
+    return cast(F, wrap_get_auto_parameters)
 
 
-def set_default_obj(func: F) -> F:
+def init_auto_parameters(func: F) -> F:
     """Decorator function for setting default objects.
 
     Store self.conf, self.logger, self.dbutils, self.spark in a dictionary
@@ -439,7 +440,7 @@ def set_default_obj(func: F) -> F:
 
     @functools.wraps(func)
     def wrap_add_default_obj(self: Any, *args: Any, **kwargs: Any) -> None:
-        """Main function of set_default_obj.
+        """Main function of init_auto_parameters.
 
         Main function for setting default obj
         put conf, logger, dbutils, spark in '_default_obj' dict and set 'from_handler' flag to True
@@ -466,7 +467,7 @@ def set_default_obj(func: F) -> F:
 if __name__ == "__main__":
 
     class Test:
-        @set_tfm_obj
+        @get_auto_parameters
         def __init__(
             self,
             start_date: str,
