@@ -151,4 +151,4 @@ nav:
   - Home: index.md
   - API Reference: reference/ #content/api.md
   - Tutorial:
-      - Set Parameters: content/set_parameters_example.ipynb
+      - Auto Parameters: content/auto_parameters_example.ipynb
