@@ -1,4 +1,4 @@
-"""decorator integration test of set_default_obj, set_pipeline_obj, set_tfm_obj modules"""
+"""decorator integration test of init_auto_parameters, parse_auto_parameters, get_auto_parameters modules"""
 
 # import: standard
 import unittest
@@ -11,13 +11,13 @@ from pyspark.sql import DataFrame
 from pyspark.sql import SparkSession
 
 # import: datax in-house
-from datax.utils.deployment_helper.decorator.set_parameters import set_default_obj
-from datax.utils.deployment_helper.decorator.set_parameters import set_pipeline_obj
-from datax.utils.deployment_helper.decorator.set_parameters import set_tfm_obj
+from datax.utils.deployment_helper.decorator.auto_parameters import get_auto_parameters
+from datax.utils.deployment_helper.decorator.auto_parameters import init_auto_parameters
+from datax.utils.deployment_helper.decorator.auto_parameters import parse_auto_parameters
 
 
-class Test_Integration_Set_Parameters(unittest.TestCase):
-    """Test Class for integration test of set_parameters.
+class Test_Integration_auto_parameters(unittest.TestCase):
+    """Test Class for integration test of auto_parameters.
 
     Args:
         unittest.TestCase: An unittest TestCase.
@@ -57,15 +57,15 @@ class Test_Integration_Set_Parameters(unittest.TestCase):
         }
         self.spark = SparkSession.builder.getOrCreate()
         self.logger = self.spark._jvm.org.apache.log4j.LogManager.getLogger(
-            "test_set_parameters"
+            "test_auto_parameters"
         )
         self.dbutils = None
 
-    @set_default_obj
+    @init_auto_parameters
     def test(self) -> None:
-        """Test function for set_parameters.
+        """Test function for auto_parameters.
 
-        Main test function of Test_Integration_Set_Parameters.
+        Main test function of Test_Integration_auto_parameters.
 
         """
         self.logger.info("Launching task")
@@ -86,11 +86,11 @@ class Test_Integration_Set_Parameters(unittest.TestCase):
 
 class _Pipeline:
     """
-    _Pipeline mock class for integration test of set_parameters
+    _Pipeline mock class for integration test of auto_parameters
 
     """
 
-    @set_pipeline_obj
+    @parse_auto_parameters
     def __init__(
         self,
         start_date: str,
@@ -100,7 +100,7 @@ class _Pipeline:
         logger: Any = None,
         dbutils: Any = None,
     ) -> None:
-        """Mock __init__ of _Pipeline for set_pipeline_obj.
+        """Mock __init__ of _Pipeline for parse_auto_parameters.
 
         Args:
             start_date: start_date
@@ -141,11 +141,11 @@ class _Pipeline:
 
 class _Agg:
     """
-    _Agg mock class for integration test of set_parameters
+    _Agg mock class for integration test of auto_parameters
 
     """
 
-    @set_tfm_obj
+    @get_auto_parameters
     def __init__(
         self,
         start_date: str,
@@ -157,7 +157,7 @@ class _Agg:
         logger: Any = None,
         dbutils: Any = None,
     ) -> None:
-        """Mock __init__ of _Agg for set_tfm_obj.
+        """Mock __init__ of _Agg for get_auto_parameters.
 
         Args:
             start_date: start_date
