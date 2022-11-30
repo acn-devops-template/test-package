@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2022-11-30)
+### Feature
+* Validate pipeline cfg when pipeline cls is called directly ([`7106f0a`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/7106f0affdf1810ac330ef92e0e611355a5a77e4))
+
 ## v0.3.5 (2022-11-29)
 ### Fix
 * :beers: rename set parameters decorators to auto parameters ([`b6b62a5`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/b6b62a5f5030344d620865dbe1f7b43a3fcc6fdc))
