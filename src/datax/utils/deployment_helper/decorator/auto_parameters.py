@@ -257,15 +257,27 @@ def parse_auto_parameters(function: F) -> F:
         _var_dict = set_var_dict(self)
         _dict_key = function.__qualname__.split(".", 1)[0]
 
-        cleaned_configs = PipelineConfigArgumentValidators(
-            **_var_dict["conf"][_dict_key]
-        ).dict()
-        _var_dict["conf"][_dict_key] = cleaned_configs
-
         if _default_obj["from_handler"]:
+            cleaned_configs = PipelineConfigArgumentValidators(
+                **_var_dict["conf"][_dict_key]
+            ).dict()
+            _var_dict["conf"][_dict_key] = cleaned_configs
+
             pop_pipeline_var_dict(_var_dict, args, kwargs)
             function(self, *args, **kwargs, **_var_dict)
         else:
+            config_key_name = "conf"
+            config_index = list(function.__code__.co_varnames).index(config_key_name) - 1
+            if kwargs.get(config_key_name, None):
+                cleaned_configs = PipelineConfigArgumentValidators(
+                    **kwargs[config_key_name][_dict_key]
+                )
+                kwargs[config_key_name][_dict_key] = cleaned_configs
+            elif config_index < len(args) and args[config_index]:
+                cleaned_configs = PipelineConfigArgumentValidators(
+                    **args[config_index][_dict_key]
+                )
+                args[config_index][_dict_key] = cleaned_configs
             function(self, *args, **kwargs)
 
     return cast(F, wrap_parse_auto_parameters)
@@ -466,22 +478,22 @@ def init_auto_parameters(func: F) -> F:
 
 if __name__ == "__main__":
 
-    class Test:
-        @get_auto_parameters
-        def __init__(
-            self,
-            start_date: str,
-            end_date: str,
-            data_source: Dict,
-            spark: SparkSession = None,
-            logger: Any = None,
-        ) -> None:
-            self.spark = spark
-            self.data_source = data_source
-            self.logger = logger
+    # class Test:
+    #     @get_auto_parameters
+    #     def __init__(
+    #         self,
+    #         start_date: str,
+    #         end_date: str,
+    #         data_source: Dict,
+    #         spark: SparkSession = None,
+    #         logger: Any = None,
+    #     ) -> None:
+    #         self.spark = spark
+    #         self.data_source = data_source
+    #         self.logger = logger
 
-            self.start_date = start_date
-            self.end_date = end_date
+    #         self.start_date = start_date
+    #         self.end_date = end_date
 
     data_source = {
         "A": {"source_1": {"x": "y"}},
@@ -491,7 +503,41 @@ if __name__ == "__main__":
             "input_data_endpoint": "resources/people.json",
         },
     }
-    Test(
-        "2022-0630", "20220640", data_source
-    )  # for testing the validation flow for the case of passing data_source as a positional argument
+    # Test(
+    #     "2022-0630", "20220640", data_source
+    # )  # for testing the validation flow for the case of passing data_source as a positional argument
     # Test("2022-0630", "20220640", data_source=data_source)  # for testing the validation flow for the case of passing data_source as a keyword argument
+
+    class TestPipeline:
+        # import: standard
+        from datetime import datetime
+        from typing import Union
+
+        @parse_auto_parameters
+        def __init__(
+            self,
+            start_date: str,
+            end_date: str,
+            conf: Dict,
+            spark: SparkSession = None,
+            logger: Any = None,
+        ) -> None:
+            self.start_date = start_date
+            self.end_date = end_date
+
+            self.spark = spark
+            self.logger = logger
+            self.conf = conf[self.__class__.__name__]
+
+    my_conf = {
+        "TestPipeline": {
+            "data_processor_name": "datax",
+            "main_transformation_name": "tmp_mutiple_srcs",
+            "output_data_path": "spark-warehouse/resources/people",
+            "output_schema_path": "outputs/output_schema.xml",
+            "spark_config": None,
+        },
+        "MultipleSrcsAgg2": {"data_source": None},
+    }
+
+    TestPipeline("2022-0630", "20220640", my_conf)
