@@ -60,41 +60,59 @@ class Task(ABC):
 
     def __init__(
         self,
-        spark: SparkSession = None,
-        init_conf: Dict = None,
-        module_name: str = None,
-        conf_dir: str = "./conf",
+        spark: Optional[SparkSession] = None,
+        init_conf: Optional[Dict] = None,
+        module_name: Optional[str] = None,
+        conf_path: Optional[str] = None,
     ) -> None:
         """__init__ function of Task class.
 
         Set following useful objects: self.conf, self.spark, self.logger, self.dbutils.
 
         Args:
-            spark (SparkSession): Use this input as self.spark if provided, create a SparkSession otherwise.
-            init_conf (Dict): Use this input as self.conf if provided, use a pipeline conf otherwise.
-            module_name (str): Use this input as self.module_name if provided, get a module name from ArgumentParser otherwise.
-            conf_dir (str):  Use this input as self.conf_dir if provided, defaults to "./conf" otherwise.
+            spark (Optional[SparkSession]): Use this input as self.spark if provided, create a SparkSession otherwise.
+            init_conf (Optional[Dict]): Use this input as self.conf if provided, use a pipeline conf otherwise.
+            module_name (Optional[str]): Use this input as self.module_name if provided, get a module name from ArgumentParser otherwise.
+            conf_path (str):  Use this path to find a conf file, defaults to "./conf" otherwise.
 
         """
         self._set_config = False
-        self.conf_dir = conf_dir
 
-        if module_name:
-            args_l = ["--module", module_name]
-        else:
-            args_l = sys.argv[1:]
+        args_l = self._prep_cli_arg(module_name, conf_path)
 
         self.module_name = self._get_module_name(args_l)
 
         if init_conf:
             self.conf = init_conf
         else:
-            self.conf = self._provide_config()
+            self.conf = self._provide_config(args_l)
 
         self.spark = self._prepare_spark(spark)
         self.logger = self._prepare_logger()
         self.dbutils = self.get_dbutils()
         self._log_conf()
+
+    @staticmethod
+    def _prep_cli_arg(module_name: Optional[str], conf_path: str) -> List:
+        """Function to prepare a list to use in ArgumentParser.
+
+        Args:
+            module_name (Optional[str]): Name of the module.
+            conf_path (str): Path to conf folder
+
+        Returns:
+            List: A list containing parameters.
+
+        """
+        args_l = sys.argv[1:]
+
+        if module_name:
+            args_l.extend(["--module", module_name])
+
+        if conf_path:
+            args_l.extend(["--conf_path", conf_path])
+
+        return args_l
 
     def _get_module_name(self, args_l: List) -> str:
         """Function to get a module name.
@@ -199,23 +217,29 @@ class Task(ABC):
 
         return utils
 
-    def _provide_config(self) -> Dict:
+    def _provide_config(self, args_l: List) -> Dict:
         """Function to get conf.
 
         Get a conf file from pipeline dir and Read a conf file.
+
+        Args:
+            args_l (List): A list containing parameters.
 
         Returns:
             Dict: Conf from safe_load yaml.
 
         """
-        conf_file = self._get_conf_file()
+        conf_file = self._get_conf_file(args_l)
         return self._read_config(conf_file)
 
-    def _get_conf_file(self) -> str:
+    def _get_conf_file(self, args_l: List) -> str:
         """Function to get a conf file path.
 
         Find a conf file based on Glob pattern '**/*pipeline*/**/{module_name}.yml' (yml or yaml).
-        The root path is based on self.conf_dir.
+        The root path is based on conf_path.
+
+        Args:
+            args_l (List): A list containing parameters.
 
         Returns:
             str: Conf path from a pipeline dir.
@@ -227,15 +251,32 @@ class Task(ABC):
             f"**/*pipeline*/**/{self.module_name}.yaml",
         )
 
+        # get conf_path from ArgumentParser
+        ps = ArgumentParser()
+        ps.add_argument(
+            "--conf_path",
+            required=False,
+            type=str,
+            help="path to conf folder",
+            default="./conf",
+        )
+
+        conf_path_nsp = ps.parse_known_args(args_l)[0]
+        conf_dir = conf_path_nsp.conf_path
+
+        # for testing via Databricks and use DBFS path
+        if "dbfs:" in conf_dir:
+            conf_dir = conf_dir.replace("dbfs:", "/dbfs")
+
         files_grabbed: List[Any] = []
         for each in types:
-            files_grabbed.extend(pathlib.Path(self.conf_dir).glob(each))
+            files_grabbed.extend(pathlib.Path(conf_dir).glob(each))
 
         conf_list = [x for x in files_grabbed if x.is_file()]
 
         if len(conf_list) == 0:
             raise FileNotFoundError(
-                f"""Cannot file the pipeline conf via this glob pattern: '{self.conf_dir}/**/*pipeline*/**/{self.module_name}.yml', please make sure the module name is correct and the configuration file exists"""
+                f"""Cannot file the pipeline conf via this glob pattern: '{conf_dir}/**/*pipeline*/**/{self.module_name}.yml', please make sure the module name is correct and the configuration file exists"""
             )
         elif len(conf_list) > 1:
             raise ValueError(f" Found more than one conf, {conf_list} ")
