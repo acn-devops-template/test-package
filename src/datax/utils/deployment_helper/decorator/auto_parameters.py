@@ -271,12 +271,12 @@ def parse_auto_parameters(function: F) -> F:
             if kwargs.get(config_key_name, None):
                 cleaned_configs = PipelineConfigArgumentValidators(
                     **kwargs[config_key_name][_dict_key]
-                )
+                ).dict()
                 kwargs[config_key_name][_dict_key] = cleaned_configs
             elif config_index < len(args) and args[config_index]:
                 cleaned_configs = PipelineConfigArgumentValidators(
                     **args[config_index][_dict_key]
-                )
+                ).dict()
                 args[config_index][_dict_key] = cleaned_configs
             function(self, *args, **kwargs)
 

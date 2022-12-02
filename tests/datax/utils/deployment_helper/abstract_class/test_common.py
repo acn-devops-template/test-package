@@ -42,7 +42,7 @@ def test() -> None:
     To test spark and conf value of Task(ABC)
 
     """
-    task = Mock_ABC(module_name="Test_ABC_Module", conf_dir="./tests/resources/")
+    task = Mock_ABC(module_name="Test_ABC_Module", conf_path="./tests/resources/")
     test_spark, test_conf = task.launch()
 
     firstValue = yaml.safe_load(
@@ -62,7 +62,7 @@ def test_ValueError() -> None:
 
     """
     with pytest.raises(ValueError):
-        Mock_ABC(module_name="Test_ABC_Module_2", conf_dir="./tests/resources/")
+        Mock_ABC(module_name="Test_ABC_Module_2", conf_path="./tests/resources/")
 
 
 def test_FileNotFoundError() -> None:
@@ -72,4 +72,4 @@ def test_FileNotFoundError() -> None:
 
     """
     with pytest.raises(FileNotFoundError):
-        Mock_ABC(module_name="Test_ABC_Module_3", conf_dir="./tests/resources/")
+        Mock_ABC(module_name="Test_ABC_Module_3", conf_path="./tests/resources/")
