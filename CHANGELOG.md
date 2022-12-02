@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.1 (2022-12-02)
+### Fix
+* :bug: fix Task(ABC) to get conf_path from cli as well ([`5e42f55`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/5e42f55597540c1521be4009b53236c07795d21f))
+* :bug: fix a bug in parse_auto_parameters from PipelieConfigArgumentValidators ([`0487815`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/0487815650a14ae44623b684451a40ee0a798dda))
+
 ## v0.4.0 (2022-11-30)
 ### Feature
 * Validate pipeline cfg when pipeline cls is called directly ([`7106f0a`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/7106f0affdf1810ac330ef92e0e611355a5a77e4))
