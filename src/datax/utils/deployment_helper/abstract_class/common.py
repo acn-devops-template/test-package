@@ -1,7 +1,9 @@
 """abstract_class common module"""
 
 # import: standard
+import os
 import pathlib
+import site
 import sys
 from abc import ABC
 from abc import abstractmethod
@@ -10,6 +12,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 
 # import: pyspark
 from pyspark.conf import SparkConf
@@ -77,6 +80,7 @@ class Task(ABC):
 
         """
         self._set_config = False
+        self._replace_root = False
 
         args_l = self._prep_cli_arg(module_name, conf_path)
 
@@ -229,10 +233,28 @@ class Task(ABC):
             Dict: Conf from safe_load yaml.
 
         """
-        conf_file = self._get_conf_file(args_l)
-        return self._read_config(conf_file)
 
-    def _get_conf_file(self, args_l: List) -> str:
+        conf_file, conf_dir = self._get_conf_file(args_l)
+        conf_dict = self._read_config(conf_file, conf_dir)
+        return conf_dict
+
+    @staticmethod
+    def _get_site_packages_path() -> str:
+        """Function to get a site-packages path.
+
+        Get a site-packeges path from site.getsitepackages() and
+        apply pathlib as_posix to the path.
+
+        Returns:
+            str: A site-packages path.
+
+        """
+        st_pck = [i for i in site.getsitepackages() if i.endswith("site-packages")]
+
+        root_dir = pathlib.Path(os.path.abspath(st_pck[0])).as_posix()
+        return root_dir
+
+    def _get_conf_file(self, args_l: List) -> Tuple[str, str]:
         """Function to get a conf file path.
 
         Find a conf file based on Glob pattern '**/*pipeline*/**/{module_name}.yml' (yml or yaml).
@@ -251,6 +273,9 @@ class Task(ABC):
             f"**/*pipeline*/**/{self.module_name}.yaml",
         )
 
+        # get site packages path
+        root_dir = self._get_site_packages_path()
+
         # get conf_path from ArgumentParser
         ps = ArgumentParser()
         ps.add_argument(
@@ -258,7 +283,7 @@ class Task(ABC):
             required=False,
             type=str,
             help="path to conf folder",
-            default="./conf",
+            default=f"{root_dir}/conf",
         )
 
         conf_path_nsp = ps.parse_known_args(args_l)[0]
@@ -276,15 +301,15 @@ class Task(ABC):
 
         if len(conf_list) == 0:
             raise FileNotFoundError(
-                f"""Cannot file the pipeline conf via this glob pattern: '{conf_dir}/**/*pipeline*/**/{self.module_name}.yml', please make sure the module name is correct and the configuration file exists"""
+                f"""Cannot find the pipeline conf via this glob pattern: '{conf_dir}/**/*pipeline*/**/{self.module_name}.yml', please make sure the module name is correct and the configuration file exists"""
             )
         elif len(conf_list) > 1:
             raise ValueError(f" Found more than one conf, {conf_list} ")
 
-        return conf_list[0]
+        return conf_list[0], conf_dir
 
     @staticmethod
-    def _read_config(conf_file: str) -> Dict[str, Any]:
+    def _read_config(conf_file: str, conf_dir: str) -> Dict[str, Any]:
         """Function to read a conf file.
 
         Return a conf using yaml safe_load.
@@ -296,7 +321,11 @@ class Task(ABC):
             Dict: Conf from safe_load yaml.
 
         """
-        config = yaml.safe_load(pathlib.Path(conf_file).read_text())
+
+        conf_txt = pathlib.Path(conf_file).read_text().replace("conf:", conf_dir)
+
+        config = yaml.safe_load(conf_txt)
+
         return config
 
     def _prepare_logger(self) -> Any:
