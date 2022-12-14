@@ -1,13 +1,10 @@
 """abstract_class common module"""
 
 # import: standard
-import os
 import pathlib
-import site
 import sys
 from abc import ABC
 from abc import abstractmethod
-from argparse import ArgumentParser
 from typing import Any
 from typing import Dict
 from typing import List
@@ -63,83 +60,35 @@ class Task(ABC):
 
     def __init__(
         self,
+        conf_path: str,
+        module_name: str,
         spark: Optional[SparkSession] = None,
         init_conf: Optional[Dict] = None,
-        module_name: Optional[str] = None,
-        conf_path: Optional[str] = None,
     ) -> None:
         """__init__ function of Task class.
 
         Set following useful objects: self.conf, self.spark, self.logger, self.dbutils.
 
         Args:
+            conf_path (str):  Use this path to find a conf file.
+            module_name (str): Use this input as self.module_name.
             spark (Optional[SparkSession]): Use this input as self.spark if provided, create a SparkSession otherwise.
             init_conf (Optional[Dict]): Use this input as self.conf if provided, use a pipeline conf otherwise.
-            module_name (Optional[str]): Use this input as self.module_name if provided, get a module name from ArgumentParser otherwise.
-            conf_path (str):  Use this path to find a conf file, defaults to "./conf" otherwise.
 
         """
         self._set_config = False
-        self._replace_root = False
 
-        args_l = self._prep_cli_arg(module_name, conf_path)
-
-        self.module_name = self._get_module_name(args_l)
+        self.module_name = module_name
 
         if init_conf:
             self.conf = init_conf
         else:
-            self.conf = self._provide_config(args_l)
+            self.conf = self._provide_config(conf_path)
 
         self.spark = self._prepare_spark(spark)
         self.logger = self._prepare_logger()
         self.dbutils = self.get_dbutils()
         self._log_conf()
-
-    @staticmethod
-    def _prep_cli_arg(module_name: Optional[str], conf_path: str) -> List:
-        """Function to prepare a list to use in ArgumentParser.
-
-        Args:
-            module_name (Optional[str]): Name of the module.
-            conf_path (str): Path to conf folder
-
-        Returns:
-            List: A list containing parameters.
-
-        """
-        args_l = sys.argv[1:]
-
-        if module_name:
-            args_l.extend(["--module", module_name])
-
-        if conf_path:
-            args_l.extend(["--conf_path", conf_path])
-
-        return args_l
-
-    def _get_module_name(self, args_l: List) -> str:
-        """Function to get a module name.
-
-        Return module name from 'module' argument in ArgumentParser.
-
-        Args:
-            args_l (List): List of arguments from CLI or module_name.
-
-        Returns:
-            str: 'module' argument from ArgumentParser for success.
-
-        Raises:
-            ValueError: 'module' argument from ArgumentParser is None.
-
-        """
-        ps = ArgumentParser()
-        ps.add_argument("--module", required=False, type=str, help="module name")
-        module_nsp = ps.parse_known_args(args_l)[0]
-
-        if module_nsp.module is None:
-            raise ValueError(" module argument is not found ")
-        return module_nsp.module
 
     def _create_spark_conf(self) -> SparkConf:
         """Function to create SparkConf.
@@ -221,47 +170,31 @@ class Task(ABC):
 
         return utils
 
-    def _provide_config(self, args_l: List) -> Dict:
+    def _provide_config(self, conf_path: str) -> Dict:
         """Function to get conf.
 
         Get a conf file from pipeline dir and Read a conf file.
 
         Args:
-            args_l (List): A list containing parameters.
+            conf_path (str): A conf folder path.
 
         Returns:
             Dict: Conf from safe_load yaml.
 
         """
 
-        conf_file, conf_dir = self._get_conf_file(args_l)
-        conf_dict = self._read_config(conf_file, conf_dir)
+        conf_file = self._get_conf_file(conf_path)
+        conf_dict = self._read_config(conf_file, conf_path)
         return conf_dict
 
-    @staticmethod
-    def _get_site_packages_path() -> str:
-        """Function to get a site-packages path.
-
-        Get a site-packeges path from site.getsitepackages() and
-        apply pathlib as_posix to the path.
-
-        Returns:
-            str: A site-packages path.
-
-        """
-        st_pck = [i for i in site.getsitepackages() if i.endswith("site-packages")]
-
-        root_dir = pathlib.Path(os.path.abspath(st_pck[0])).as_posix()
-        return root_dir
-
-    def _get_conf_file(self, args_l: List) -> Tuple[str, str]:
+    def _get_conf_file(self, conf_path: str) -> str:
         """Function to get a conf file path.
 
         Find a conf file based on Glob pattern '**/*pipeline*/**/{module_name}.yml' (yml or yaml).
         The root path is based on conf_path.
 
         Args:
-            args_l (List): A list containing parameters.
+            conf_path (str): A config folder path.
 
         Returns:
             str: Conf path from a pipeline dir.
@@ -273,21 +206,7 @@ class Task(ABC):
             f"**/*pipeline*/**/{self.module_name}.yaml",
         )
 
-        # get site packages path
-        root_dir = self._get_site_packages_path()
-
-        # get conf_path from ArgumentParser
-        ps = ArgumentParser()
-        ps.add_argument(
-            "--conf_path",
-            required=False,
-            type=str,
-            help="path to conf folder",
-            default=f"{root_dir}/conf",
-        )
-
-        conf_path_nsp = ps.parse_known_args(args_l)[0]
-        conf_dir = conf_path_nsp.conf_path
+        conf_dir = conf_path
 
         # for testing via Databricks and use DBFS path
         if "dbfs:" in conf_dir:
@@ -306,7 +225,7 @@ class Task(ABC):
         elif len(conf_list) > 1:
             raise ValueError(f" Found more than one conf, {conf_list} ")
 
-        return conf_list[0], conf_dir
+        return conf_list[0]
 
     @staticmethod
     def _read_config(conf_file: str, conf_dir: str) -> Dict[str, Any]:
@@ -316,6 +235,7 @@ class Task(ABC):
 
         Args:
             conf_file (str): A conf path.
+            conf_dir (str): A conf folder path to replace "conf:"
 
         Returns:
             Dict: Conf from safe_load yaml.
