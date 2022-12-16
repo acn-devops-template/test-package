@@ -15,6 +15,9 @@ from typing import Tuple
 from pyspark.conf import SparkConf
 from pyspark.sql import SparkSession
 
+# import: datax in-house
+from datax.utils.deployment_helper.converter.path_adjuster import replace_conf_reference
+
 # import: external
 import yaml
 
@@ -173,7 +176,7 @@ class Task(ABC):
     def _provide_config(self, conf_path: str) -> Dict:
         """Function to get conf.
 
-        Get a conf file from pipeline dir and Read a conf file.
+        Get a conf file from pipeline dir, read a conf file ,and replacing "conf:" references.
 
         Args:
             conf_path (str): A conf folder path.
@@ -184,8 +187,10 @@ class Task(ABC):
         """
 
         conf_file = self._get_conf_file(conf_path)
-        conf_dict = self._read_config(conf_file, conf_path)
-        return conf_dict
+        conf_dict = self._read_config(conf_file)
+
+        replaced_dict = replace_conf_reference(conf_dict, conf_path)
+        return replaced_dict
 
     def _get_conf_file(self, conf_path: str) -> str:
         """Function to get a conf file path.
@@ -228,21 +233,20 @@ class Task(ABC):
         return conf_list[0]
 
     @staticmethod
-    def _read_config(conf_file: str, conf_dir: str) -> Dict[str, Any]:
+    def _read_config(conf_file: str) -> Dict[str, Any]:
         """Function to read a conf file.
 
         Return a conf using yaml safe_load.
 
         Args:
             conf_file (str): A conf path.
-            conf_dir (str): A conf folder path to replace "conf:"
 
         Returns:
             Dict: Conf from safe_load yaml.
 
         """
 
-        conf_txt = pathlib.Path(conf_file).read_text().replace("conf:", conf_dir)
+        conf_txt = pathlib.Path(conf_file).read_text()
 
         config = yaml.safe_load(conf_txt)
 
