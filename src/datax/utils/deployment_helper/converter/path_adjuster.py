@@ -15,7 +15,7 @@ def find_conf_path(file: str, to_conf: str = "conf") -> str:
         file (str): __file__
         to_conf (str): conf path to concat with a base path (e.g. sub_dir/conf).
 
-    Returns:0
+    Returns:
         str: A conf path.
 
     """
@@ -30,7 +30,6 @@ def find_conf_path(file: str, to_conf: str = "conf") -> str:
     else:
         split_path = root_dir.rsplit("/", 5)
 
-    print(split_path)
     conf_path = f"{split_path[0]}/{to_conf}"
 
     if os.path.isdir(conf_path):

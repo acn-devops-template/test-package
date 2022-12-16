@@ -152,3 +152,4 @@ nav:
   - API Reference: reference/ #content/api.md
   - Tutorial:
       - Auto Parameters: content/auto_parameters_example.ipynb
+      - Path Adjuster: content/path_adjuster_example.ipynb
