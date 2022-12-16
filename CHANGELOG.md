@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2022-12-16)
+### Feature
+* :sparkles: add converter/path_adjuster ([`0fb8c71`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/0fb8c71f6fc5b3262884b60de8a85a812ed1ec93))
+* :sparkles: common (Task) and utils path_finder ([`bdc0a6f`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/bdc0a6f3ec106e8bc0ec3f27f71dad9383ae20bb))
+* :sparkles: conf_path parameter ([`67dc189`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/67dc189e691cac476f81dbddde0d27bd46f48982))
+
+### Documentation
+* :memo: add path adjuster doc ([`777d06e`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/777d06e0f2e59dfe4ad3dc67d4602a0b5e690cf4))
+
 ## v0.4.1 (2022-12-02)
 ### Fix
 * :bug: fix Task(ABC) to get conf_path from cli as well ([`5e42f55`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/5e42f55597540c1521be4009b53236c07795d21f))
