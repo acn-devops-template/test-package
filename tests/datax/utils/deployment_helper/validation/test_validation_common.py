@@ -111,9 +111,11 @@ class Test_PipelineConfigArgumentValidators(unittest.TestCase):
         )
         self.assertEqual(arguments.output_data_path, test_dict["output_data_path"])
         self.assertEqual(arguments.output_schema_path, test_dict["output_schema_path"])
-        self.assertRaises(ValueError, CommandlineArgumentValidator, **test_wrong_dict_1)
         self.assertRaises(
-            ValidationError, CommandlineArgumentValidator, **test_wrong_dict_2
+            ValueError, PipelineConfigArgumentValidators, **test_wrong_dict_1
+        )
+        self.assertRaises(
+            ValidationError, PipelineConfigArgumentValidators, **test_wrong_dict_2
         )
 
 
@@ -152,7 +154,9 @@ class Test_TransformationConfigArgumentValidator(unittest.TestCase):
         self.assertEqual(arguments.input_data_endpoint, test_dict["input_data_endpoint"])
         self.assertEqual(arguments.input_schema_path, test_dict["input_schema_path"])
         self.assertEqual(arguments.ref_schema_path, test_dict["ref_schema_path"])
-        self.assertRaises(ValueError, CommandlineArgumentValidator, **test_wrong_dict_1)
         self.assertRaises(
-            ValidationError, CommandlineArgumentValidator, **test_wrong_dict_2
+            ValueError, TransformationConfigArgumentValidator, **test_wrong_dict_1
+        )
+        self.assertRaises(
+            ValidationError, TransformationConfigArgumentValidator, **test_wrong_dict_2
         )
