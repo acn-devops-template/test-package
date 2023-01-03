@@ -49,19 +49,19 @@ def pop_var_dict(co_var: List, _var_dict: Dict, args: Tuple, kwargs: Dict) -> No
     """
     # variables in tfm class overwrite config variables
     if len(kwargs) > 0:
-        for kw_key in kwargs.keys():
-            if kw_key in _var_dict.keys():
-                _var_dict.pop(kw_key, None)
+        kw_common_keys = set(kwargs).intersection(_var_dict)
+        for key in kw_common_keys:
+            _var_dict.pop(key, None)
     if len(args) > 0:
         args_name = co_var[0 : len(args)]
-        for ar_key in args_name:
-            if ar_key in _var_dict.keys():
-                _var_dict.pop(ar_key, None)
+        arg_common_keys = set(args_name).intersection(_var_dict)
+        for key in arg_common_keys:
+            _var_dict.pop(key, None)
 
     # pop if tfm class doesn't define these vars, e.g. 'spark','logger','dbutils'.
-    for each_var in list(_var_dict.keys()):
-        if each_var not in co_var:
-            _var_dict.pop(each_var, None)
+    extra_keys = set(_var_dict).difference(co_var)
+    for key in extra_keys:
+        _var_dict.pop(key, None)
 
 
 def parse_auto_parameters(function: F) -> F:
@@ -93,14 +93,11 @@ def parse_auto_parameters(function: F) -> F:
             Dict: A dict containing key:vaule of pipeline variables that users provide.
 
         """
-        _pipeline_var_dict = {}
         _pipeline_var_list = [i for i in function.__code__.co_varnames if i != "self"]
-        if len(args) > 0:
-            for each_ar in range(0, len(args)):
-                _pipeline_var_dict[_pipeline_var_list[each_ar]] = args[each_ar]
-        if len(kwargs) > 0:
-            for key_kw, value_kw in kwargs.items():
-                _pipeline_var_dict[key_kw] = value_kw
+        _pipeline_var_dict = {
+            _pipeline_var_list[i]: value for i, value in enumerate(args)
+        }
+        _pipeline_var_dict.update(kwargs)
         return _pipeline_var_dict
 
     def _set_default_vars_to_pipeline_obj(
@@ -115,10 +112,9 @@ def parse_auto_parameters(function: F) -> F:
             var_list (List): List of keys to select, e.g. ["conf", "logger", "dbutils", "spark"]
 
         """
-        _pl_obj_dict = {}
-        for each_obj in var_list:
-            if each_obj in _pipeline_var_dict.keys():
-                _pl_obj_dict[each_obj] = _pipeline_var_dict[each_obj]
+        _pl_obj_dict = {
+            var: _pipeline_var_dict[var] for var in var_list if var in _pipeline_var_dict
+        }
 
         _pl_spark_ss = _pl_obj_dict.pop("spark", None)
         _pipeline_obj["default"] = _pl_obj_dict
@@ -183,42 +179,23 @@ def parse_auto_parameters(function: F) -> F:
         to_pass_list = ["conf", "logger", "dbutils", "spark"]
 
         if _default_obj["from_handler"]:
-            _pipeline_obj["default"] = {}
-            for key, value in _default_obj["default"].items():
-                _pipeline_obj["default"][key] = value
-
-            _pipeline_obj["spark"] = _default_obj["spark"]
+            _pipeline_obj.update(_default_obj)
         else:
             _pipeline_var_dict = _create_pipeline_var_dict(args, kwargs)
             _set_default_vars_to_pipeline_obj(_pipeline_var_dict, to_pass_list)
         # _pipeline_obj["default_spark_conf"] = _get_default_spark_conf(_pipeline_obj["spark"], _pipeline_obj["default"]["conf"])
 
-    def set_var_dict(self: Any) -> Dict:
+    def set_var_dict() -> Dict:
         """Function for setting kwargs.
 
-        Set self vars and create _var_dict to be passed as kwargs.
+        Set _var_dict to be passed as kwargs.
 
         Returns:
             Dict: A Dict to be passed as kwargs.
 
         """
-        _var_dict = {}
-        for key, value in _pipeline_obj["default"].items():
-            if key == "conf":
-                _var_dict["conf"] = value
-                _dict_key = function.__qualname__.split(".", 1)[0]
-                # there must be a pipeline section in conf
-                _dict_each_class = value[_dict_key]
-                for ec_key, ec_value in _dict_each_class.items():
-                    if ec_key == "spark_config":
-                        pass
-                    # else:
-                    #     setattr(self, ec_key, ec_value)
-            else:
-                _var_dict[key] = value
-                # setattr(self, key, value)
-        _var_dict["spark"] = _pipeline_obj["spark"]
-        # setattr(self, "spark", _pipeline_obj["spark"])
+        _var_dict = {key: value for key, value in _pipeline_obj["default"].items()}
+        _var_dict["spark"] = _pipeline_obj.get("spark")
         return _var_dict
 
     def pop_pipeline_var_dict(_var_dict: Dict, args: Tuple, kwargs: Dict) -> None:
@@ -254,7 +231,7 @@ def parse_auto_parameters(function: F) -> F:
         """
         _default_obj["from_pipeline"] = True
         _parse_auto_parameters(args, kwargs)
-        _var_dict = set_var_dict(self)
+        _var_dict = set_var_dict()
         _dict_key = function.__qualname__.split(".", 1)[0]
 
         if _default_obj["from_handler"]:
@@ -346,17 +323,12 @@ def get_auto_parameters(function: F) -> F:
 
         """
         _var_dict = {}
-        for key, value in _pipeline_obj["default"].items():
-            if key == "conf":
-                _dict_key = function.__qualname__.split(".", 1)[0]
-                # if there is a tfm class conf, add it into _var_dict
-                if _dict_key in value.keys():
-                    _dict_each_class = value[_dict_key]
-                    for ec_key, ec_value in _dict_each_class.items():
-                        if ec_key == "spark_config":
-                            pass
-                        else:
-                            _var_dict[ec_key] = ec_value
+        default_vars = _pipeline_obj["default"]
+        class_name = function.__qualname__.split(".", 1)[0]
+
+        for key, value in default_vars.items():
+            if key == "conf" and class_name in value:
+                _var_dict.update(value[class_name])
             else:
                 _var_dict[key] = value
         _var_dict["spark"] = _pipeline_obj["spark"]
