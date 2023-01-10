@@ -26,14 +26,15 @@ class Mock_ABC(Task):
     def launch(self) -> Tuple[SparkSession, Dict]:
         """Test function for testing Task(ABC).
 
-        To return spark and conf
+        To return spark, conf, and all_conf
 
         Return:
             SparkSession: spark
             Dict: conf dict
+            Dict: all_conf dict
 
         """
-        return self.spark, self.conf
+        return self.spark, self.conf, self.all_conf
 
 
 def test() -> None:
@@ -42,16 +43,22 @@ def test() -> None:
     To test spark and conf value of Task(ABC)
 
     """
-    task = Mock_ABC(module_name="Test_ABC_Module", conf_path="./tests/resources/")
-    test_spark, test_conf = task.launch()
+    task = Mock_ABC(module_name="TestABCModule", conf_path="./tests/resources/")
+    test_spark, test_conf, test_all_conf = task.launch()
 
-    firstValue = yaml.safe_load(
+    confValue = yaml.safe_load(
+        pathlib.Path("./tests/resources/test_pipeline/TestABCModule/app.yml").read_text()
+    )
+
+    sparkconfValue = yaml.safe_load(
         pathlib.Path(
-            "./tests/resources/test_pipeline/test_conf_file/Test_ABC_Module.yml"
+            "./tests/resources/test_pipeline/TestABCModule/spark.yml"
         ).read_text()
     )
 
-    assert firstValue == test_conf
+    assert confValue == test_conf
+    assert confValue == test_all_conf["app"]
+    assert sparkconfValue == test_all_conf["spark"]
     assert type(test_spark) == SparkSession
 
 
@@ -62,7 +69,7 @@ def test_ValueError() -> None:
 
     """
     with pytest.raises(ValueError):
-        Mock_ABC(module_name="Test_ABC_Module_2", conf_path="./tests/resources/")
+        Mock_ABC(module_name="TestABCModule2", conf_path="./tests/resources/")
 
 
 def test_FileNotFoundError() -> None:
@@ -72,4 +79,4 @@ def test_FileNotFoundError() -> None:
 
     """
     with pytest.raises(FileNotFoundError):
-        Mock_ABC(module_name="Test_ABC_Module_3", conf_path="./tests/resources/")
+        Mock_ABC(module_name="TestABCModule3", conf_path="./tests/resources/")
