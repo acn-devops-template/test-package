@@ -2,13 +2,16 @@
 
 # import: standard
 import unittest
+from typing import List
 
 # import: datax in-house
 from datax.utils.deployment_helper.converter.path_adjuster import find_conf_path
+from datax.utils.deployment_helper.converter.path_adjuster import get_conf_files
 from datax.utils.deployment_helper.converter.path_adjuster import replace_conf_reference
 
 # import: external
 import git
+import pytest
 
 
 class TestFindConfPath(unittest.TestCase):
@@ -77,3 +80,46 @@ class TestReplaceConfReference(unittest.TestCase):
         replace_conf_reference(mock_dict, conf_path)
 
         self.assertEqual(mock_dict, expected_dict)
+
+
+class TestGetConfFiles(unittest.TestCase):
+    """Test Class for testing get_conf_files.
+
+    Class for testing get_conf_files.
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
+    """
+
+    def test_get_conf_files(self) -> None:
+        """Test get_conf_files."""
+
+        conf_list = get_conf_files("tests/resources", "TestABCModule")
+
+        read_list = [
+            "tests/resources/test_pipeline/TestABCModule/app.yml",
+            "tests/resources/test_pipeline/TestABCModule/spark.yml",
+        ]
+
+        str_list = [str(i.as_posix()) for i in conf_list]
+
+        self.assertEqual(str_list, read_list)
+
+    def test_ValueError(self) -> None:
+        """Test function for testing get_conf_files.
+
+        To test ValueError if found more than 1 config
+
+        """
+        with pytest.raises(ValueError):
+            get_conf_files("tests/resources", "TestABCModule2")
+
+    def test_FileNotFoundError(self) -> None:
+        """Test function for testing get_conf_files.
+
+        To test FileNotFoundError if could not find any config
+
+        """
+        with pytest.raises(FileNotFoundError):
+            get_conf_files("tests/resources", "TestABCModule3")
