@@ -2,7 +2,6 @@
 
 # import: standard
 import copy
-import pathlib
 from abc import ABC
 from abc import abstractmethod
 from typing import Any
