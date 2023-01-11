@@ -17,7 +17,7 @@ from pyspark.sql import SparkSession
 
 # import: datax in-house
 from datax.utils.deployment_helper.abstract_class.conf_file_reader import ConfFileReader
-from datax.utils.deployment_helper.converter.path_adjuster import get_conf_files
+from datax.utils.deployment_helper.converter.path_adjuster import get_pipeline_conf_files
 from datax.utils.deployment_helper.converter.path_adjuster import replace_conf_reference
 
 
@@ -135,23 +135,19 @@ class Task(ABC):
 
         """
         if not spark:
-            # TODO: Get appName from the configuration file.
-            dp_name = self.conf[self.module_name]["data_processor_name"]
-            mt_name = self.conf[self.module_name]["main_transformation_name"]
-
             spark_conf = self.all_conf.get("spark")
+            spark_builder = SparkSession.builder
+
+            # Get appName from the configuration file.
+            spark_builder.appName(
+                f"{self.conf[self.module_name]['data_processor_name']}.{self.conf[self.module_name]['main_transformation_name']}"
+            )
 
             if spark_conf is not None:
                 sp_config = self._create_spark_conf(spark_conf)
-                spark_ss = (
-                    SparkSession.builder.appName(f"{dp_name}.{mt_name}")
-                    .config(conf=sp_config)
-                    .getOrCreate()
-                )
-            else:
-                spark_ss = SparkSession.builder.appName(
-                    f"{dp_name}.{mt_name}"
-                ).getOrCreate()
+                spark_builder.config(conf=sp_config)
+
+            spark_ss = spark_builder.getOrCreate()
             return spark_ss
         else:
             return spark
@@ -187,7 +183,7 @@ class Task(ABC):
 
         """
 
-        conf_files = get_conf_files(conf_path, self.module_name)
+        conf_files = get_pipeline_conf_files(conf_path, self.module_name)
         conf_dict = self._read_all_config(conf_files)
 
         replaced_dict = replace_conf_reference(conf_dict, conf_path)
@@ -197,13 +193,13 @@ class Task(ABC):
     def _read_all_config(conf_files: Union[str, List]) -> Dict[str, Any]:
         """Function to read a conf file.
 
-        Return a conf using yaml safe_load.
+        Read files using __subclasses__ of ConfFileReader.
 
         Args:
             conf_file (str): A conf path.
 
         Returns:
-            Dict: Conf from safe_load yaml.
+            Dict: Conf loaded from conf_file with keys as file names and values as config values.
 
         """
 

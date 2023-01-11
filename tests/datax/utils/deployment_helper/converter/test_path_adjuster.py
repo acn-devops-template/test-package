@@ -6,7 +6,7 @@ from typing import List
 
 # import: datax in-house
 from datax.utils.deployment_helper.converter.path_adjuster import find_conf_path
-from datax.utils.deployment_helper.converter.path_adjuster import get_conf_files
+from datax.utils.deployment_helper.converter.path_adjuster import get_pipeline_conf_files
 from datax.utils.deployment_helper.converter.path_adjuster import replace_conf_reference
 
 # import: external
@@ -82,44 +82,44 @@ class TestReplaceConfReference(unittest.TestCase):
         self.assertEqual(mock_dict, expected_dict)
 
 
-class TestGetConfFiles(unittest.TestCase):
-    """Test Class for testing get_conf_files.
+class TestGetPipelineConfFiles(unittest.TestCase):
+    """Test Class for testing get_pipeline_conf_files.
 
-    Class for testing get_conf_files.
+    Class for testing get_pipeline_conf_files.
 
     Args:
         unittest.TestCase: An unittest TestCase.
 
     """
 
-    def test_get_conf_files(self) -> None:
-        """Test get_conf_files."""
+    def test_get_pipeline_conf_files(self) -> None:
+        """Test get_pipeline_conf_files."""
 
-        conf_list = get_conf_files("tests/resources", "TestABCModule")
+        conf_list = get_pipeline_conf_files("tests/resources", "TestABCModule")
 
         read_list = [
             "tests/resources/test_pipeline/TestABCModule/app.yml",
             "tests/resources/test_pipeline/TestABCModule/spark.yml",
         ]
 
-        str_list = [str(i.as_posix()) for i in conf_list]
+        str_list = [str(i) for i in conf_list]
 
         self.assertEqual(str_list, read_list)
 
     def test_ValueError(self) -> None:
-        """Test function for testing get_conf_files.
+        """Test function for testing get_pipeline_conf_files.
 
         To test ValueError if found more than 1 config
 
         """
         with pytest.raises(ValueError):
-            get_conf_files("tests/resources", "TestABCModule2")
+            get_pipeline_conf_files("tests/resources", "TestABCModule2")
 
     def test_FileNotFoundError(self) -> None:
-        """Test function for testing get_conf_files.
+        """Test function for testing get_pipeline_conf_files.
 
         To test FileNotFoundError if could not find any config
 
         """
         with pytest.raises(FileNotFoundError):
-            get_conf_files("tests/resources", "TestABCModule3")
+            get_pipeline_conf_files("tests/resources", "TestABCModule3")

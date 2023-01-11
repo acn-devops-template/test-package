@@ -65,48 +65,7 @@ def replace_conf_reference(conf_dict: Dict, conf_path: str) -> Dict:
     return conf_dict
 
 
-def get_conf_file(conf_path: str, module_name: str) -> str:
-    """Function to get a conf file path.
-
-    Find a conf file based on Glob pattern '**/*pipeline*/**/{module_name}.yml' (yml or yaml).
-    The root path is based on conf_path.
-
-    Args:
-        conf_path (str): A config folder path.
-
-    Returns:
-        str: Conf path from a pipeline dir.
-
-    """
-    # the tuple of file types
-    types = (
-        f"**/*pipeline*/**/{module_name}.yml",
-        f"**/*pipeline*/**/{module_name}.yaml",
-    )
-
-    conf_dir = conf_path
-
-    # for testing via Databricks and use DBFS path
-    if "dbfs:" in conf_dir:
-        conf_dir = conf_dir.replace("dbfs:", "/dbfs")
-
-    files_grabbed: List[Any] = []
-    for each in types:
-        files_grabbed.extend(pathlib.Path(conf_dir).glob(each))
-
-    conf_list = [x for x in files_grabbed if x.is_file()]
-
-    if len(conf_list) == 0:
-        raise FileNotFoundError(
-            f"""Cannot find the pipeline conf via this glob pattern: '{conf_dir}/**/*pipeline*/**/{module_name}.yml', please make sure the module name is correct and the configuration file exists"""
-        )
-    elif len(conf_list) > 1:
-        raise ValueError(f" Found more than one conf, {conf_list} ")
-
-    return conf_list[0]
-
-
-def get_conf_files(conf_path: str, module_name: str) -> List:
+def get_pipeline_conf_files(conf_path: str, module_name: str) -> List[str]:
     """Function to get all conf file paths.
 
     Find conf files based on Glob pattern '**/*pipeline*/**/{module_name}/*'.
@@ -116,32 +75,28 @@ def get_conf_files(conf_path: str, module_name: str) -> List:
         conf_path (str): A config folder path.
 
     Returns:
-        List: A list of conf paths from the pipeline dir.
+        List[str]: A list of conf paths from the pipeline dir.
 
     """
     # pipeline conf file glob pattern
     pl_glob = f"**/*pipeline*/**/{module_name}/*"
 
-    conf_dir = conf_path
-
     # for testing via Databricks and use DBFS path
-    if "dbfs:" in conf_dir:
-        conf_dir = conf_dir.replace("dbfs:", "/dbfs")
+    conf_dir = conf_path.replace("dbfs:", "/dbfs") if "dbfs:" in conf_path else conf_path
 
-    files_grabbed: List[Any] = []
-    files_grabbed.extend(pathlib.Path(conf_dir).glob(pl_glob))
+    conf_list = [
+        str(path.as_posix())
+        for path in pathlib.Path(conf_dir).glob(pl_glob)
+        if path.is_file()
+    ]
 
-    conf_list = [x for x in files_grabbed if x.is_file()]
-
-    if len(conf_list) == 0:
+    if not conf_list:
         raise FileNotFoundError(
-            f"""Cannot find the pipeline conf via this glob pattern: '{conf_dir}/{pl_glob}', please make sure the module name is correct and the configuration files exist"""
+            f"Cannot find the pipeline conf in {conf_dir} with {pl_glob}"
         )
     else:
-        file_names = [
-            os.path.basename(i).split(".", 1)[0] for i in conf_list if i.is_file()
-        ]
+        file_names = [os.path.basename(path).split(".", 1)[0] for path in conf_list]
         if len(set(file_names)) != len(file_names):
-            raise ValueError(f" Found more than one conf file per type, {conf_list} ")
+            raise ValueError(f"Found more than one conf file per type, {conf_list}")
 
     return conf_list
