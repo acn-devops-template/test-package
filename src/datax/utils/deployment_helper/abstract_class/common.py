@@ -192,13 +192,13 @@ class Task(ABC):
     def _read_all_config(conf_files: Union[str, List]) -> Dict[str, Any]:
         """Function to read a conf file.
 
-        Read files using __subclasses__ of ConfFileReader.
+        Read all config files using __subclasses__ of ConfFileReader.
 
         Args:
-            conf_file (str): A conf path.
+            conf_files (Union[str, List]): A conf path or a list of paths.
 
         Returns:
-            Dict: Conf loaded from conf_file with keys as file names and values as config values.
+            Dict[str, Any]: Conf loaded from conf_file with keys as file names and values as config values.
 
         """
 

@@ -65,7 +65,8 @@ class YAMLReader(ConfFileReader):
     """Subclass that inherits from ConfFileReader class."""
 
     def read_file(self) -> Dict:
-        """Read a YAML config file and return a dictionary of configuration parameters.
+        """Read a YAML config file and return a dictionary of configuration parameters
+        with keys as file extension names and values as the config dict.
 
         Returns:
             Dict: A dictionary of configuration parameters.
@@ -92,7 +93,8 @@ class JSONReader(ConfFileReader):
     """Subclass that inherits from ConfFileReader class."""
 
     def read_file(self) -> Dict:
-        """Read a JSON config file and return a dictionary of configuration parameters.
+        """Read a JSON config file and return a dictionary of configuration parameters
+        with keys as file extension names and values as the config dict.
 
         Returns:
             Dict: A dictionary of configuration parameters.
