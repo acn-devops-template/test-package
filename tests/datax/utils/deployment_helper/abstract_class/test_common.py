@@ -82,6 +82,37 @@ def test() -> None:
     assert type(test_spark) == SparkSession
 
 
+def test_wo_pipeline_section() -> None:
+    """Test function for testing Task(ABC).
+
+    To test if there is no pipeline section in conf_app
+
+    """
+    task = Mock_ABC(module_name="TestABCModuleWO", conf_path="./tests/resources/")
+    (
+        test_spark,
+        test_conf_app,
+        test_conf_spark,
+        test_conf_logger,
+        test_conf_deequ,
+        test_conf_all,
+    ) = task.launch()
+
+    confValue = yaml.safe_load(
+        pathlib.Path(
+            "./tests/resources/test_pipeline/TestABCModuleWO/app.yml"
+        ).read_text()
+    )
+    print(test_conf_all)
+
+    assert confValue == test_conf_app
+    assert test_conf_all["app"] == confValue
+    assert type(test_spark) == SparkSession
+    assert test_conf_all["spark"] == {}
+    assert test_conf_all["logger"] == {}
+    assert test_conf_all["deequ"] == {}
+
+
 def test_ValueError() -> None:
     """Test function for testing Task(ABC).
 

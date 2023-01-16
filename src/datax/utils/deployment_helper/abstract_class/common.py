@@ -143,10 +143,17 @@ class Task(ABC):
             spark_conf = self.conf_all.get("spark")  # optional
             spark_builder = SparkSession.builder
 
-            # Get appName from the configuration file.
-            spark_builder.appName(
-                f"{app_conf[self.module_name]['data_processor_name']}.{app_conf[self.module_name]['main_transformation_name']}"
+            # Get appName from the configuration file with or without module name section.
+            module_conf = app_conf.get(self.module_name)
+            data_processor_name = app_conf.get("data_processor_name") or module_conf.get(
+                "data_processor_name"
             )
+            main_transformation_name = app_conf.get(
+                "main_transformation_name"
+            ) or module_conf.get("main_transformation_name")
+
+            # Get appName from the configuration file.
+            spark_builder.appName(f"{data_processor_name}.{main_transformation_name}")
 
             if spark_conf is not None:
                 sp_config = self._create_spark_conf(spark_conf)

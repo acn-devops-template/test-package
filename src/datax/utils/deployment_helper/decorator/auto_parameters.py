@@ -123,27 +123,7 @@ def parse_auto_parameters(function: F) -> F:
         _pipeline_var_dict.update(kwargs)
         return _pipeline_var_dict
 
-    def _set_default_vars_to_pipeline_obj(
-        _pipeline_var_dict: Dict, var_list: List
-    ) -> None:
-        """Function for setting '_pipeline_obj' dict.
-
-        Assign vars in ['conf', 'logger', 'dbutils', 'spark'] to '_pipeline_obj' dict.
-
-        Args:
-            _pipeline_var_dict (Dict): A dict containing key:vaule from '_create_pipeline_var_dict'.
-            var_list (List): List of keys to select, e.g. ["conf", "logger", "dbutils", "spark"]
-
-        """
-        _pl_obj_dict = {
-            var: _pipeline_var_dict[var] for var in var_list if var in _pipeline_var_dict
-        }
-
-        _pl_spark_ss = _pl_obj_dict.pop("spark", None)
-        _pipeline_obj["default"] = _pl_obj_dict
-        _pipeline_obj["spark"] = _pl_spark_ss
-
-    def _parse_auto_parameters(args: Tuple, kwargs: Dict) -> None:
+    def _set_pipeline_obj_params(args: Tuple, kwargs: Dict) -> None:
         """Function for setting '_pipeline_obj'.
 
         if from_handler, takes vars from _default_obj
@@ -154,26 +134,14 @@ def parse_auto_parameters(function: F) -> F:
             kwargs (Dict): Input keyword arguments.
 
         """
-        to_pass_list = ["conf", "logger", "dbutils", "spark"]
 
         if _default_obj["from_handler"]:
             _pipeline_obj.update(_default_obj)
         else:
             _pipeline_var_dict = _create_pipeline_var_dict(args, kwargs)
-            _set_default_vars_to_pipeline_obj(_pipeline_var_dict, to_pass_list)
-
-    def set_var_dict() -> Dict:
-        """Function for setting kwargs.
-
-        Set _var_dict to be passed as kwargs.
-
-        Returns:
-            Dict: A Dict to be passed as kwargs.
-
-        """
-        _var_dict = {key: value for key, value in _pipeline_obj["default"].items()}
-        _var_dict["spark"] = _pipeline_obj.get("spark")
-        return _var_dict
+            _pipeline_obj["default"] = {
+                key: value for key, value in _pipeline_var_dict.items()
+            }
 
     @functools.wraps(function)
     def wrap_parse_auto_parameters(self: Any, *args: Any, **kwargs: Any) -> None:
@@ -189,8 +157,8 @@ def parse_auto_parameters(function: F) -> F:
 
         """
         _default_obj["from_pipeline"] = True
-        _parse_auto_parameters(args, kwargs)
-        _var_dict = set_var_dict()
+        _set_pipeline_obj_params(args, kwargs)
+        _var_dict = {key: value for key, value in _pipeline_obj["default"].items()}
 
         if _default_obj["from_handler"]:
             pop_function_var_dict(function, _var_dict, args, kwargs)
@@ -230,11 +198,11 @@ def get_auto_parameters(function: F) -> F:
         class_name = function.__qualname__.split(".", 1)[0]
 
         for key, value in default_vars.items():
-            if key == "conf" and class_name in value:
+            if key == "conf_app" and class_name in value:
+                _var_dict[key] = value
                 _var_dict.update(value[class_name])
             else:
                 _var_dict[key] = value
-        _var_dict["spark"] = _pipeline_obj["spark"]
         return _var_dict
 
     @functools.wraps(function)
@@ -291,12 +259,18 @@ def init_auto_parameters(func: F) -> F:
             **kwargs (Any): Input keyword arguments.
 
         """
+
         _default_obj["default"] = {
-            "conf": self.conf,
+            "conf_all": self.conf_all,
             "logger": self.logger,
             "dbutils": self.dbutils,
+            "spark": self.spark,
         }
-        _default_obj["spark"] = self.spark
+
+        for each_conf_type in self.conf_all.keys():
+            conf_name = f"conf_{each_conf_type}"
+            _default_obj["default"].update({conf_name: getattr(self, conf_name)})
+
         _default_obj["from_handler"] = True
 
         func(self, *args, **kwargs)
