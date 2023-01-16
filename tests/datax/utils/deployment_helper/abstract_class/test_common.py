@@ -26,15 +26,23 @@ class Mock_ABC(Task):
     def launch(self) -> Tuple[SparkSession, Dict]:
         """Test function for testing Task(ABC).
 
-        To return spark, conf, and conf_all
-
         Return:
             SparkSession: spark
-            Dict: conf dict
+            Dict: conf_app dict
+            Dict: conf_spark dict
+            Dict: conf_logger dict
+            Dict: conf_deequ dict
             Dict: conf_all dict
 
         """
-        return self.spark, self.conf, self.conf_all
+        return (
+            self.spark,
+            self.conf_app,
+            self.conf_spark,
+            self.conf_logger,
+            self.conf_deequ,
+            self.conf_all,
+        )
 
 
 def test() -> None:
@@ -44,7 +52,14 @@ def test() -> None:
 
     """
     task = Mock_ABC(module_name="TestABCModule", conf_path="./tests/resources/")
-    test_spark, test_conf, test_conf_all = task.launch()
+    (
+        test_spark,
+        test_conf_app,
+        test_conf_spark,
+        test_conf_logger,
+        test_conf_deequ,
+        test_conf_all,
+    ) = task.launch()
 
     confValue = yaml.safe_load(
         pathlib.Path("./tests/resources/test_pipeline/TestABCModule/app.yml").read_text()
@@ -56,9 +71,14 @@ def test() -> None:
         ).read_text()
     )
 
-    assert confValue == test_conf
-    assert confValue == test_conf_all["app"]
-    assert sparkconfValue == test_conf_all["spark"]
+    assert confValue == test_conf_app
+    assert sparkconfValue == test_conf_spark
+    assert test_conf_logger == {}
+    assert test_conf_deequ == {}
+    assert test_conf_all["app"] == confValue
+    assert test_conf_all["spark"] == sparkconfValue
+    assert test_conf_all["logger"] == {}
+    assert test_conf_all["deequ"] == {}
     assert type(test_spark) == SparkSession
 
 

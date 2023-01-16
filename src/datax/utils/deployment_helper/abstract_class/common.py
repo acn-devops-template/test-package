@@ -52,10 +52,13 @@ class Task(ABC):
     This is an abstract class that provides handy interfaces to implement workloads (e.g. jobs or job tasks).
     Create a child from this class and implement the abstract launch method.
     Class provides access to the following useful objects:
-        * self.spark is a SparkSession
-        * self.dbutils provides access to the DBUtils
-        * self.logger provides access to the Spark-compatible logger
-        * self.conf provides access to the parsed configuration of the job
+        * self.spark is a SparkSession.
+        * self.dbutils provides access to the DBUtils.
+        * self.logger provides access to the Spark-compatible logger.
+        * self.conf_app provides application configuration of the job.
+        * self.conf_spark is a spark configuration if provided.
+        * self.conf_logger is a logger configuration if provided.
+        * self.conf_deequ is a deequ configuration if provided.
 
     """
 
@@ -64,42 +67,40 @@ class Task(ABC):
         module_name: str,
         conf_path: Optional[str] = None,
         spark: Optional[SparkSession] = None,
-        init_app_conf: Optional[Dict] = None,
-        init_spark_conf: Optional[Dict] = None,
-        init_logger_conf: Optional[Dict] = None,
-        init_deequ_conf: Optional[Dict] = None,
+        init_conf_app: Optional[Dict] = None,
+        init_conf_spark: Optional[Dict] = None,
+        init_conf_logger: Optional[Dict] = None,
+        init_conf_deequ: Optional[Dict] = None,
     ) -> None:
         """__init__ function of Task class.
 
-        Set following useful objects: self.conf, self.spark, self.logger, self.dbutils.
+        Set following useful objects: self.spark, self.logger, self.dbutils, self.conf_app, self.conf_spark, self.conf_logger, self.conf_deequ.
 
         Args:
             module_name (str): Use this input as self.module_name.
             conf_path (Optional[str]):  Use this path to find conf files.
             spark (Optional[SparkSession]): Use this input as self.spark if provided, create a SparkSession otherwise.
-            init_app_conf (Optional[Dict]): If provided, use this input as self.conf_all["app"].
-            init_spark_conf (Optional[Dict]): If provided, use this input as self.conf_all["spark"].
-            init_logger_conf (Optional[Dict]): If provided, use this input as self.conf_all["logger"].
-            init_deequ_conf (Optional[Dict]): If provided, use this input as self.conf_all["deequ"].
+            init_conf_app (Optional[Dict]): If provided, use this input as self.conf_all["app"].
+            init_conf_spark (Optional[Dict]): If provided, use this input as self.conf_all["spark"], otherwise None.
+            init_conf_logger (Optional[Dict]): If provided, use this input as self.conf_all["logger"], otherwise None.
+            init_conf_deequ (Optional[Dict]): If provided, use this input as self.conf_all["deequ"], otherwise None.
 
         """
         self.module_name = module_name
+        conf_all = self._provide_conf_all(conf_path) if conf_path else {}
 
-        if conf_path:
-            self.conf_all = self._provide_conf_allig(conf_path)
-        else:
-            self.conf_all = {}
+        if init_conf_app:
+            conf_all["app"] = init_conf_app
 
-        if init_app_conf:
-            self.conf_all["app"] = init_app_conf
-        if init_spark_conf:
-            self.conf_all["spark"] = init_spark_conf
-        if init_logger_conf:
-            self.conf_all["logger"] = init_logger_conf
-        if init_deequ_conf:
-            self.conf_all["deequ"] = init_deequ_conf
+        conf_all["spark"] = init_conf_spark or conf_all.get("spark", {})
+        conf_all["logger"] = init_conf_logger or conf_all.get("logger", {})
+        conf_all["deequ"] = init_conf_deequ or conf_all.get("deequ", {})
 
-        self.conf = copy.deepcopy(self.conf_all["app"])
+        # Set conf to attributes
+        self.conf_all = conf_all
+        for each_key in conf_all.keys():
+            setattr(self, f"conf_{each_key}", conf_all[each_key])
+
         self.spark = self._prepare_spark(spark)
         self.logger = self._prepare_logger()
         self.dbutils = self.get_dbutils()
@@ -116,7 +117,7 @@ class Task(ABC):
             spark_conf (Dict): Spark conf.
 
         Returns:
-            SparkConf: SparkConf created using configuration in self.conf of spark_conf section
+            SparkConf: SparkConf created using configuration in spark conf file or init_conf_spark variable.
 
         """
         sp_config_list: List[Any] = list(spark_conf.items())
@@ -138,12 +139,13 @@ class Task(ABC):
 
         """
         if not spark:
-            spark_conf = self.conf_all.get("spark")
+            app_conf = self.conf_all.get("app")  # required
+            spark_conf = self.conf_all.get("spark")  # optional
             spark_builder = SparkSession.builder
 
             # Get appName from the configuration file.
             spark_builder.appName(
-                f"{self.conf[self.module_name]['data_processor_name']}.{self.conf[self.module_name]['main_transformation_name']}"
+                f"{app_conf[self.module_name]['data_processor_name']}.{app_conf[self.module_name]['main_transformation_name']}"
             )
 
             if spark_conf is not None:
@@ -173,7 +175,7 @@ class Task(ABC):
 
         return utils
 
-    def _provide_conf_allig(self, conf_path: str) -> Dict:
+    def _provide_conf_all(self, conf_path: str) -> Dict:
         """Function to get conf.
 
         Get a conf file from pipeline dir, read a conf file ,and replacing "conf:" references.
@@ -187,13 +189,13 @@ class Task(ABC):
         """
 
         conf_files = get_pipeline_conf_files(conf_path, self.module_name)
-        conf_dict = self._read_conf_allig(conf_files)
+        conf_dict = self._read_conf_all(conf_files)
 
         replaced_dict = replace_conf_reference(conf_dict, conf_path)
         return replaced_dict
 
     @staticmethod
-    def _read_conf_allig(conf_files: Union[str, List]) -> Dict[str, Any]:
+    def _read_conf_all(conf_files: Union[str, List]) -> Dict[str, Any]:
         """Function to read a conf file.
 
         Read all config files using __subclasses__ of ConfFileReader.
@@ -234,8 +236,10 @@ class Task(ABC):
         """
         # log parameters
         self.logger.info("Launching job with configuration parameters:")
-        for key, item in self.conf.items():
-            self.logger.info("\t Parameter: %-30s with value => %-30s" % (key, item))
+        for key, item in self.conf_all.items():
+            self.logger.info(
+                "\t configuration type: %-30s with value => %-30s" % (key, item)
+            )
 
     @abstractmethod
     def launch(self) -> Any:
