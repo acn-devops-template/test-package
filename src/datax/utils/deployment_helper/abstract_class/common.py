@@ -67,6 +67,7 @@ class Task(ABC):
         init_app_conf: Optional[Dict] = None,
         init_spark_conf: Optional[Dict] = None,
         init_logger_conf: Optional[Dict] = None,
+        init_deequ_conf: Optional[Dict] = None,
     ) -> None:
         """__init__ function of Task class.
 
@@ -76,26 +77,29 @@ class Task(ABC):
             module_name (str): Use this input as self.module_name.
             conf_path (Optional[str]):  Use this path to find conf files.
             spark (Optional[SparkSession]): Use this input as self.spark if provided, create a SparkSession otherwise.
-            init_app_conf (Optional[Dict]): If provided, use this input as self.all_conf["app"].
-            init_spark_conf (Optional[Dict]): If provided, use this input as self.all_conf["spark"].
-            init_logger_conf (Optional[Dict]): If provided, use this input as self.all_conf["logger"].
+            init_app_conf (Optional[Dict]): If provided, use this input as self.conf_all["app"].
+            init_spark_conf (Optional[Dict]): If provided, use this input as self.conf_all["spark"].
+            init_logger_conf (Optional[Dict]): If provided, use this input as self.conf_all["logger"].
+            init_deequ_conf (Optional[Dict]): If provided, use this input as self.conf_all["deequ"].
 
         """
         self.module_name = module_name
 
         if conf_path:
-            self.all_conf = self._provide_all_config(conf_path)
+            self.conf_all = self._provide_conf_allig(conf_path)
         else:
-            self.all_conf = {}
+            self.conf_all = {}
 
         if init_app_conf:
-            self.all_conf["app"] = init_app_conf
+            self.conf_all["app"] = init_app_conf
         if init_spark_conf:
-            self.all_conf["spark"] = init_spark_conf
+            self.conf_all["spark"] = init_spark_conf
         if init_logger_conf:
-            self.all_conf["logger"] = init_logger_conf
+            self.conf_all["logger"] = init_logger_conf
+        if init_deequ_conf:
+            self.conf_all["deequ"] = init_deequ_conf
 
-        self.conf = copy.deepcopy(self.all_conf["app"])
+        self.conf = copy.deepcopy(self.conf_all["app"])
         self.spark = self._prepare_spark(spark)
         self.logger = self._prepare_logger()
         self.dbutils = self.get_dbutils()
@@ -134,7 +138,7 @@ class Task(ABC):
 
         """
         if not spark:
-            spark_conf = self.all_conf.get("spark")
+            spark_conf = self.conf_all.get("spark")
             spark_builder = SparkSession.builder
 
             # Get appName from the configuration file.
@@ -169,7 +173,7 @@ class Task(ABC):
 
         return utils
 
-    def _provide_all_config(self, conf_path: str) -> Dict:
+    def _provide_conf_allig(self, conf_path: str) -> Dict:
         """Function to get conf.
 
         Get a conf file from pipeline dir, read a conf file ,and replacing "conf:" references.
@@ -183,13 +187,13 @@ class Task(ABC):
         """
 
         conf_files = get_pipeline_conf_files(conf_path, self.module_name)
-        conf_dict = self._read_all_config(conf_files)
+        conf_dict = self._read_conf_allig(conf_files)
 
         replaced_dict = replace_conf_reference(conf_dict, conf_path)
         return replaced_dict
 
     @staticmethod
-    def _read_all_config(conf_files: Union[str, List]) -> Dict[str, Any]:
+    def _read_conf_allig(conf_files: Union[str, List]) -> Dict[str, Any]:
         """Function to read a conf file.
 
         Read all config files using __subclasses__ of ConfFileReader.

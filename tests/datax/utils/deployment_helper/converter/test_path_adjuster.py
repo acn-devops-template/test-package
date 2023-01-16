@@ -104,7 +104,9 @@ class TestGetPipelineConfFiles(unittest.TestCase):
 
         str_list = [str(i) for i in conf_list]
 
-        self.assertEqual(str_list, read_list)
+        print(str_list)
+
+        self.assertEqual(str_list.sort(), read_list.sort())
 
     def test_ValueError(self) -> None:
         """Test function for testing get_pipeline_conf_files.

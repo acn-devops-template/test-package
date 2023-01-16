@@ -26,15 +26,15 @@ class Mock_ABC(Task):
     def launch(self) -> Tuple[SparkSession, Dict]:
         """Test function for testing Task(ABC).
 
-        To return spark, conf, and all_conf
+        To return spark, conf, and conf_all
 
         Return:
             SparkSession: spark
             Dict: conf dict
-            Dict: all_conf dict
+            Dict: conf_all dict
 
         """
-        return self.spark, self.conf, self.all_conf
+        return self.spark, self.conf, self.conf_all
 
 
 def test() -> None:
@@ -44,7 +44,7 @@ def test() -> None:
 
     """
     task = Mock_ABC(module_name="TestABCModule", conf_path="./tests/resources/")
-    test_spark, test_conf, test_all_conf = task.launch()
+    test_spark, test_conf, test_conf_all = task.launch()
 
     confValue = yaml.safe_load(
         pathlib.Path("./tests/resources/test_pipeline/TestABCModule/app.yml").read_text()
@@ -57,8 +57,8 @@ def test() -> None:
     )
 
     assert confValue == test_conf
-    assert confValue == test_all_conf["app"]
-    assert sparkconfValue == test_all_conf["spark"]
+    assert confValue == test_conf_all["app"]
+    assert sparkconfValue == test_conf_all["spark"]
     assert type(test_spark) == SparkSession
 
 
