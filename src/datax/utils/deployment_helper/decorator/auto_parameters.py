@@ -6,22 +6,9 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
-from typing import Optional
-from typing import Sequence
 from typing import Tuple
 from typing import TypeVar
 from typing import cast
-
-# import: pyspark
-from pyspark.sql import SparkSession
-
-# import: datax in-house
-from datax.utils.deployment_helper.validation.common import (
-    PipelineConfigArgumentValidators,
-)
-from datax.utils.deployment_helper.validation.common import (
-    TransformationConfigArgumentValidator,
-)
 
 # func type annotation
 F = TypeVar("F", bound=Callable[..., Any])
@@ -30,6 +17,41 @@ F = TypeVar("F", bound=Callable[..., Any])
 _default_obj: Dict = {"from_handler": False, "from_pipeline": False}
 # dict to store obj created from a pipeline
 _pipeline_obj: Dict = {}
+
+
+def get_co_var_names_without_self(function: F) -> List:
+    """Function to get function's variable names not including "self".
+
+    Args:
+        function (Callable): A function.
+
+    Returns:
+        List: A list of function's variable names.
+
+    """
+    co_var_names_wo_self = [i for i in function.__code__.co_varnames if i != "self"]
+    return co_var_names_wo_self
+
+
+def pop_function_var_dict(
+    function: F, _var_dict: Dict, args: Tuple, kwargs: Dict
+) -> None:
+    """Function to pop keys of _var_dict, dict containing vars.
+
+    If there are hard-coded vars which are called from handler,
+    those hard-coded vars will take priority over the same vars from conf.
+    If there are vars that the class does not define in the function,
+    those vars will be taken out from kwargs.
+
+    Args:
+        _var_dict: Input variable dict
+        args (Tuple): Input arguments.
+        kwargs (Dict): Input keyword arguments.
+
+    """
+
+    fn_co_var = get_co_var_names_without_self(function)
+    pop_var_dict(fn_co_var, _var_dict, args, kwargs)
 
 
 def pop_var_dict(co_var: List, _var_dict: Dict, args: Tuple, kwargs: Dict) -> None:
@@ -47,7 +69,7 @@ def pop_var_dict(co_var: List, _var_dict: Dict, args: Tuple, kwargs: Dict) -> No
         kwargs (Dict): Input keyword arguments.
 
     """
-    # variables in tfm class overwrite config variables
+    # variables in class overwrite config variables
     if len(kwargs) > 0:
         kw_common_keys = set(kwargs).intersection(_var_dict)
         for key in kw_common_keys:
@@ -58,7 +80,7 @@ def pop_var_dict(co_var: List, _var_dict: Dict, args: Tuple, kwargs: Dict) -> No
         for key in arg_common_keys:
             _var_dict.pop(key, None)
 
-    # pop if tfm class doesn't define these vars, e.g. 'spark','logger','dbutils'.
+    # pop if class doesn't define these vars, e.g. 'spark','logger','dbutils'.
     extra_keys = set(_var_dict).difference(co_var)
     for key in extra_keys:
         _var_dict.pop(key, None)
@@ -93,7 +115,8 @@ def parse_auto_parameters(function: F) -> F:
             Dict: A dict containing key:vaule of pipeline variables that users provide.
 
         """
-        _pipeline_var_list = [i for i in function.__code__.co_varnames if i != "self"]
+
+        _pipeline_var_list = get_co_var_names_without_self(function)
         _pipeline_var_dict = {
             _pipeline_var_list[i]: value for i, value in enumerate(args)
         }
@@ -120,51 +143,6 @@ def parse_auto_parameters(function: F) -> F:
         _pipeline_obj["default"] = _pl_obj_dict
         _pipeline_obj["spark"] = _pl_spark_ss
 
-    def _get_default_spark_conf(
-        spark: SparkSession, conf: Dict
-    ) -> Sequence[Tuple[Any, Any]]:
-        """Function for changing spark conf on the fly.
-
-        Reserved for changing spark conf on the fly (WIP).
-
-        Args:
-            spark (SparkSession): Input SparkSession.
-            conf (Dict): Input pipeline conf.
-
-        Returns:
-            Sequence[Tuple]: A List of tuples of spark conf.
-
-        """
-        spark_conf_list = []
-        default_conf_list = []
-
-        def _collect_all_spark_conf(dict_val: Any) -> None:
-            """Function for collecting spark conf.
-
-            Check if the input value is a dict;
-            if yes, search for spark_config and collect into 'spark_conf_list' (WIP).
-
-            Args:
-                dict_val (Any): Input SparkSession.
-
-            """
-            if type(dict_val) is dict:
-                if "spark_config" in dict_val.keys():
-                    for sc_key in dict_val["spark_config"].keys():
-                        spark_conf_list.append(sc_key)
-
-                for ly_val in dict_val.values():
-                    _collect_all_spark_conf(ly_val)
-
-        for each_val in conf.values():
-            _collect_all_spark_conf(each_val)
-
-        for each_spark_conf in set(spark_conf_list):
-            each_spark_val = spark.conf.get(each_spark_conf)
-            default_conf_list.append((each_spark_conf, each_spark_val))
-
-        return default_conf_list
-
     def _parse_auto_parameters(args: Tuple, kwargs: Dict) -> None:
         """Function for setting '_pipeline_obj'.
 
@@ -183,7 +161,6 @@ def parse_auto_parameters(function: F) -> F:
         else:
             _pipeline_var_dict = _create_pipeline_var_dict(args, kwargs)
             _set_default_vars_to_pipeline_obj(_pipeline_var_dict, to_pass_list)
-        # _pipeline_obj["default_spark_conf"] = _get_default_spark_conf(_pipeline_obj["spark"], _pipeline_obj["default"]["conf"])
 
     def set_var_dict() -> Dict:
         """Function for setting kwargs.
@@ -197,24 +174,6 @@ def parse_auto_parameters(function: F) -> F:
         _var_dict = {key: value for key, value in _pipeline_obj["default"].items()}
         _var_dict["spark"] = _pipeline_obj.get("spark")
         return _var_dict
-
-    def pop_pipeline_var_dict(_var_dict: Dict, args: Tuple, kwargs: Dict) -> None:
-        """Function to pop keys of _var_dict, dict containing vars for pipeline class
-
-        If there are hard-coded vars of pipeline class which are called from handler,
-        those hard-coded vars will take priority over the same vars from conf.
-        If there are vars of pipeline class that the pipeline class does not define in the function,
-        those vars will be taken out from kwargs that will be provided to pipeline class.
-
-        Args:
-            _var_dict: Input variable dict
-            args (Tuple): Input arguments.
-            kwargs (Dict): Input keyword arguments.
-
-        """
-        pipeline_co_var = [i for i in function.__code__.co_varnames if i != "self"]
-
-        pop_var_dict(pipeline_co_var, _var_dict, args, kwargs)
 
     @functools.wraps(function)
     def wrap_parse_auto_parameters(self: Any, *args: Any, **kwargs: Any) -> None:
@@ -232,70 +191,14 @@ def parse_auto_parameters(function: F) -> F:
         _default_obj["from_pipeline"] = True
         _parse_auto_parameters(args, kwargs)
         _var_dict = set_var_dict()
-        _dict_key = function.__qualname__.split(".", 1)[0]
 
         if _default_obj["from_handler"]:
-            cleaned_configs = PipelineConfigArgumentValidators(
-                **_var_dict["conf"][_dict_key]
-            ).dict()
-            _var_dict["conf"][_dict_key] = cleaned_configs
-
-            pop_pipeline_var_dict(_var_dict, args, kwargs)
+            pop_function_var_dict(function, _var_dict, args, kwargs)
             function(self, *args, **kwargs, **_var_dict)
         else:
-            config_key_name = "conf"
-            config_index = list(function.__code__.co_varnames).index(config_key_name) - 1
-            if kwargs.get(config_key_name, None):
-                cleaned_configs = PipelineConfigArgumentValidators(
-                    **kwargs[config_key_name][_dict_key]
-                ).dict()
-                kwargs[config_key_name][_dict_key] = cleaned_configs
-            elif config_index < len(args) and args[config_index]:
-                cleaned_configs = PipelineConfigArgumentValidators(
-                    **args[config_index][_dict_key]
-                ).dict()
-                args[config_index][_dict_key] = cleaned_configs
             function(self, *args, **kwargs)
 
     return cast(F, wrap_parse_auto_parameters)
-
-
-def validate_schema_path_in_cfg_endswith_dot_json(cfg_dict: Dict) -> Optional[Dict]:
-    """Function for validating schema paths.
-
-    Validate `input_schema_path` and `ref_schema_path` in a configuration dictionary
-    at the key named `data_source`. The configuration dictionary can have any depth
-    and only the depth level where both `input_schema_path` and `ref_schema_path` are
-    found at the same time will be validated and any values that go after will be ignored
-    and have their values maintained.
-
-    Args:
-        cfg_dict (Dict): Conf dict.
-
-    Returns:
-        Dict: Conf dict after validated.
-
-    """
-
-    schema_related_keys = ["input_schema_path", "ref_schema_path"]
-    # Validate and parse (if possible) whenever `input_schema_path` and `ref_schema_path`
-    # are found at the same time.
-    if all([cfg_dict.get(x, False) for x in schema_related_keys]):
-        cleaned_schema_paths = TransformationConfigArgumentValidator(**cfg_dict).dict()
-        return cleaned_schema_paths
-
-    # Recursively walking through each of the depth levels of the configuration dictionary
-    # in a mission of searching for `input_schema_path` and `ref_schema_path`.
-    for key, value in cfg_dict.items():
-        if isinstance(value, dict):
-            ret = validate_schema_path_in_cfg_endswith_dot_json(value)
-
-            # If the return value is not None, then it means we got the cleaned version
-            # of the values, i.e. the cleaned_schema_paths was created and validated.
-            # In this case, we replace the unvalidated values with the validated ones.
-            if ret is not None:
-                cfg_dict[key] = ret
-    return None
 
 
 def get_auto_parameters(function: F) -> F:
@@ -334,24 +237,6 @@ def get_auto_parameters(function: F) -> F:
         _var_dict["spark"] = _pipeline_obj["spark"]
         return _var_dict
 
-    def pop_tfm_var_dict(_var_dict: Dict, args: Tuple, kwargs: Dict) -> None:
-        """Function to pop keys of _var_dict, dict containing vars for Tfm class
-
-        If there are hard-coded vars of Tfm class which are called from a pipeline class,
-        those hard-coded vars will take priority over the same vars from conf.
-        If there are vars of Tfm class that the Tfm class does not define in the function,
-        those vars will be taken out from kwargs that will be provided to Tfm class.
-
-        Args:
-            _var_dict: Input variable dict
-            args (Tuple): Input arguments.
-            kwargs (Dict): Input keyword arguments.
-
-        """
-        tfm_co_var = [i for i in function.__code__.co_varnames if i != "self"]
-
-        pop_var_dict(tfm_co_var, _var_dict, args, kwargs)
-
     @functools.wraps(function)
     def wrap_get_auto_parameters(self: Any, *args: Any, **kwargs: Any) -> None:
         """Main function of get_auto_parameters.
@@ -367,42 +252,13 @@ def get_auto_parameters(function: F) -> F:
 
         """
 
-        data_source_key_name = (
-            # the key that its value is required to be validated.
-            "data_source"
-        )
-        function_argument_list = list(
-            function.__code__.co_varnames
-        )  # list of all arguments of __init__() function of the decorated class.
-        data_source_index = (
-            function_argument_list.index(data_source_key_name) - 1
-        )  # find the index of the `data_source`, minus 1 due to `args` skips `self`.
         if _default_obj["from_pipeline"]:
             # create dict to pass into function
-
-            _var_dict = set_var_dict()  # passed
-            pop_tfm_var_dict(_var_dict, args, kwargs)  # passed
-
-            # Validate _var_dict here. The reason we ignore the return value here is because
-            # within the recursive calls of the function we already have a step that replace
-            # the unvalidated values with the validated ones, i.e., the line that has a code:
-            # if ret is not None: cfg_dict[key] = ret.
-            if data_source_key_name in _var_dict.keys():
-                _ = validate_schema_path_in_cfg_endswith_dot_json(
-                    _var_dict[data_source_key_name]
-                )
-
+            _var_dict = set_var_dict()
+            pop_function_var_dict(function, _var_dict, args, kwargs)
             function(self, *args, **kwargs, **_var_dict)
         else:
-            # handle the case when `data_source` is passed as a keyword argument
-            if kwargs.get(data_source_key_name, None):
-                _ = validate_schema_path_in_cfg_endswith_dot_json(
-                    kwargs[data_source_key_name]
-                )
-            # handle the case when `data_source` is passed as a positional argument
-            elif data_source_index < len(args) and args[data_source_index]:
-                _ = validate_schema_path_in_cfg_endswith_dot_json(args[data_source_index])
-
+            # if not being run from pipeline, do nothing
             function(self, *args, **kwargs)
 
     return cast(F, wrap_get_auto_parameters)
@@ -446,70 +302,3 @@ def init_auto_parameters(func: F) -> F:
         func(self, *args, **kwargs)
 
     return cast(F, wrap_add_default_obj)
-
-
-if __name__ == "__main__":
-
-    # class Test:
-    #     @get_auto_parameters
-    #     def __init__(
-    #         self,
-    #         start_date: str,
-    #         end_date: str,
-    #         data_source: Dict,
-    #         spark: SparkSession = None,
-    #         logger: Any = None,
-    #     ) -> None:
-    #         self.spark = spark
-    #         self.data_source = data_source
-    #         self.logger = logger
-
-    #         self.start_date = start_date
-    #         self.end_date = end_date
-
-    data_source = {
-        "A": {"source_1": {"x": "y"}},
-        "source_2": {
-            "input_schema_path": "resources/people_schema.json",
-            "ref_schema_path": "resources/people_schema.json",
-            "input_data_endpoint": "resources/people.json",
-        },
-    }
-    # Test(
-    #     "2022-0630", "20220640", data_source
-    # )  # for testing the validation flow for the case of passing data_source as a positional argument
-    # Test("2022-0630", "20220640", data_source=data_source)  # for testing the validation flow for the case of passing data_source as a keyword argument
-
-    class TestPipeline:
-        # import: standard
-        from datetime import datetime
-        from typing import Union
-
-        @parse_auto_parameters
-        def __init__(
-            self,
-            start_date: str,
-            end_date: str,
-            conf: Dict,
-            spark: SparkSession = None,
-            logger: Any = None,
-        ) -> None:
-            self.start_date = start_date
-            self.end_date = end_date
-
-            self.spark = spark
-            self.logger = logger
-            self.conf = conf[self.__class__.__name__]
-
-    my_conf = {
-        "TestPipeline": {
-            "data_processor_name": "datax",
-            "main_transformation_name": "tmp_mutiple_srcs",
-            "output_data_path": "spark-warehouse/resources/people",
-            "output_schema_path": "outputs/output_schema.xml",
-            "spark_config": None,
-        },
-        "MultipleSrcsAgg2": {"data_source": None},
-    }
-
-    TestPipeline("2022-0630", "20220640", my_conf)

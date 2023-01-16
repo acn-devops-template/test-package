@@ -2,9 +2,7 @@
 
 # import: standard
 import os
-import typing
 from datetime import datetime
-from typing import Any
 from typing import Callable
 from typing import Dict
 
