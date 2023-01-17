@@ -35,10 +35,19 @@ class Test_init_auto_parameters(unittest.TestCase):
     def setUpClass(self) -> None:
         """Setup function for testing init_auto_parameters.
 
-        Set conf, spark, logger, dbutils to self before test function.
+        Set conf_all, spark, logger, dbutils to self before test function.
 
         """
-        self.conf = {"key1": "value1", "key2": "value2"}
+        self.conf_app = {"name": "test_init_auto_parameters"}
+        self.conf_spark = {"spark.app.name": "test_init_auto_parameters"}
+        self.conf_logger = {}
+        self.conf_test = {"key": "value"}
+        self.conf_all = {
+            "app": self.conf_app,
+            "spark": self.conf_spark,
+            "logger": self.conf_logger,
+            "test": self.conf_test,
+        }
         self.spark = SparkSession.builder.getOrCreate()
         self.logger = self.spark._jvm.org.apache.log4j.LogManager.getLogger(
             "test_init_auto_parameters"
@@ -53,8 +62,11 @@ class Test_init_auto_parameters(unittest.TestCase):
 
         """
 
-        self.assertIsInstance(_default_obj["spark"], SparkSession)
-        self.assertEqual(_default_obj["default"]["conf"], self.conf)
+        self.assertIsInstance(_default_obj["default"]["spark"], SparkSession)
+        self.assertEqual(_default_obj["default"]["conf_app"], self.conf_app)
+        self.assertEqual(_default_obj["default"]["conf_spark"], self.conf_spark)
+        self.assertEqual(_default_obj["default"]["conf_logger"], {})
+        self.assertEqual(_default_obj["default"]["conf_test"], self.conf_all["test"])
         self.assertTrue(_default_obj["from_handler"], "from_handler is not True")
         try:
             _default_obj["default"]["logger"].warn("Test logger")
@@ -81,7 +93,8 @@ class Test_parse_auto_parameters(unittest.TestCase):
         Set conf, spark, logger, dbutils to _default_obj before test function
 
         """
-        conf = {
+
+        self.conf_app = {
             "Test_parse_auto_parameters": {
                 "key1": "value1",
                 "key2": "value2",
@@ -91,23 +104,29 @@ class Test_parse_auto_parameters(unittest.TestCase):
                 "output_schema_path": "path/to/schema.json",
             }
         }
-        self.test_conf = conf
+        self.conf_deequ = {"deequ": {"key1": "value1", "key2": "value2"}}
+
         spark = SparkSession.builder.getOrCreate()
         logger = spark._jvm.org.apache.log4j.LogManager.getLogger(
             "test_parse_auto_parameters"
         )
-        dbutils = None
-        _default_obj["spark"] = spark
-        _default_obj["default"]["conf"] = conf
-        _default_obj["default"]["logger"] = logger
-        _default_obj["default"]["dbutils"] = dbutils
+        _default_obj["default"] = {
+            "spark": spark,
+            "conf_app": self.conf_app,
+            "conf_deequ": self.conf_deequ,
+            "conf_logger": {},
+            "logger": logger,
+            "dbutils": "test_dbutils",
+        }
         _default_obj["from_handler"] = True
 
     @parse_auto_parameters
     def test(
         self,
         spark: SparkSession,
-        conf: Dict = None,
+        conf_app: Dict,
+        conf_deequ: Dict,
+        conf_logger: Dict,
         logger: Any = None,
         dbutils: Any = None,
     ) -> None:
@@ -117,16 +136,20 @@ class Test_parse_auto_parameters(unittest.TestCase):
 
         Args:
             spark (SparkSession): A SparkSession.
-            conf (Dict): conf dict.
+            conf_app (Dict): conf_app dict.
+            conf_deequ (Dict): conf_deequ dict.
             logger: Log4j logger
             dbutils: DBUtils
 
         """
         self.assertIsInstance(spark, SparkSession)
-        self.assertEqual(conf, self.test_conf)
+        self.assertEqual(dbutils, "test_dbutils")
         self.assertTrue(_default_obj["from_pipeline"], "from_pipeline is not True")
-        self.assertEqual(conf["Test_parse_auto_parameters"]["key1"], "value1")
-        self.assertEqual(conf["Test_parse_auto_parameters"]["key2"], "value2")
+
+        self.assertEqual(conf_app, self.conf_app)
+        self.assertEqual(conf_deequ, self.conf_deequ)
+        self.assertEqual(conf_logger, {})
+
         try:
             logger.warn("Test logger")
         except KeyError:
@@ -153,7 +176,7 @@ class Test_get_auto_parameters(unittest.TestCase):
 
         """
 
-        conf = {
+        conf_app = {
             "Test_get_auto_parameters": {
                 "key1": "value1",
                 "key2": "value2",
@@ -164,17 +187,20 @@ class Test_get_auto_parameters(unittest.TestCase):
                 },
             }
         }
-        self.test_conf = conf
+        self.conf_spark = {"spark": {"spark.sql.shuffle.partitions": "2"}}
+        self.test_conf = conf_app
         spark = SparkSession.builder.getOrCreate()
         logger = spark._jvm.org.apache.log4j.LogManager.getLogger(
             "test_get_auto_parameters"
         )
-        dbutils = None
-        _pipeline_obj["spark"] = spark
-        _pipeline_obj["default"]["conf"] = conf
-        _pipeline_obj["default"]["logger"] = logger
-        _pipeline_obj["default"]["dbutils"] = dbutils
 
+        _pipeline_obj["default"] = {
+            "spark": spark,
+            "conf_app": conf_app,
+            "conf_spark": self.conf_spark,
+            "logger": logger,
+            "dbutils": "dbutils",
+        }
         _default_obj["from_pipeline"] = True
 
     @get_auto_parameters
@@ -184,6 +210,8 @@ class Test_get_auto_parameters(unittest.TestCase):
         key2: str,
         data_source: Dict,
         spark: SparkSession,
+        conf_spark: Dict,
+        conf_app: Dict,
         logger: Any = None,
         dbutils: Any = None,
     ) -> None:
@@ -206,6 +234,9 @@ class Test_get_auto_parameters(unittest.TestCase):
         self.assertEqual(
             data_source, self.test_conf["Test_get_auto_parameters"]["data_source"]
         )
+        self.assertEqual(conf_spark, self.conf_spark)
+        self.assertEqual(conf_app, self.test_conf)
+        self.assertEqual(dbutils, "dbutils")
         try:
             logger.warn("Test logger")
         except KeyError:

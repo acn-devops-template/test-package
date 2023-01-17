@@ -26,14 +26,23 @@ class Mock_ABC(Task):
     def launch(self) -> Tuple[SparkSession, Dict]:
         """Test function for testing Task(ABC).
 
-        To return spark and conf
-
         Return:
             SparkSession: spark
-            Dict: conf dict
+            Dict: conf_app dict
+            Dict: conf_spark dict
+            Dict: conf_logger dict
+            Dict: conf_deequ dict
+            Dict: conf_all dict
 
         """
-        return self.spark, self.conf
+        return (
+            self.spark,
+            self.conf_app,
+            self.conf_spark,
+            self.conf_logger,
+            self.conf_deequ,
+            self.conf_all,
+        )
 
 
 def test() -> None:
@@ -42,17 +51,66 @@ def test() -> None:
     To test spark and conf value of Task(ABC)
 
     """
-    task = Mock_ABC(module_name="Test_ABC_Module", conf_path="./tests/resources/")
-    test_spark, test_conf = task.launch()
+    task = Mock_ABC(module_name="TestABCModule", conf_path="./tests/resources/")
+    (
+        test_spark,
+        test_conf_app,
+        test_conf_spark,
+        test_conf_logger,
+        test_conf_deequ,
+        test_conf_all,
+    ) = task.launch()
 
-    firstValue = yaml.safe_load(
+    confValue = yaml.safe_load(
+        pathlib.Path("./tests/resources/test_pipeline/TestABCModule/app.yml").read_text()
+    )
+
+    sparkconfValue = yaml.safe_load(
         pathlib.Path(
-            "./tests/resources/test_pipeline/test_conf_file/Test_ABC_Module.yml"
+            "./tests/resources/test_pipeline/TestABCModule/spark.yml"
         ).read_text()
     )
 
-    assert firstValue == test_conf
+    assert confValue == test_conf_app
+    assert sparkconfValue == test_conf_spark
+    assert test_conf_logger == {}
+    assert test_conf_deequ == {}
+    assert test_conf_all["app"] == confValue
+    assert test_conf_all["spark"] == sparkconfValue
+    assert test_conf_all["logger"] == {}
+    assert test_conf_all["deequ"] == {}
     assert type(test_spark) == SparkSession
+
+
+def test_wo_pipeline_section() -> None:
+    """Test function for testing Task(ABC).
+
+    To test if there is no pipeline section in conf_app
+
+    """
+    task = Mock_ABC(module_name="TestABCModuleWO", conf_path="./tests/resources/")
+    (
+        test_spark,
+        test_conf_app,
+        test_conf_spark,
+        test_conf_logger,
+        test_conf_deequ,
+        test_conf_all,
+    ) = task.launch()
+
+    confValue = yaml.safe_load(
+        pathlib.Path(
+            "./tests/resources/test_pipeline/TestABCModuleWO/app.yml"
+        ).read_text()
+    )
+    print(test_conf_all)
+
+    assert confValue == test_conf_app
+    assert test_conf_all["app"] == confValue
+    assert type(test_spark) == SparkSession
+    assert test_conf_all["spark"] == {}
+    assert test_conf_all["logger"] == {}
+    assert test_conf_all["deequ"] == {}
 
 
 def test_ValueError() -> None:
@@ -62,7 +120,7 @@ def test_ValueError() -> None:
 
     """
     with pytest.raises(ValueError):
-        Mock_ABC(module_name="Test_ABC_Module_2", conf_path="./tests/resources/")
+        Mock_ABC(module_name="TestABCModule2", conf_path="./tests/resources/")
 
 
 def test_FileNotFoundError() -> None:
@@ -72,4 +130,4 @@ def test_FileNotFoundError() -> None:
 
     """
     with pytest.raises(FileNotFoundError):
-        Mock_ABC(module_name="Test_ABC_Module_3", conf_path="./tests/resources/")
+        Mock_ABC(module_name="TestABCModule3", conf_path="./tests/resources/")

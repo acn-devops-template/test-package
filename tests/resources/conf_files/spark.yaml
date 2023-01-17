@@ -1,0 +1,2 @@
+spark.sql.broadcastTimeout: "100000ms"
+spark.sql.execution.arrow.pyspark.enabled: "true"
