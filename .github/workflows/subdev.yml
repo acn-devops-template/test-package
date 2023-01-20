@@ -40,12 +40,6 @@ jobs:
         run: |
           poetry install -v --without dev,release,docs
 
-      - name: mkdir
-        run: |
-          ls 
-          mkdir -p test_dir/something
-          ls -R
-
       - name: Linting
         run: |
           poetry run pre-commit run --all-files
