@@ -8,12 +8,11 @@ on:
       - staging
       - main
       - gh-pages
-      - "ci/**"
       - "docs/**"
 
 jobs:
   subdev-pipeline:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
@@ -40,6 +39,12 @@ jobs:
       - name: Install dependencies and project
         run: |
           poetry install -v --without dev,release,docs
+
+      - name: mkdir
+        run: |
+          ls 
+          mkdir -p test_dir/something
+          ls -R
 
       - name: Linting
         run: |
