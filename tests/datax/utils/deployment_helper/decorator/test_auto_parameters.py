@@ -106,16 +106,16 @@ class Test_parse_auto_parameters(unittest.TestCase):
         }
         self.conf_deequ = {"deequ": {"key1": "value1", "key2": "value2"}}
 
-        spark = SparkSession.builder.getOrCreate()
-        logger = spark._jvm.org.apache.log4j.LogManager.getLogger(
+        self.spark = SparkSession.builder.getOrCreate()
+        self.logger = self.spark._jvm.org.apache.log4j.LogManager.getLogger(
             "test_parse_auto_parameters"
         )
         _default_obj["default"] = {
-            "spark": spark,
+            "spark": self.spark,
             "conf_app": self.conf_app,
             "conf_deequ": self.conf_deequ,
             "conf_logger": {},
-            "logger": logger,
+            "logger": self.logger,
             "dbutils": "test_dbutils",
         }
         _default_obj["from_handler"] = True
@@ -138,6 +138,7 @@ class Test_parse_auto_parameters(unittest.TestCase):
             spark (SparkSession): A SparkSession.
             conf_app (Dict): conf_app dict.
             conf_deequ (Dict): conf_deequ dict.
+            conf_logger (Dict): conf_logger dict:
             logger: Log4j logger
             dbutils: DBUtils
 
@@ -149,6 +150,45 @@ class Test_parse_auto_parameters(unittest.TestCase):
         self.assertEqual(conf_app, self.conf_app)
         self.assertEqual(conf_deequ, self.conf_deequ)
         self.assertEqual(conf_logger, {})
+
+        try:
+            logger.warn("Test logger")
+        except KeyError:
+            self.fail("logger raised KeyError unexpectedly!")
+
+    def test_manual_run_pipeline(self):
+        class DummyPipeline:
+            """Mockup Pipeline Class"""
+
+            @parse_auto_parameters
+            def __init__(
+                cls,
+                spark: SparkSession,
+                conf_app: Dict,
+                conf_deequ: Dict,
+                logger: Any = None,
+                dbutils: Any = None,
+            ) -> None:
+                cls.spark = spark
+                cls.conf_app = conf_app
+                cls.conf_deequ = conf_deequ
+                cls.logger = logger
+                cls.dbutils = dbutils
+
+            def main(cls):
+                """Prepare data function inside ETL class, return dataframe"""
+                return cls.spark, cls.dbutils, cls.conf_app, cls.conf_deequ, cls.logger
+
+        _default_obj["from_handler"] = False
+
+        spark, dbutils, conf_app, conf_deequ, logger = DummyPipeline(
+            self.spark, self.conf_app, self.conf_deequ, self.logger, "test_dbutils_manual"
+        ).main()
+
+        self.assertIsInstance(spark, SparkSession)
+        self.assertEqual(dbutils, "test_dbutils_manual")
+        self.assertEqual(conf_app, self.conf_app)
+        self.assertEqual(conf_deequ, self.conf_deequ)
 
         try:
             logger.warn("Test logger")

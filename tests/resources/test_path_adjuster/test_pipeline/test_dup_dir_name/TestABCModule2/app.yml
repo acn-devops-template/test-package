@@ -1,0 +1,11 @@
+TestABCModule2:
+  data_source:
+    A:
+      source_1:
+        input_data_endpoint: "resources/people.json"
+        input_schema_path: "resources/people_schema.json"
+        ref_schema_path: "resources/people_schema.json"
+    source_2:
+      input_data_endpoint: "resources/people.json"
+      input_schema_path: "resources/people_schema.json"
+      ref_schema_path: "resources/people_schema.json"
