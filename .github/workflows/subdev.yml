@@ -8,12 +8,11 @@ on:
       - staging
       - main
       - gh-pages
-      - "ci/**"
       - "docs/**"
 
 jobs:
   subdev-pipeline:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
@@ -28,7 +27,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.9"
 
       - name: Install pip
         run: |
@@ -43,9 +42,9 @@ jobs:
 
       - name: Linting
         run: |
-          poetry run pre-commit run --all-files
+          poetry run pre-commit run --all-files -vv
 
       - name: Run unit tests # change pytest path here
         run: |
           echo "Launching unit tests"
-          poetry run pytest tests/datax/utils/deployment_helper/converter/test_path_adjuster.py
+          poetry run pytest tests/

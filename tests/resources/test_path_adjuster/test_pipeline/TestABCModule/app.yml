@@ -1,0 +1,7 @@
+TestABCModule:
+  data_processor_name: "datax"
+  main_transformation_name: "tmp_credit_card"
+  database: "default"
+  table: "testing_pipeline"
+  output_data_path: "spark-warehouse/resources/people"
+  output_schema_path: "outputs/output_schema.json"

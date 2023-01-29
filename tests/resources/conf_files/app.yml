@@ -1,4 +1,4 @@
-Test_ABC_Module:
+TestABCModule:
   data_processor_name: "datax"
   main_transformation_name: "tmp_credit_card"
   database: "default"
