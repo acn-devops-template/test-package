@@ -1,4 +1,4 @@
-Test_ABC_Module_2:
+TestABCModule2:
   data_source:
     A:
       source_1:

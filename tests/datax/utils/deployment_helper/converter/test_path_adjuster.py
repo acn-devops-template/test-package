@@ -2,13 +2,16 @@
 
 # import: standard
 import unittest
+from typing import List
 
 # import: datax in-house
 from datax.utils.deployment_helper.converter.path_adjuster import find_conf_path
+from datax.utils.deployment_helper.converter.path_adjuster import get_pipeline_conf_files
 from datax.utils.deployment_helper.converter.path_adjuster import replace_conf_reference
 
 # import: external
 import git
+import pytest
 
 
 class TestFindConfPath(unittest.TestCase):
@@ -23,15 +26,17 @@ class TestFindConfPath(unittest.TestCase):
 
     def test_find_conf_path(self) -> None:
         """Test find conf path using __file__."""
-        find_resources_conf = find_conf_path(__file__, to_conf="resources/conf")
+        find_resources_conf = find_conf_path(__file__, src_dir_name="datax")
         git_repo = git.Repo(__file__, search_parent_directories=True)
         git_repo = git_repo.git.rev_parse("--show-toplevel")
 
-        self.assertEqual(find_resources_conf, f"{git_repo}/tests/resources/conf")
+        self.assertEqual(
+            find_resources_conf, f"{git_repo}/tests/resources/test_path_adjuster/conf"
+        )
 
     def test_find_conf_path_not_found(self) -> None:
         """Test find conf path for error, FileNotFoundError."""
-        test_error_dict = {"file": __file__, "to_conf": "conf"}
+        test_error_dict = {"file": __file__}
         self.assertRaises(FileNotFoundError, find_conf_path, **test_error_dict)
 
 
@@ -77,3 +82,52 @@ class TestReplaceConfReference(unittest.TestCase):
         replace_conf_reference(mock_dict, conf_path)
 
         self.assertEqual(mock_dict, expected_dict)
+
+
+class TestGetPipelineConfFiles(unittest.TestCase):
+    """Test Class for testing get_pipeline_conf_files.
+
+    Class for testing get_pipeline_conf_files.
+
+    Args:
+        unittest.TestCase: An unittest TestCase.
+
+    """
+
+    def test_get_pipeline_conf_files(self) -> None:
+        """Test get_pipeline_conf_files."""
+
+        conf_list = get_pipeline_conf_files(
+            "tests/resources/test_path_adjuster", "TestABCModule"
+        )
+
+        read_list = [
+            "tests/resources/test_path_adjuster/test_pipeline/TestABCModule/app.yml",
+            "tests/resources/test_path_adjuster/test_pipeline/TestABCModule/spark.yml",
+        ]
+
+        str_list = [str(i) for i in conf_list]
+
+        self.assertEqual(sorted(str_list), sorted(read_list))
+
+    def test_ValueError(self) -> None:
+        """Test function for testing get_pipeline_conf_files.
+
+        To test ValueError if found more than 1 config
+
+        """
+        with pytest.raises(ValueError):
+            get_pipeline_conf_files(
+                "tests/resources/test_path_adjuster", "TestABCModule2"
+            )
+
+    def test_FileNotFoundError(self) -> None:
+        """Test function for testing get_pipeline_conf_files.
+
+        To test FileNotFoundError if could not find any config
+
+        """
+        with pytest.raises(FileNotFoundError):
+            get_pipeline_conf_files(
+                "tests/resources/test_path_adjuster", "TestABCModule3"
+            )

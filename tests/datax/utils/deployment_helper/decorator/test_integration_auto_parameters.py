@@ -6,9 +6,9 @@ from typing import Any
 from typing import Dict
 
 # import: pyspark
-import pyspark.sql.functions as F
 from pyspark.sql import DataFrame
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import lit
 
 # import: datax in-house
 from datax.utils.deployment_helper.decorator.auto_parameters import get_auto_parameters
@@ -36,15 +36,13 @@ class Test_Integration_auto_parameters(unittest.TestCase):
         Set conf, spark, logger, dbutils to self before test function
 
         """
-        self.conf = {
-            "_Pipeline": {
-                "key1": "value_1",
-                "key2": "value_2",
-                "data_processor_name": "str",
-                "main_transformation_name": "str",
-                "output_data_path": "str",
-                "output_schema_path": "path/to/schema.json",
-            },
+        self.conf_app = {
+            "key1": "value_1",
+            "key2": "value_2",
+            "data_processor_name": "str",
+            "main_transformation_name": "str",
+            "output_data_path": "str",
+            "output_schema_path": "path/to/schema.json",
             "_Agg": {
                 "key1": "value1",
                 "key2": "value2",
@@ -59,7 +57,11 @@ class Test_Integration_auto_parameters(unittest.TestCase):
         self.logger = self.spark._jvm.org.apache.log4j.LogManager.getLogger(
             "test_auto_parameters"
         )
+
         self.dbutils = None
+        self.conf_all = {
+            "app": self.conf_app,
+        }
 
     @init_auto_parameters
     def test(self) -> None:
@@ -77,10 +79,10 @@ class Test_Integration_auto_parameters(unittest.TestCase):
         self.assertEqual(ret.select("age").collect()[0]["age"], 30)
         self.assertEqual(ret.select("address").collect()[0]["address"], "Lisbon")
         self.assertEqual(
-            ret.select("key1").collect()[0]["key1"], self.conf["_Agg"]["key1"]
+            ret.select("key1").collect()[0]["key1"], self.conf_app["_Agg"]["key1"]
         )
         self.assertEqual(
-            ret.select("key2").collect()[0]["key2"], self.conf["_Agg"]["key2"]
+            ret.select("key2").collect()[0]["key2"], self.conf_app["_Agg"]["key2"]
         )
 
 
@@ -96,7 +98,7 @@ class _Pipeline:
         start_date: str,
         end_date: str,
         spark: SparkSession,
-        conf: Dict = None,
+        conf_app: Dict = None,
         logger: Any = None,
         dbutils: Any = None,
     ) -> None:
@@ -106,7 +108,7 @@ class _Pipeline:
             start_date: start_date
             end_date: end_date
             spark (SparkSession): A SparkSession.
-            conf (Dict): conf dict.
+            conf_app (Dict): conf_app dict.
             logger: Log4j logger
             dbutils: DBUtils
 
@@ -117,8 +119,8 @@ class _Pipeline:
         self.spark = spark
         self.logger = logger
 
-        self.key1 = conf["_Pipeline"]["key1"]
-        self.key2 = conf["_Pipeline"]["key2"]
+        self.key1 = conf_app["key1"]
+        self.key2 = conf_app["key2"]
 
     def execute(self) -> DataFrame:
         """Main Test function of _Pipeline.
@@ -215,6 +217,6 @@ class _Agg:
         self.logger.warn(self.spark.sparkContext._conf.get("spark.app.name"))
 
         df = self.load_source()
-        df = df.withColumn("key1", F.lit(self.key1)).withColumn("key2", F.lit(self.key2))
+        df = df.withColumn("key1", lit(self.key1)).withColumn("key2", lit(self.key2))
 
         return df

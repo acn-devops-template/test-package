@@ -10,7 +10,7 @@ on:
 
 jobs:
   dev-ci-pipeline:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.9"
 
       - name: Install pip
         run: |
@@ -43,12 +43,7 @@ jobs:
         run: |
           poetry run pre-commit run --all-files
 
-      - name: Run Unit tests
+      - name: Run tests and Check coverage of tests
         run: |
-          echo "Launching Unit tests"
-          poetry run pytest tests/ -k 'test and not integration'
-
-      - name: Run Intrgration tests
-        run: |
-          echo "Launching Intrgration tests"
-          poetry run pytest tests/ -k 'integration'
+          echo "Launching tests"
+          poetry run pytest --cov=src tests/ --cov-fail-under=90
