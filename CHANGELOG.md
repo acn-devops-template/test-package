@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.0 (2023-01-29)
+### Feature
+* :sparkles: multiple config ([`ff24c84`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/ff24c84c8a15a158c72f507654e0ef3f586489dd))
+* :boom: auto_parameter to use multiple config approach ([`a7af73b`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/a7af73b7ebb82fbf5f0ab50acbde1e5b3ca732c8))
+* :boom: Multiple configuration types ([`47c4eac`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/47c4eac40036c169fde50f3a3e36f9bdb9f7ac63))
+* :boom: change conf structure ([`015f3a7`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/015f3a7a0fcfd44ca28b2134c581348c3bb165cd))
+
+### Documentation
+* :memo: Check auto_parameter example notebook correctness ([`cc0d5ec`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/cc0d5ecaaace4d20d7cb1bef453c2e455323764a))
+* :memo: update docstrings ([`f5f89a3`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/f5f89a3b2e9d46bf51bf68b8834381014dd510b5))
+* :memo: update example notebook ([`50dbb84`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/50dbb8439537291b14c5bb900f6983ac5ffa4a29))
+
 ## v0.5.0 (2022-12-16)
 ### Feature
 * :sparkles: add converter/path_adjuster ([`0fb8c71`](https://github.com/datax-tmp/datax-utils-deployment-helper/commit/0fb8c71f6fc5b3262884b60de8a85a812ed1ec93))
