@@ -27,7 +27,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.9"
 
       - name: Install pip
         run: |
@@ -42,7 +42,7 @@ jobs:
 
       - name: Linting
         run: |
-          poetry run pre-commit run --all-files
+          poetry run pre-commit run --all-files -vv
 
       - name: Run unit tests # change pytest path here
         run: |

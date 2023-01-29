@@ -2,13 +2,14 @@
 name = "datax-utils-deployment-helper"
 version = "0.5.0"
 description = "common lib for deployment-related"
-authors = ["Your Name <you@example.com>"]
+authors = ["DataX Analytics Machine Learning Engineering <analytics.mle@data-x.ai>", 
+		   "DataX Analytics Products DataHub <analytics.products.datahub@data-x.ai>"]
 readme = "README.md"
 packages = [{ include = "datax", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pyspark = { version = "3.2.1", source = "PyPI" }
+python = "^3.9"
+pyspark = { version = "^3.3.0", source = "PyPI" }
 pydantic = { version = "^1.10.2", source = "PyPI" }
 
 [tool.poetry.group.test.dependencies]
@@ -26,7 +27,7 @@ mkdocs = { version = "^1.4.2", source = "PyPI" }
 mkdocs-material = { version = "^8.5.9", source = "PyPI" }
 mkdocs-git-revision-date-localized-plugin = { version = "^1.1.0", source = "PyPI" }
 mknotebooks = { version = "^0.7.1", source = "PyPI" }
-mkdocstrings = { version = "^0.19.0", source = "PyPI" }
+mkdocstrings = { version = "0.19.0", source = "PyPI" }
 mkdocstrings-python = { version = "^0.7.1", source = "PyPI" }
 mkdocs-section-index = { version = "^0.3.4", source = "PyPI" }
 mkdocs-literate-nav = { version = "^0.5.0", source = "PyPI" }
@@ -147,7 +148,7 @@ ignore-nested-functions = false                             # Ignore nested func
 ignore-nested-classes = false                               # Ignore nested classes. [default: False]
 ignore-setters = false                                      # Ignore methods with property setter decorators. [default: False]
 fail-under = 90                                             # Fail when coverage % is less than a given amount. [default: 80.0]
-exclude = ["setup", "docs", "experiments", "conf", "build"]
+exclude = ["setup", "docs", "experiments", "conf", "build", "env"]
 verbose = 0                                                 # possible values: 0 (minimal output), 1 (-v), 2 (-vv)
 quiet = false                                               # Do not print output [default: False]
 whitelist-regex = []

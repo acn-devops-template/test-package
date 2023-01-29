@@ -1,3 +1,5 @@
+"""Abstract base class for reading config files."""
+
 # import: standard
 import json
 import os

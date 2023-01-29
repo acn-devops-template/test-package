@@ -157,6 +157,8 @@ class Test_parse_auto_parameters(unittest.TestCase):
             self.fail("logger raised KeyError unexpectedly!")
 
     def test_manual_run_pipeline(self):
+        """Test function for testing parse_auto_parameters manually."""
+
         class DummyPipeline:
             """Mockup Pipeline Class"""
 
@@ -169,6 +171,7 @@ class Test_parse_auto_parameters(unittest.TestCase):
                 logger: Any = None,
                 dbutils: Any = None,
             ) -> None:
+                """Init function for DummyPipeline"""
                 cls.spark = spark
                 cls.conf_app = conf_app
                 cls.conf_deequ = conf_deequ
