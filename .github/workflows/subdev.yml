@@ -1,4 +1,4 @@
-name: subdev # for subdev or feat branch, please change the pytest path
+name: subdev # for subdev or feat branch, please change the pytest path.
 
 on:
   workflow_dispatch:
