@@ -1,22 +1,20 @@
 """abstract_class common module"""
 
 # import: standard
-import copy
 from abc import ABC
 from abc import abstractmethod
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Union
 
 # import: pyspark
 from pyspark.conf import SparkConf
 from pyspark.sql import SparkSession
 
 # import: datax in-house
-from datax.utils.deployment_helper.abstract_class.conf_file_reader import ConfFileReader
 from datax.utils.deployment_helper.converter.path_adjuster import get_pipeline_conf_files
+from datax.utils.deployment_helper.converter.path_adjuster import read_conf_all
 from datax.utils.deployment_helper.converter.path_adjuster import replace_conf_reference
 
 
@@ -196,32 +194,10 @@ class Task(ABC):
         """
 
         conf_files = get_pipeline_conf_files(conf_path, self.module_name)
-        conf_dict = self._read_conf_all(conf_files)
+        conf_dict = read_conf_all(conf_files)
 
         replaced_dict = replace_conf_reference(conf_dict, conf_path)
         return replaced_dict
-
-    @staticmethod
-    def _read_conf_all(conf_files: Union[str, List]) -> Dict[str, Any]:
-        """Function to read a conf file.
-
-        Read all config files using __subclasses__ of ConfFileReader.
-
-        Args:
-            conf_files (Union[str, List]): A conf path or a list of paths.
-
-        Returns:
-            Dict[str, Any]: Conf loaded from conf_file with keys as file names and values as config values.
-
-        """
-
-        config = {}
-
-        for each_reader in ConfFileReader.__subclasses__():
-            each_conf = each_reader(conf_file_paths=conf_files).read_file()
-            config.update(each_conf)
-
-        return config
 
     def _prepare_logger(self) -> Any:
         """Function to get a logger.

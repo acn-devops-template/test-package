@@ -2,8 +2,13 @@
 # import: standard
 import os
 import pathlib
+from typing import Any
 from typing import Dict
 from typing import List
+from typing import Union
+
+# import: datax in-house
+from datax.utils.deployment_helper.abstract_class.conf_file_reader import ConfFileReader
 
 
 def find_conf_path(
@@ -171,3 +176,25 @@ def get_pipeline_conf_files(
             raise ValueError(f"Found more than one conf file per type, {conf_list}")
 
     return conf_list
+
+
+def read_conf_all(conf_files: Union[str, List]) -> Dict[str, Any]:
+    """Function to read a conf file.
+
+    Read all config files using __subclasses__ of ConfFileReader.
+
+    Args:
+        conf_files (Union[str, List]): A conf path or a list of paths.
+
+    Returns:
+        Dict[str, Any]: Conf loaded from conf_file with keys as file names and values as config values.
+
+    """
+
+    config = {}
+
+    for each_reader in ConfFileReader.__subclasses__():
+        each_conf = each_reader(conf_file_paths=conf_files).read_file()
+        config.update(each_conf)
+
+    return config
