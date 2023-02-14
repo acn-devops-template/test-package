@@ -42,6 +42,6 @@ repos:
     rev: v0.982
     hooks:
       - id: mypy
-        additional_dependencies: ["types-PyYAML"]
+        additional_dependencies: ["types-PyYAML","types-python-dateutil"]
         args: [src]
         pass_filenames: false
