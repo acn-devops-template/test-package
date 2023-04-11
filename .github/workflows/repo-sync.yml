@@ -1,0 +1,27 @@
+# File: .github/workflows/repo-sync.yml
+
+on:
+  schedule:
+  - cron:  "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  repo-sync:
+    runs-on: [ self-hosted-dev ]
+    steps:
+    - name: change workspace owner
+      run: 
+        sudo chown -R $USER:$USER ${{ github.workspace }}
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - name: repo-sync
+      env:
+        REPO_NAME: ${{ github.event.repository.name }}
+      uses: ./.github/actions/github-sync
+      with:
+        source_repo: "https://${{ secrets.ACCESS_TOKEN }}@github.com/datax-tmp/${{ env.REPO_NAME }}.git"
+        source_branch: "*"
+        destination_branch: "*"
+        github_token: ${{ secrets.GH_PAT_ADM }}
+        sync_tags: "true"
