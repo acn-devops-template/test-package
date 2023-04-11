@@ -1,9 +1,6 @@
 # File: .github/workflows/repo-sync.yml
 
-on:
-  schedule:
-  - cron:  "*/15 * * * *"
-  workflow_dispatch:
+on: push
 
 jobs:
   repo-sync:
