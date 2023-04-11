@@ -1,5 +1,5 @@
 # File: .github/workflows/repo-sync.yml
-
+name: repo sync
 on:
   push:
     branches: [ main ]
