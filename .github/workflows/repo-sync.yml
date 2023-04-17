@@ -1,10 +1,8 @@
 # File: .github/workflows/repo-sync.yml
 name: repo sync
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  schedule:
+  - cron:  "*/15 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -23,7 +21,7 @@ jobs:
       uses: ./.github/actions/github-sync
       with:
         source_repo: "https://${{ secrets.ACCESS_TOKEN }}@github.com/datax-tmp/${{ env.REPO_NAME }}.git"
-        source_branch: "*"
-        destination_branch: "*"
+        source_branch: "dev"
+        destination_branch: "dev"
         github_token: ${{ secrets.GH_PAT_ADM }}
         sync_tags: "true"
