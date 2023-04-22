@@ -39,7 +39,9 @@ jobs:
 
       - name: Install pip
         run: |
-          pip install --upgrade pip
+          pip install pip -U
+          pip install pipenv -U
+          pip install virtualenv -U
 
       - name: Install poetry
         uses: ./actions/install-poetry
