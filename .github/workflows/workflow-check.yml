@@ -24,4 +24,6 @@ jobs:
       run: |
         hostname
         curl https://dev.azure.com
-        cat /home/azureuser/actions-runner/workspace_runner/datax-utils-data-layer/datax-utils-data-layer/poetry-installer-error-479_iftw.log
+        cat /home/azureuser/actions-runner/workspace_runner/datax-utils-data-layer/datax-utils-data-layer/poetry-installer-error-xkopbf2x.log
+        ls -la /home/azureuser/actions-runner/workspace_runner/datax-utils-data-layer/datax-utils-data-layer
+        rm /home/azureuser/actions-runner/workspace_runner/datax-utils-data-layer/datax-utils-data-layer/poetry-*.log
