@@ -1,0 +1,21 @@
+name: Workflow_Check
+on:
+  #push:
+  #  branches: [ master ]
+  #pull_request:
+  #  branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  Checkers:
+
+    runs-on: 
+      - self-hosted
+    env:
+      CHECKERS: --webapp-security
+
+    steps:
+    - name: Connect to AzDevOps
+      run: |
+        hostname
+        curl https://dev.azure.com
