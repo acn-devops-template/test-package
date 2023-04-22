@@ -11,11 +11,11 @@ jobs:
 
   strategy:  
     matrix:    
-      hosts:       
-      [ self-hosted-dev
-      , self-hosted-ai-c360dev
-      , self-hosted-ai-c360stg
-      , self-hosted-ai-c360prd ]
+      hosts: 
+      - self-hosted-dev
+      - self-hosted-ai-c360dev
+      - self-hosted-ai-c360stg
+      - self-hosted-ai-c360prd
     runs-on:  ${{ matrix.hosts }}
 
     env:
