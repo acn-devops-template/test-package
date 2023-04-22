@@ -24,4 +24,4 @@ jobs:
       run: |
         hostname
         curl https://dev.azure.com
-        ls -la /home/azureuser/actions-runner/workspace_runner/datax-utils-data-layer/datax-utils-data-layer/poetry-installer-error-t2o3dqj_.log
+        cat /home/azureuser/actions-runner/workspace_runner/datax-utils-data-layer/datax-utils-data-layer/poetry-installer-error-t2o3dqj_.log
