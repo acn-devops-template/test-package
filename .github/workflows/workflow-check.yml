@@ -9,10 +9,8 @@ on:
 jobs:
   Checkers:
 
-    runs-on: self-hosted-dev
-      , self-hosted-ai-c360dev
-      , self-hosted-ai-c360stg
-      , self-hosted-ai-c360prd 
+    runs-on: [self-hosted-dev, 
+      , self-hosted-ai-c360dev]
 
     env:
       CHECKERS: --webapp-security
