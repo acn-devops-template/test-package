@@ -41,7 +41,7 @@ jobs:
           pip install --upgrade pip
 
       - name: Install poetry
-        uses: ./actions/actions/install-poetry
+        uses: ./actions/install-poetry
 
       - name: Install dependencies and project
         run: |
