@@ -12,7 +12,8 @@ jobs:
     runs-on: ${{ matrix.runner }}
     strategy:      
       matrix:        
-        runner: [ self-hosted-ai-c360stg, self-hosted-ai-c360prd ]
+        runner: [ self-hosted-ai-c360dev, self-hosted-ai-c360stg, 
+        self-hosted-ai-c360prd ]
 
     env:
       CHECKERS: --webapp-security
