@@ -10,7 +10,7 @@ on:
 
 jobs:
   dev-ci-pipeline:
-    runs-on: self-hosted-ai-c360dev
+    runs-on: self-hosted-ai-c360stg
     env:
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
 
