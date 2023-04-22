@@ -32,14 +32,14 @@ jobs:
       #     ssh-private-key: |
       #       ${{ secrets.DEPLOYMENT_HELPER_SSH_KEY }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
+      # - name: Set up Python
+      #   uses: actions/setup-python@v2
+      #   with:
+      #     python-version: "3.8"
 
       - name: Install pip
         run: |
-          pip install --force-reinstall --no-deps
+          pip install --upgrade pip
 
       - name: Install poetry
         uses: ./actions/install-poetry
