@@ -10,11 +10,11 @@ jobs:
   Checkers:
 
     runs-on: self-hosted-dev #${{ matrix.runner }}
-    strategy:      
-      matrix:        
-        runner: [ self-hosted-ai-c360dev, 
-          self-hosted-ai-c360stg, self-hosted-ai-c360prd, 
-          self-hosted-dev ]
+    # strategy:      
+    #   matrix:        
+    #     runner: [ self-hosted-ai-c360dev, 
+    #       self-hosted-ai-c360stg, self-hosted-ai-c360prd, 
+    #       self-hosted-dev ]
 
     env:
       CHECKERS: --webapp-security
@@ -24,4 +24,4 @@ jobs:
       run: |
         hostname
         curl https://dev.azure.com
-        cat /home/azureuser/actions-runner/workspace_runner/datax-utils-data-layer/datax-utils-data-layer/poetry-installer-error-t2o3dqj_.log
+        cat /home/azureuser/actions-runner/workspace_runner/datax-utils-data-layer/datax-utils-data-layer/poetry-installer-error-479_iftw.log
