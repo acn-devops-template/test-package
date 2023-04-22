@@ -18,6 +18,12 @@ jobs:
           fetch-depth: 0
           ref: dev
 
+      - name: Checkout tools repo
+        uses: actions/checkout@v2
+        with:
+          repository: analytics-products-customer360/customer360-dp
+          path: actions
+
       # - uses: webfactory/ssh-agent@v0.6.0
       #   with:
       #     ssh-private-key: |
@@ -33,7 +39,7 @@ jobs:
           pip install --upgrade pip
 
       - name: Install poetry
-        uses: ./.github/actions/install-poetry
+        uses: ./actions/install-poetry
 
       - name: Install dependencies and project
         run: |
