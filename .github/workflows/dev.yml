@@ -24,7 +24,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: analytics-products-customer360/customer360-dp
-          ref: main
           path: actions
 
       # - uses: webfactory/ssh-agent@v0.6.0
@@ -42,7 +41,7 @@ jobs:
           pip install --upgrade pip
 
       - name: Install poetry
-        uses: ./actions/install-poetry
+        uses: ./actions/actions/install-poetry
 
       - name: Install dependencies and project
         run: |
