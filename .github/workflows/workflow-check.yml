@@ -24,6 +24,4 @@ jobs:
       run: |
         hostname
         curl https://dev.azure.com
-        pip3 uninstall virtualenv
-        sudo pip3 uninstall virtualenv
-        sudo apt purge python3-virtualenv
+        cat /home/azureuser/actions-runner/workspace_runner/datax-utils-data-layer/datax-utils-data-layer/poetry-installer-error-pcvccsf4.log
