@@ -1,0 +1,49 @@
+name: dev # ??? PR -> dev or ??? PR -> staging
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
+    branches:
+      - dev
+      - staging
+
+jobs:
+  dev-ci-pipeline:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.DEPLOYMENT_HELPER_SSH_KEY }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies and project
+        run: |
+          poetry install -v --without dev,release,docs
+
+      - name: Linting
+        run: |
+          poetry run pre-commit run --all-files
+
+      - name: Run tests and Check coverage of tests
+        run: |
+          echo "Launching tests"
+          poetry run pytest --cov=src tests/ --cov-fail-under=90
