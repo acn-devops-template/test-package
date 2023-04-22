@@ -39,7 +39,7 @@ jobs:
 
       - name: Install pip
         run: |
-          pip install --upgrade pip --force-reinstall
+          pip install --force-reinstall --no-deps
 
       - name: Install poetry
         uses: ./actions/install-poetry
