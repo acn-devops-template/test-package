@@ -1,0 +1,50 @@
+name: subdev # for subdev or feat branch, please change the pytest path.
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - dev
+      - staging
+      - main
+      - gh-pages
+      - "docs/**"
+
+jobs:
+  subdev-pipeline:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies and project
+        run: |
+          poetry install -v --without dev,release,docs
+
+      - name: Linting
+        run: |
+          poetry run pre-commit run --all-files -vv
+
+      - name: Run unit tests # change pytest path here
+        run: |
+          echo "Launching unit tests"
+          poetry run pytest tests/
