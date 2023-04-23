@@ -1,4 +1,4 @@
-name: Workflow_Check
+name: workflow check
 on:
   #push:
   #  branches: [ master ]
@@ -10,11 +10,11 @@ jobs:
   Checkers:
 
     runs-on: self-hosted-dev #${{ matrix.runner }}
-    # strategy:      
-    #   matrix:        
-    #     runner: [ self-hosted-ai-c360dev, 
-    #       self-hosted-ai-c360stg, self-hosted-ai-c360prd, 
-    #       self-hosted-dev ]
+    strategy:      
+      matrix:        
+        runner: [ self-hosted-ai-c360dev, 
+          self-hosted-ai-c360stg, self-hosted-ai-c360prd, 
+          self-hosted-dev ]
 
     env:
       CHECKERS: --webapp-security
