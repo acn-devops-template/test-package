@@ -1,0 +1,55 @@
+name: staging
+
+on:
+  workflow_dispatch:
+  # pull_request:
+  #   types: [closed]
+  #   branches:
+  #     - staging
+
+jobs:
+  staging-ci-pipeline:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-20.04
+
+    env:
+      GH_TOKEN: ${{ secrets.GH_PAT }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
+            ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
+
+      - uses: fregante/setup-git-user@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies and project
+        run: |
+          poetry install -v --without dev,release,docs
+
+      - name: Run Intrgration tests
+        run: |
+          echo "Launching Intrgration tests"
+          poetry run pytest tests/ -k 'integration'
+
+      - name: Time for Functional Tests
+        run: |
+          echo "Time for Functional Tests"
