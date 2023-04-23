@@ -9,12 +9,11 @@ on:
 jobs:
   Checkers:
 
-    runs-on: self-hosted-dev ${{ matrix.runner }}
+    runs-on: self-hosted-dev, ${{ matrix.runner }}
     strategy:      
       matrix:        
         runner: [ self-hosted-ai-c360dev, 
-          self-hosted-ai-c360stg, self-hosted-ai-c360prd, 
-          self-hosted-dev ]
+          self-hosted-ai-c360stg, self-hosted-ai-c360prd ]
 
     env:
       CHECKERS: --webapp-security
