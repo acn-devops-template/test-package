@@ -9,7 +9,7 @@ on:
 jobs:
   Checkers:
 
-    runs-on: self-hosted-dev #${{ matrix.runner }}
+    runs-on: self-hosted-dev ${{ matrix.runner }}
     strategy:      
       matrix:        
         runner: [ self-hosted-ai-c360dev, 
