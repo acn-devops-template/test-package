@@ -9,11 +9,8 @@ on:
 
 jobs:
   staging-ci-pipeline:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-20.04
-    if: github.event.pull_request.merged != true
-    runs-on: self-hosted-dev
-
+    # if: github.event.pull_request.merged == true
+    runs-on: ${{ github.event.pull_request.merged == true && fromJSON('self-hosted-dev') || 'ubuntu-20.04' }}
     env:
       GH_TOKEN: ${{ secrets.GH_PAT }}
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
