@@ -18,11 +18,11 @@ jobs:
         persist-credentials: false
 
     - name: Checkout tools repo
-        uses: actions/checkout@v2
-        with:
-          repository: analytics-products-customer360/customer360-dp
-          token: ${{ secrets.GH_PAT_ADM }}
-          path: actions
+      uses: actions/checkout@v2
+      with:
+        repository: analytics-products-customer360/customer360-dp
+        token: ${{ secrets.GH_PAT_ADM }}
+        path: actions
 
     - name: repo-sync
       env:
