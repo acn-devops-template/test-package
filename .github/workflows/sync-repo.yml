@@ -1,8 +1,8 @@
 # File: .github/workflows/repo-sync.yml
 name: repo sync
 on:
-  schedule:
-  - cron:  "*/15 * * * *"
+  # schedule:
+  # - cron:  "*/15 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,13 +12,22 @@ jobs:
     - name: change workspace owner
       run: 
         sudo chown -R $USER:$USER ${{ github.workspace }}
+
     - uses: actions/checkout@v2
       with:
         persist-credentials: false
+
+    - name: Checkout tools repo
+        uses: actions/checkout@v2
+        with:
+          repository: analytics-products-customer360/customer360-dp
+          token: ${{ secrets.GH_PAT_ADM }}
+          path: actions
+
     - name: repo-sync
       env:
         REPO_NAME: ${GITHUB_REPOSITORY#*/}
-      uses: ./.github/actions/github-sync
+      uses: ./actions/github-sync
       with:
         source_repo: "https://${{ secrets.ACCESS_TOKEN }}@github.com/datax-tmp/${{ env.REPO_NAME }}.git"
         source_branch: "staging"
