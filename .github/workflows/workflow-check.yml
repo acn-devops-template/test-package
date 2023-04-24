@@ -14,7 +14,9 @@ jobs:
       matrix:        
         runner:
           - self-hosted-ai-c360dev
-
+          - self-hosted-ai-c360stg
+          - self-hosted-ai-c360prd
+          - self-hosted-dev
 
     env:
       CHECKERS: --webapp-security
@@ -25,14 +27,13 @@ jobs:
       run: |
         hostname
         hostname -I
-        sudo apt update
-        sudo apt --assume-yes install python3.9
+        dig pkgs.dev.azure.com
+        curl -vvv https://pkgs.dev.azure.com
 
     - name: 2. Software installed
       run: |
         python3 --version
         az --version
-        databricks --version
 
     - name: 3. Connect to ADB
       run: |
