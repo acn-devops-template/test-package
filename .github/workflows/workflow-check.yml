@@ -29,3 +29,14 @@ jobs:
         hostname -I
         dig pkgs.dev.azure.com
         curl -vvv https://pkgs.dev.azure.com
+
+    - name: 2. Software installed
+      run: |
+        python --version
+        python3 --version
+        az --version
+        databricks --version
+
+    - name: 3. Connect to ADB
+      run: |
+        echo "Time for ADB Tests"        
