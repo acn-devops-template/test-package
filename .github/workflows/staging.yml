@@ -9,7 +9,7 @@ on:
 
 jobs:
   staging-ci-pipeline:
-    # if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true 
     runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
     env:
       GH_TOKEN: ${{ secrets.GH_PAT }}
