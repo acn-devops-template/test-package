@@ -14,9 +14,7 @@ jobs:
       matrix:        
         runner:
           - self-hosted-ai-c360dev
-          - self-hosted-ai-c360stg
-          - self-hosted-ai-c360prd
-          - self-hosted-dev
+
 
     env:
       CHECKERS: --webapp-security
@@ -27,6 +25,8 @@ jobs:
       run: |
         hostname
         hostname -I
+        sudo apt update
+        sudo apt install python3.9
 
     - name: 2. Software installed
       run: |
