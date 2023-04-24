@@ -26,7 +26,7 @@ jobs:
         hostname
         hostname -I
         sudo apt update
-        sudo apt install python3.9
+        sudo apt --assume-yes install python3.9
 
     - name: 2. Software installed
       run: |
