@@ -34,7 +34,7 @@ jobs:
             ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
             ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
 
-      # - uses: fregante/setup-git-user@v1
+      - uses: fregante/setup-git-user@v1
 
       - name: Set up Python
         uses: actions/setup-python@v2
