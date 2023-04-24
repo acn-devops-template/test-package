@@ -22,4 +22,4 @@ jobs:
     - name: Connect to AzDevOps
       run: |
         hostname
-        curl https://dev.azure.com
+        curl -vvv https://pkgs.dev.azure.com
