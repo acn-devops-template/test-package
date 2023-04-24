@@ -33,7 +33,6 @@ jobs:
     - name: 2. Software installed
       run: |
         python3 --version
-        az --version
 
     - name: 3. Connect to ADB
       run: |
