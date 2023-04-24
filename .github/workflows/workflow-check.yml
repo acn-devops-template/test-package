@@ -23,8 +23,9 @@ jobs:
 
     steps:
     - name: Connect to AzDevOps
+      shell: bash
       run: |
-        echo hostname && hostname
-        echo "hostname -I" && hostname -I
-        echo "dig pkgs.dev.azure.com" dig pkgs.dev.azure.com
-        ehco "curl -vvv https://pkgs.dev.azure.com" && curl -vvv https://pkgs.dev.azure.com
+        hostname
+        hostname -I
+        dig pkgs.dev.azure.com
+        curl -vvv https://pkgs.dev.azure.com
