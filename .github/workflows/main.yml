@@ -113,7 +113,7 @@ jobs:
           git merge ${{ github.event.pull_request.base.ref }}
           git push
 
-      - name: Sync back to Staging
+      - name: Sync back to Staging 
         run: |
           git checkout staging
           git merge ${{ github.event.pull_request.base.ref }}
