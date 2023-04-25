@@ -2,16 +2,20 @@ name: staging
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   types: [closed]
-  #   branches:
-  #     - staging
+  pull_request:
+    types: [closed]
+    branches:
+      - staging
 
 jobs:
   staging-ci-pipeline:
-    # if: github.event.pull_request.merged == true 
+    # if: github.event.pull_request.merged == true
     runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
+
     env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
       GH_TOKEN: ${{ secrets.GH_PAT_ADM }}
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
 
@@ -19,7 +23,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          ref: staging 
+          ref: staging
 
       - name: Checkout tools repo
         uses: actions/checkout@v2
@@ -33,6 +37,7 @@ jobs:
           ssh-private-key: |
             ${{ secrets.SEMANTIC_RELEASE_SSH_KEY }}
             ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
+            ${{ secrets.DEPLOYMENT_HELPER_SSH_KEY }}
 
       - uses: ./actions/setup-git-user
 
@@ -52,13 +57,42 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without dev,release,docs
+          poetry install -v --without dev,test,docs
 
-      - name: Run Intrgration tests
+      - name: Semantic Release Prerelease
         run: |
-          echo "Launching Intrgration tests"
-          poetry run pytest tests/ -k 'integration'
+          poetry run semantic-release publish -D branch="${{ github.event.pull_request.base.ref }}" -D remove_dist=true --prerelease -v DEBUG
 
-      - name: Time for Functional Tests
+      - name: Sync back to Dev
         run: |
-          echo "Time for Functional Tests"
+          git checkout dev
+          git merge ${{ github.event.pull_request.base.ref }}
+          git push
+          git checkout ${{ github.event.pull_request.base.ref }}
+
+      - name: Intrgration Test
+        run: |
+          echo "Test specific package from prerelease feed"
+          echo "DBX deploy"
+          echo "Monitoring"
+
+      - name: Set package version & repo name into env var
+        run: |
+          pk_version=$(poetry version --dry-run -s)
+          echo $pk_version
+          echo "DATAX_PACKAGE_VERSION=$pk_version" >> $GITHUB_ENV
+          echo ${{ github.event.repository.name }}
+          echo "DATAX_REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+
+      # - name: Copy init scripts & overwrite
+      #  run: |
+      #    databricks fs cp -r ./setup/dlt_deployment/init_scripts dbfs:/databricks/scripts/${{ github.event.repository.name }}/init-scripts --overwrite
+
+      # - name: Update the relevant notebook sources
+      #   run: |
+      #     databricks repos update --path="/Repos/datax-gp-cardx-credit-card/setup/dlt_deployment/notebooks/" --branch="${{ github.event.pull_request.base.ref }}"
+
+      # - name: Job deployment
+      #   run: |
+      #     poetry run dbx configure --enable-inplace-jinja-support
+      #     poetry run dbx deploy --jinja-variables-file=conf/orchestrator/dbx/staging_setting.yml --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows=credit-card-workflow,multiple-srcs-workflow --no-package
