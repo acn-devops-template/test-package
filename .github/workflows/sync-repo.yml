@@ -4,7 +4,14 @@ on:
   # schedule:
   # - cron:  "*/15 * * * *"
   workflow_dispatch:
-
+    inputs:
+      choice:
+        type: choice
+        description: Branch to be sync
+        options:
+        - dev
+        - staging
+        - main
 jobs:
   repo-sync:
     runs-on: [ self-hosted-dev ]
@@ -33,7 +40,7 @@ jobs:
       uses: ./actions/github-sync
       with:
         source_repo: "https://${{ secrets.ACCESS_TOKEN }}@github.com/datax-tmp/${{ env.REPO_NAME }}.git"
-        source_branch: "main"
-        destination_branch: "main"
+        source_branch: "${{ github.event.inputs.choice }}"
+        destination_branch: "${{ github.event.inputs.choice }}"
         github_token: ${{ secrets.GH_PAT_ADM }}
         sync_tags: "true"

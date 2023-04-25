@@ -27,10 +27,10 @@ jobs:
           token: ${{ secrets.GH_PAT_ADM }}
           path: actions
 
-      # - uses: ./actions/ssh-agent
-      #   with:
-      #     ssh-private-key: |
-      #       ${{ secrets.DEPLOYMENT_HELPER_SSH_KEY }}
+      - uses: ./actions/ssh-agent
+        with:
+          ssh-private-key: |
+            ${{ secrets.DEPLOYMENT_HELPER_SSH_KEY }}
 
       - name: Set up Python
         uses: actions/setup-python@v2
