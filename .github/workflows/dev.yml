@@ -30,6 +30,7 @@ jobs:
       - uses: ./actions/ssh-agent
         with:
           ssh-private-key: |
+            ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
             ${{ secrets.DEPLOYMENT_HELPER_SSH_KEY }}
 
       - name: Set up Python
