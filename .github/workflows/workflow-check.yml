@@ -1,5 +1,5 @@
 name: workflow check
-on:
+on: 
   #push:
   #  branches: [ master ]
   #pull_request:
