@@ -2,30 +2,28 @@ name: main
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
+  # pull_request:
+  #   types: [opened, reopened]
+  #   branches:
+  #     - main
 
 jobs:
   cd-pipeline:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     env:
-      GH_TOKEN: ${{ secrets.GH_PAT }} # for semantic release
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
+      GH_TOKEN: ${{ secrets.GH_PAT }}
+      REPOSITORY_USERNAME: smith.simargool
+      REPOSITORY_PASSWORD: ${{ secrets.AZURE_ARTIFACTS_PAT }}
+      AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_ARTIFACTS_PAT }}
 
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.base.ref }}
-
-      - uses: webfactory/ssh-agent@v0.6.0
-        with:
-          ssh-private-key: |
-            ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
-            ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
 
       - uses: fregante/setup-git-user@v1
 
@@ -34,88 +32,64 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Install pip
+      - name: Install pip & pex
         run: |
           pip install --upgrade pip
+          pip install pex
 
       - name: Install poetry
         uses: snok/install-poetry@v1
 
       - name: Install dependencies and project
         run: |
-          poetry install -v --without dev,test,docs
+          poetry config http-basic.pk_repo_prod gh_actions ${{ secrets.AZURE_ARTIFACTS_PAT }}
+          poetry install -v --without test
+          poetry run pip list --format=freeze --exclude=pip > requirements.txt
+
+      - name: Semantic Release Prerelease
+        run: |
+          poetry run semantic-release publish --prerelease -D repository_url=${{ secrets.AZURE_ARTIFACTS_UPLOAD }} -v DEBUG
+
+      - name: import nb
+        run: |
+          pk_name=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.name)
+          pk_version=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.version)
+          poetry run databricks workspace mkdirs "/Users/smith.simargool@scb.co.th/$pk_name"
+          poetry run databricks workspace import -l PYTHON -o ./conf/py_nb.py /Users/smith.simargool@scb.co.th/$pk_name/dev
+
+      - name: create dlt pipeline
+        run: |
+          poetry run python conf/dlt_pipeline.py --host ${{secrets.DATABRICKS_HOST}} --token ${{secrets.DATABRICKS_TOKEN}} --json_path ./conf/orchestrator/dlt/create-pipeline.json --mode dev
+
+      - name: Job deployment
+        run: |
+          poetry run dbx configure --enable-inplace-jinja-support
+          poetry run dbx deploy --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows='dlt-from-remote-dev' --no-package --assets-only
+          poetry run dbx launch --from-assets --trace dlt-from-remote-dev
 
       - name: Semantic Release
         run: |
-          poetry run semantic-release publish -v DEBUG
+          poetry run semantic-release publish -D repository_url=${{ secrets.AZURE_ARTIFACTS_UPLOAD_PROD }} -D remove_dist=false -v DEBUG
 
-      - name: Sync back to Dev
+      - name: Build and Upload PEX
         run: |
-          git checkout dev
-          git merge ${{ github.event.pull_request.base.ref }}
-          git push
+          pk_name=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.name)
+          pk_version=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.version)
+          pk_description=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.description)
+          pex -v --requirement=requirements.txt --sources-directory=. --output-file=dist/pex/${pk_name}_${pk_version}.pex --entry-point datax.generic_pipeline.cardx_credit_card -f dist -i https://${{ secrets.AZURE_ARTIFACTS_PAT }}@${{ secrets.PKGS_DL_PROD }} --disable-cache
+          poetry run az extension add --name azure-devops
+          poetry run az artifacts universal publish --organization https://dev.azure.com/datax-tmp/ --project="package_repo" --scope project --feed pk-repo-prod --name ${pk_name}_pex --version $pk_version --description $pk_description --path dist/pex/
 
-      - name: Sync back to Staging
+      - name: import nb prod
         run: |
-          git checkout staging
-          git merge ${{ github.event.pull_request.base.ref }}
-          git push
-          git checkout ${{ github.event.pull_request.base.ref }}
+          pk_name=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.name)
+          pk_version=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.version)
+          poetry run databricks workspace import -l PYTHON -o ./conf/py_nb_prod.py /Users/smith.simargool@scb.co.th/$pk_name/prod
 
-  main-docs-pipeline:
-    needs: cd-pipeline
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.base.ref }}
-
-      - uses: fregante/setup-git-user@v1
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
-
-      - name: Install pip
+      - name: create prod dlt pipeline
         run: |
-          pip install --upgrade pip
+          poetry run python conf/dlt_pipeline.py --host ${{secrets.DATABRICKS_HOST}} --token ${{secrets.DATABRICKS_TOKEN}} --json_path ./conf/orchestrator/dlt/create-pipeline-prod.json --mode prod
 
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-
-      - name: Install dependencies and project
+      - name: Job deployment Prod
         run: |
-          poetry install -v --only docs
-
-      - name: Mike Deploy to gh-pages
-        run: |
-          A="$(echo $(poetry version --dry-run -s) | cut -d'.' -f1)"
-          B="$(echo $(poetry version --dry-run -s) | cut -d'.' -f2)"
-          echo "${A}.${B}"
-          poetry run mike deploy --push --update-aliases ${A}.${B} latest
-
-      - name: Generate badges
-        run: |
-          poetry run interrogate --generate-badge ./docs/content/asset/interrogate_badge.svg --badge-format svg
-
-      - name: Commit if changes
-        run: |
-          git add docs/content/asset/interrogate_badge.svg
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update interrogate_badge.svg" -a
-          git push
-
-      - name: Sync back to Dev
-        run: |
-          git checkout dev
-          git merge ${{ github.event.pull_request.base.ref }}
-          git push
-
-      - name: Sync back to Staging 
-        run: |
-          git checkout staging
-          git merge ${{ github.event.pull_request.base.ref }}
-          git push
-          git checkout ${{ github.event.pull_request.base.ref }}
+          poetry run dbx deploy --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows='dlt-from-remote-prod' --no-package
