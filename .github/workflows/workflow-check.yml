@@ -33,6 +33,7 @@ jobs:
     - name: 2. Software installed
       run: |
         python3 --version
+        ls /opt/hostedtoolcache/Python
 
     - name: 3. Connect to ADB
       run: |
