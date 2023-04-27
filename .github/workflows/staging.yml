@@ -77,29 +77,23 @@ jobs:
       #     git push
       #     git checkout ${{ github.event.pull_request.base.ref }}
 
-      - name: Build and Upload PEX
-        run: |
-          pk_name=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.name)
-          pk_version=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.version)
-          pk_description=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.description)
-          pex -v --requirement=requirements.txt --sources-directory=. --output-file=dist/pex/${pk_name}_${pk_version}.pex --entry-point datax.generic_pipeline.cardx_credit_card -f dist --disable-cache
-          poetry run az extension add --name azure-devops
-          poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description $pk_description --path dist/pex/
-
       - name: Intrgration Test
         run: |
           echo "Test specific package from prerelease feed"
           echo "DBX deploy"
           echo "Monitoring"
 
-      - name: Set package version & repo name into env var
+      - name: Build and Upload PEX
         id: version
         run: |
           pk_version=$(poetry version --dry-run -s)
           echo $pk_version
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
-          echo ${{ github.event.repository.name }}
-          echo "::set-output name=DATAX_REPO_NAME::${{ github.event.repository.name }}"
+          pk_name=${{ github.event.repository.name }}
+          echo "::set-output name=DATAX_REPO_NAME::$pk_name"
+          pex -v --requirement=requirements.txt --sources-directory=. --output-file=dist/pex/${pk_name}_${pk_version}.pex --entry-point datax.generic_pipeline.cardx_credit_card -f dist -i https://${{ secrets.AZURE_ARTIFACTS_PAT }}@${{ secrets.PKGS_DL_PROD }} --disable-cache
+          poetry run az extension add --name azure-devops
+          poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path dist/pex/
 
 
   staging-cd-pipeline:
