@@ -131,7 +131,7 @@ jobs:
           secrets: 'dxardevopsfrmwk-appid,dxardevopsfrmwk-secretkey,dxardevopsfrmwk-tenantid,dxardevopsfrmwk-subscriptionid'
         id: databricksSecretAction
                 
-      - name: Install dependencies
+      - name: Generate short life Databricks Token
         run: |
           az logout
           az login \
@@ -140,7 +140,7 @@ jobs:
           --username ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-appid }} \
           --password ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-secretkey }} \
           --output table
-          echo "token=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
+          echo "dbtoken=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
         with:
@@ -151,7 +151,7 @@ jobs:
         run: |
           hostname
           echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}${{ needs.staging-ci-pipeline.outputs.pk_version }}"
-          echo ${{ env.token }}
+          echo ${{ env.dbtoken }}
 
       - uses: actions/checkout@v2
         with:
