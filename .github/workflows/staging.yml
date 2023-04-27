@@ -59,9 +59,9 @@ jobs:
         run: |
           poetry install -v --without dev,test,docs
 
-      - name: Semantic Release Prerelease
-        run: |
-          poetry run semantic-release publish -D branch="${{ github.event.pull_request.base.ref }}" -D remove_dist=true --prerelease -v DEBUG
+      # - name: Semantic Release Prerelease
+      #   run: |
+      #     poetry run semantic-release publish -D branch="${{ github.event.pull_request.base.ref }}" -D remove_dist=true --prerelease -v DEBUG
 
       - name: Sync back to Dev
         run: |
