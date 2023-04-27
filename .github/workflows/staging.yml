@@ -50,18 +50,21 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Install pip
+      - name: Install pip & pex
         run: |
           pip install pip -U
           pip install pipenv -U
           pip install virtualenv -U
+          pip install pex
 
       - name: Install poetry
         uses: ./actions/install-poetry
 
       - name: Install dependencies and project
         run: |
+          poetry config http-basic.pk_repo_prod gh_actions ${{ secrets.AZURE_ARTIFACTS_PAT }}
           poetry install -v --without dev,test,docs
+          poetry run pip list --format=freeze --exclude=pip > requirements.txt
 
       # - name: Semantic Release Prerelease
       #   run: |
@@ -73,6 +76,15 @@ jobs:
       #     git merge ${{ github.event.pull_request.base.ref }}
       #     git push
       #     git checkout ${{ github.event.pull_request.base.ref }}
+
+      - name: Build and Upload PEX
+        run: |
+          pk_name=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.name)
+          pk_version=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.version)
+          pk_description=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.description)
+          pex -v --requirement=requirements.txt --sources-directory=. --output-file=dist/pex/${pk_name}_${pk_version}.pex --entry-point datax.generic_pipeline.cardx_credit_card -f dist --disable-cache
+          poetry run az extension add --name azure-devops
+          poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description $pk_description --path dist/pex/
 
       - name: Intrgration Test
         run: |
