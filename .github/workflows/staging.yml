@@ -91,7 +91,7 @@ jobs:
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
           pk_name=${{ github.event.repository.name }}
           echo "::set-output name=DATAX_REPO_NAME::$pk_name"
-          pex -v --requirement=requirements.txt --sources-directory=. --output-file=dist/pex/${pk_name}_${pk_version}.pex --entry-point datax.generic_pipeline.cardx_credit_card -f dist -i https://${{ secrets.AZURE_ARTIFACTS_PAT }}@${{ secrets.PKGS_DL_PROD }} --disable-cache
+    #      pex -v --requirement=requirements.txt --sources-directory=. --output-file=dist/pex/${pk_name}_${pk_version}.pex --entry-point datax.generic_pipeline.cardx_credit_card -f dist -i https://${{ secrets.AZURE_ARTIFACTS_PAT }}@${{ secrets.PKGS_DL_PROD }} --disable-cache
           poetry run az extension add --name azure-devops
           poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path dist/pex/
 
@@ -100,12 +100,58 @@ jobs:
     if: ${{ always() }}
     needs: [ staging-ci-pipeline ]
     runs-on: self-hosted-ai-c360stg
+    env:
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
+      resourceGroupName: 'RG-SEA-DATAX-STG-PRD-DP-01'
+      databricksWorkspaceName: 'dxdpseaadb001stg'
+      keyVaultName: 'KEY-RG-SEA-CTRL-DX​-STG'
+      token: ''
+        
     steps: 
+    # Checkout shared repo for module
+      - name: Checkout on shared marketplace repo
+        uses: actions/checkout@v2
+        with:
+            repository: 'Share-Module/market-place-module'
+            token: ${{ secrets.GH_PAT_ADM }}
+            path: actions
+
+      # Login to Azure
+      - name: Login via Az module
+        uses: ./actions/azure-login
+        with:
+          creds: |
+            ${{ secrets.C360_SP_STG }}
+
+      # Download secret from KeyVault Secrets
+      - name: Download secret from KeyVault Secrets
+        uses: ./actions/keyvault-module
+        with:
+          keyvault: ${{ env.keyVaultName }}
+          secrets: 'dxardevopsfrmwk-appid,dxardevopsfrmwk-secretkey,dxardevopsfrmwk-tenantid,dxardevopsfrmwk-subscriptionid'
+        id: databricksSecretAction
+                
+      - name: Install dependencies
+        run: |
+          az logout
+          az login \
+          --service-principal \
+          --tenant ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-tenantid }} \
+          --username ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-appid }} \
+          --password ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-secretkey }} \
+          --output table
+          echo "token=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - name: run
         shell: bash
         run: |
           hostname
           echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}${{ needs.staging-ci-pipeline.outputs.pk_version }}"
+          echo ${{ env.token }}
 
       - uses: actions/checkout@v2
         with:
