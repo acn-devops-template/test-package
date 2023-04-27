@@ -8,14 +8,10 @@ on:
     inputs:
       choice:
         type: choice
-        description: Branch to be sync
-        options:
-          - dev
-          - staging
-          - main
+        description: Branch to be sync (dev,main)
         required: true
         default: 'staging'
-    #     ${{ github.event.inputs.choice }}
+
 jobs:
   repo-sync:
     runs-on: [ self-hosted-dev ]
