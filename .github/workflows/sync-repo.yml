@@ -3,16 +3,18 @@ name: repo sync
 on:
   schedule:
   # - cron: "*/15 * * * *"
-  - cron: "0 6,7,8,9 * * *"
+  # - cron: "0 6,7,8,9 * * *"
   workflow_dispatch:
-    # inputs:
-    #   choice:
-    #     type: choice
-    #     description: Branch to be sync
-    #     options:
-    #     - dev
-    #     - staging
-    #     - main
+    inputs:
+      choice:
+        type: choice
+        description: Branch to be sync
+        options:
+          - dev
+          - staging
+          - main
+        required: true
+        default: 'staging'
     #     ${{ github.event.inputs.choice }}
 jobs:
   repo-sync:
@@ -36,35 +38,13 @@ jobs:
         token: ${{ secrets.GH_PAT_ADM }}
         path: actions
 
-    - name: dev-sync
+    - name: sync
       env:
         REPO_NAME: ${GITHUB_REPOSITORY#*/}
       uses: ./actions/github-sync
       with:
         source_repo: "https://${{ secrets.ACCESS_TOKEN }}@github.com/datax-tmp/${{ env.REPO_NAME }}.git"
         source_branch: "dev"
-        destination_branch: "dev"
-        github_token: ${{ secrets.GH_PAT_ADM }}
-        sync_tags: "true"
-
-    - name: stg-sync
-      env:
-        REPO_NAME: ${GITHUB_REPOSITORY#*/}
-      uses: ./actions/github-sync
-      with:
-        source_repo: "https://${{ secrets.ACCESS_TOKEN }}@github.com/datax-tmp/${{ env.REPO_NAME }}.git"
-        source_branch: "staging"
-        destination_branch: "staging"
-        github_token: ${{ secrets.GH_PAT_ADM }}
-        sync_tags: "true"
-
-    - name: main-sync
-      env:
-        REPO_NAME: ${GITHUB_REPOSITORY#*/}
-      uses: ./actions/github-sync
-      with:
-        source_repo: "https://${{ secrets.ACCESS_TOKEN }}@github.com/datax-tmp/${{ env.REPO_NAME }}.git"
-        source_branch: "main"
-        destination_branch: "main"
+        destination_branch: "${{ github.event.inputs.choice }}"
         github_token: ${{ secrets.GH_PAT_ADM }}
         sync_tags: "true"
