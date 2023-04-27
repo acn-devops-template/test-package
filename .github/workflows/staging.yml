@@ -85,9 +85,9 @@ jobs:
         run: |
           pk_version=$(poetry version --dry-run -s)
           echo $pk_version
-          echo "DATAX_PACKAGE_VERSION=$pk_version" >> $GITHUB_ENV
+          echo "DATAX_PACKAGE_VERSION=$pk_version" >> $GITHUB_OUTPUT
           echo ${{ github.event.repository.name }}
-          echo "DATAX_REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+          echo "DATAX_REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
 
       # - name: Copy init scripts & overwrite
       #  run: |
