@@ -12,6 +12,10 @@ jobs:
     # if: github.event.pull_request.merged == true
     runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
 
+    output:
+      pk_name: ${{ steps.version.outputs.DATAX_REPO_NAME }}
+      pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
+
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
@@ -63,12 +67,12 @@ jobs:
       #   run: |
       #     poetry run semantic-release publish -D branch="${{ github.event.pull_request.base.ref }}" -D remove_dist=true --prerelease -v DEBUG
 
-      - name: Sync back to Dev
-        run: |
-          git checkout dev
-          git merge ${{ github.event.pull_request.base.ref }}
-          git push
-          git checkout ${{ github.event.pull_request.base.ref }}
+      # - name: Sync back to Dev
+      #   run: |
+      #     git checkout dev
+      #     git merge ${{ github.event.pull_request.base.ref }}
+      #     git push
+      #     git checkout ${{ github.event.pull_request.base.ref }}
 
       - name: Intrgration Test
         run: |
@@ -77,6 +81,7 @@ jobs:
           echo "Monitoring"
 
       - name: Set package version & repo name into env var
+        id: version
         run: |
           pk_version=$(poetry version --dry-run -s)
           echo $pk_version
@@ -96,3 +101,14 @@ jobs:
       #   run: |
       #     poetry run dbx configure --enable-inplace-jinja-support
       #     poetry run dbx deploy --jinja-variables-file=conf/orchestrator/dbx/staging_setting.yml --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows=credit-card-workflow,multiple-srcs-workflow --no-package
+
+  Deploy:
+    if: ${{ always() }}
+    needs: [ staging-ci-pipeline ]
+    runs-on: self-hosted-ai-c360stg
+    steps: 
+    - name: run
+      shell: bash
+      run: |
+        hostname
+        echo "${{ needs.staging-ci-pipeline.outputs.DATAX_REPO_NAME }}${{ needs.staging-ci-pipeline.outputs.DATAX_PACKAGE_VERSION }}"
