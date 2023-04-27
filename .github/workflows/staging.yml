@@ -11,7 +11,6 @@ jobs:
   staging-ci-pipeline:
     # if: github.event.pull_request.merged == true
     runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
-
     output:
       pk_name: ${{ steps.version.outputs.DATAX_REPO_NAME }}
       pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
@@ -111,4 +110,4 @@ jobs:
       shell: bash
       run: |
         hostname
-        echo "${{ needs.staging-ci-pipeline.outputs.DATAX_REPO_NAME }}${{ needs.staging-ci-pipeline.outputs.DATAX_PACKAGE_VERSION }}"
+        echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}${{ needs.staging-ci-pipeline.outputs.pk_version }}"
