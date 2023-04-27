@@ -1,7 +1,7 @@
 # 
 name: repo sync
 on:
-  schedule:
+  # schedule:
   # - cron: "*/15 * * * *"
   # - cron: "0 6,7,8,9 * * *"
   workflow_dispatch:
