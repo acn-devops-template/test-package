@@ -102,7 +102,7 @@ jobs:
       #     poetry run dbx configure --enable-inplace-jinja-support
       #     poetry run dbx deploy --jinja-variables-file=conf/orchestrator/dbx/staging_setting.yml --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows=credit-card-workflow,multiple-srcs-workflow --no-package
 
-  Deploy:
+  staging-cd-pipeline:
     if: ${{ always() }}
     needs: [ staging-ci-pipeline ]
     runs-on: self-hosted-ai-c360stg
