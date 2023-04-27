@@ -85,9 +85,26 @@ jobs:
         run: |
           pk_version=$(poetry version --dry-run -s)
           echo $pk_version
-          echo "DATAX_PACKAGE_VERSION=$pk_version" >> $GITHUB_OUTPUT
+          echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
           echo ${{ github.event.repository.name }}
-          echo "DATAX_REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
+          echo "::set-output name=DATAX_REPO_NAME::${{ github.event.repository.name }}"
+
+
+  staging-cd-pipeline:
+    if: ${{ always() }}
+    needs: [ staging-ci-pipeline ]
+    runs-on: self-hosted-ai-c360stg
+    steps: 
+      - name: run
+        shell: bash
+        run: |
+          hostname
+          echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}${{ needs.staging-ci-pipeline.outputs.pk_version }}"
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: staging
 
       # - name: Copy init scripts & overwrite
       #  run: |
@@ -101,14 +118,3 @@ jobs:
       #   run: |
       #     poetry run dbx configure --enable-inplace-jinja-support
       #     poetry run dbx deploy --jinja-variables-file=conf/orchestrator/dbx/staging_setting.yml --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows=credit-card-workflow,multiple-srcs-workflow --no-package
-
-  staging-cd-pipeline:
-    if: ${{ always() }}
-    needs: [ staging-ci-pipeline ]
-    runs-on: self-hosted-ai-c360stg
-    steps: 
-    - name: run
-      shell: bash
-      run: |
-        hostname
-        echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}${{ needs.staging-ci-pipeline.outputs.pk_version }}"
