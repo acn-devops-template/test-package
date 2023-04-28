@@ -112,20 +112,13 @@ jobs:
         with:
           fetch-depth: 0
           ref: staging
-          
+
       - name: Checkout tools repo
         uses: actions/checkout@v2
         with:
           repository: analytics-products-customer360/customer360-dp
           token: ${{ secrets.GH_PAT_ADM }}
           path: actions
-
-      - name: Checkout on shared marketplace repo
-        uses: actions/checkout@v2
-        with:
-            repository: 'Share-Module/market-place-module'
-            token: ${{ secrets.GH_PAT_ADM }}
-            path: actions
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -147,6 +140,13 @@ jobs:
           poetry install -v --without dev,test,docs
           poetry run pip list --format=freeze --exclude=pip > requirements.txt
 
+      - name: Checkout on shared marketplace repo
+        uses: actions/checkout@v2
+        with:
+            repository: 'Share-Module/market-place-module'
+            token: ${{ secrets.GH_PAT_ADM }}
+            path: actions
+            
       - name: Login via Az module
         uses: ./actions/azure-login
         with:
