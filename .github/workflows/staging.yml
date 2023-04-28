@@ -122,11 +122,11 @@ jobs:
       #   with:
       #     python-version: "3.9"
 
-      - name: Install pip & pex
-        run: pip install --upgrade pip
-          # pip install pip -U
-          # pip install pipenv -U
-          # pip install virtualenv -U
+      # - name: Install pip & pex
+      #   run: pip install --upgrade pip
+      #     pip install pip -U
+      #     pip install pipenv -U
+      #     pip install virtualenv -U
 
       - name: Login via Az module
         uses: ./actions/azure-login
