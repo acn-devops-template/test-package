@@ -11,7 +11,7 @@ jobs:
   staging-ci-pipeline:
     # if: github.event.pull_request.merged == true
     # runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
-    runs-on: self-hosted-ai-c360stg
+    runs-on: self-hosted-dev
     outputs:
       pk_name: ${{ steps.version.outputs.DATAX_REPO_NAME }}
       pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
@@ -109,7 +109,7 @@ jobs:
       token: ''
         
     steps: 
-    # Checkout shared repo for module
+
       - name: Checkout on shared marketplace repo
         uses: actions/checkout@v2
         with:
@@ -128,19 +128,17 @@ jobs:
           pip install pipenv -U
           pip install virtualenv -U
 
-      # Login to Azure
       - name: Login via Az module
         uses: ./actions/azure-login
         with:
           creds: |
             ${{ secrets.C360_SP_STG }}
 
-      # Download secret from KeyVault Secrets
       - name: Download secret from KeyVault Secrets
         uses: ./actions/keyvault-module
         with:
           keyvault: ${{ env.keyVaultName }}
-          secrets: 'dxardevopsfrmwk-appid,dxardevopsfrmwk-secretkey,dxardevopsfrmwk-tenantid,dxardevopsfrmwk-subscriptionid'
+          secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
         id: databricksSecretAction
                 
       - name: Generate short life Databricks Token
@@ -148,9 +146,9 @@ jobs:
           az logout
           az login \
           --service-principal \
-          --tenant ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-tenantid }} \
-          --username ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-appid }} \
-          --password ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-secretkey }} \
+          --tenant ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }} \
+          --username ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
+          --password ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} \
           --output table
           echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
