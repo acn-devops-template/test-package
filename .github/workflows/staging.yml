@@ -11,7 +11,7 @@ jobs:
   staging-ci-pipeline:
     # if: github.event.pull_request.merged == true
     # runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
-    runs-on: self-hosted-dev
+    runs-on: self-hosted-ai-c360stg
     outputs:
       pk_name: ${{ steps.version.outputs.DATAX_REPO_NAME }}
       pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
