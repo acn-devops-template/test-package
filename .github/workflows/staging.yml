@@ -91,7 +91,7 @@ jobs:
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
           pk_name=${{ github.event.repository.name }}
           echo "::set-output name=DATAX_REPO_NAME::$pk_name"
-          touch dist/pex/_${pk_name}_${pk_version}.pex
+          touch ./dist/pex/_${pk_name}_${pk_version}.pex
           poetry run az extension add --name azure-devops
           poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path dist/pex/
 
@@ -154,6 +154,7 @@ jobs:
           echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}${{ needs.staging-ci-pipeline.outputs.pk_version }}"
           echo ${{ env.DATABRICKS_TOKEN }}
           dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
+          dbx launch "sit-entrypoint-datax-gp-autox-secure-loan" --environment "sit" --trace
 
       # - name: Copy init scripts & overwrite
       #  run: |
