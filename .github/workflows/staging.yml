@@ -106,9 +106,19 @@ jobs:
       resourceGroupName: 'RG-SEA-DATAX-STG-PRD-DP-01'
       databricksWorkspaceName: 'dxdpseaadb001stg'
       keyVaultName: 'KEY-RG-SEA-CTRL-DX​-STG'
-      token: ''
         
     steps: 
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: staging
+          
+      - name: Checkout tools repo
+        uses: actions/checkout@v2
+        with:
+          repository: analytics-products-customer360/customer360-dp
+          token: ${{ secrets.GH_PAT_ADM }}
+          path: actions
 
       - name: Checkout on shared marketplace repo
         uses: actions/checkout@v2
