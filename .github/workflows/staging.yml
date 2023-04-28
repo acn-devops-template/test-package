@@ -91,10 +91,11 @@ jobs:
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
           pk_name=${{ github.event.repository.name }}
           echo "::set-output name=DATAX_REPO_NAME::$pk_name"
-          pex -v --requirement=requirements.txt --sources-directory=. --output-file=dist/pex/${pk_name}_${pk_version}.pex --entry-point datax.generic_pipeline.cardx_credit_card -f dist -i https://${{ secrets.AZURE_ARTIFACTS_PAT }}@${{ secrets.PKGS_DL_PROD }} --disable-cache
+          touch dist/pex/_${pk_name}_${pk_version}.pex
           poetry run az extension add --name azure-devops
           poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path dist/pex/
 
+# pex -v --requirement=requirements.txt --sources-directory=. --output-file=dist/pex/${pk_name}_${pk_version}.pex --entry-point datax.generic_pipeline.cardx_credit_card -f dist -i https://${{ secrets.AZURE_ARTIFACTS_PAT }}@${{ secrets.PKGS_DL_PROD }} --disable-cache
 
   staging-cd-pipeline:
     if: ${{ always() }}
@@ -140,23 +141,19 @@ jobs:
           --username ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-appid }} \
           --password ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-secretkey }} \
           --output table
-          echo "dbtoken=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
+          echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - name: run
+      - name: deploy workflow
         shell: bash
         run: |
           hostname
           echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}${{ needs.staging-ci-pipeline.outputs.pk_version }}"
-          echo ${{ env.dbtoken }}
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          ref: staging
+          echo ${{ env.DATABRICKS_TOKEN }}
+          dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
 
       # - name: Copy init scripts & overwrite
       #  run: |
