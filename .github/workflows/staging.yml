@@ -131,12 +131,15 @@ jobs:
           pip install pipenv -U
           pip install virtualenv -U
           pip install poetry -U
+          pip install databricks-cli -U
+          pip install dbx -U
 
       - name: Install dependencies and project
         run: |
           poetry install -v --without dev,test,docs
-          poetry run az --version
-          poetry run dbx help
+          az --version
+          dbx help
+          databricks --version
 
       - name: Checkout on shared marketplace repo
         uses: actions/checkout@v2
