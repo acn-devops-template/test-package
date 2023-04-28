@@ -130,11 +130,7 @@ jobs:
           pip install pip -U
           pip install pipenv -U
           pip install virtualenv -U
-
-      - name: Install poetry
-        uses: ./actions/actions-poetry
-        with:
-          poetry-version: "1.1.15"
+          pip install poetry -U
 
       - name: Install dependencies and project
         run: |
