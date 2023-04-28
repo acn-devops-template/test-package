@@ -117,6 +117,17 @@ jobs:
             token: ${{ secrets.GH_PAT_ADM }}
             path: actions
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install pip & pex
+        run: |
+          pip install pip -U
+          pip install pipenv -U
+          pip install virtualenv -U
+
       # Login to Azure
       - name: Login via Az module
         uses: ./actions/azure-login
