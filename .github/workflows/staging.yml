@@ -132,7 +132,7 @@ jobs:
           pip install virtualenv -U
 
       - name: Install poetry
-        uses: ./actions/install-poetry
+        uses: ./actions/actions-poetry
 
       - name: Install dependencies and project
         run: |
@@ -146,7 +146,7 @@ jobs:
             repository: 'Share-Module/market-place-module'
             token: ${{ secrets.GH_PAT_ADM }}
             path: actions
-            
+
       - name: Login via Az module
         uses: ./actions/azure-login
         with:
