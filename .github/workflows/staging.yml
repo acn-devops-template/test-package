@@ -117,10 +117,10 @@ jobs:
             token: ${{ secrets.GH_PAT_ADM }}
             path: actions
 
-      # - name: Set up Python
-      #   uses: actions/setup-python@v2
-      #   with:
-      #     python-version: "3.9"
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
 
       # - name: Install pip & pex
       #   run: pip install --upgrade pip
@@ -146,11 +146,12 @@ jobs:
           az logout
           az login \
           --service-principal \
-          --tenant ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
-          --username ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }} \
+          --tenant ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }} \
+          --username ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
           --password ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} \
           --output table
-          echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
+
+      # echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
         with:
