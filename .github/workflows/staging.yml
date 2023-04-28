@@ -134,8 +134,11 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          poetry config http-basic.pk_repo_prod gh_actions ${{ secrets.AZURE_ARTIFACTS_PAT }}
           poetry install -v --without dev,test,docs
+          poetry run az extension add --name azure-devops
+          poetry run databricks workspace import -l PYTHON -o ./conf/py_nb_prod.py /Users/smith.simargool@scb.co.th/$pk_name/prod
+          poetry config http-basic.pk_repo_prod gh_actions ${{ secrets.AZURE_ARTIFACTS_PAT }}
+          
           poetry run pip list --format=freeze --exclude=pip > requirements.txt
 
       - name: Checkout on shared marketplace repo
