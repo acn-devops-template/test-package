@@ -138,7 +138,7 @@ jobs:
         run: |
           poetry install -v --without dev,test,docs
           az --version
-          dbx help
+          dbx --version
           databricks --version
 
       - name: Checkout on shared marketplace repo
