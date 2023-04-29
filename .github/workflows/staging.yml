@@ -52,7 +52,6 @@ jobs:
           pip install pip -U
           pip install pipenv -U
           pip install virtualenv -U
-          pip install pex
 
       - name: Install poetry
         uses: ./actions/install-poetry
@@ -84,11 +83,11 @@ jobs:
         id: version
         run: |
           pk_version=$(poetry version --dry-run -s)
-          echo $pk_version
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
           pk_name=${{ github.event.repository.name }}
           echo "::set-output name=DATAX_REPO_NAME::$pk_name"
-          touch _${pk_name}_${pk_version}.pex
+          echo _${pk_name}_${pk_version}
+          poetry build -f wheel
           poetry run az extension add --name azure-devops
           poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
 
