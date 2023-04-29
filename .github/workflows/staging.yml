@@ -96,7 +96,7 @@ jobs:
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
       resourceGroupName: 'RG-SEA-DATAX-STG-PRD-DP-01'
       databricksWorkspaceName: 'dxdpseaadb001stg'
-      keyVaultName: 'KEY-RG-SEA-CTRL-DX​-STG'
+      keyVaultName: 'KEY-RG-SEA-CTRL-DX-STG'
       DATABRICKS_HOST: ${{ secrets.ADB_STG_ML_HOST }} 
       DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
         
@@ -126,7 +126,6 @@ jobs:
           pip install poetry -U
           pip install databricks-cli -U
           pip install dbx -U
-          pip install azure-cli==2.40.0
 
       - name: Install dependencies and project
         run: poetry install -v --without dev,test,docs
