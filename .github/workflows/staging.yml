@@ -97,7 +97,7 @@ jobs:
       resourceGroupName: 'RG-SEA-DATAX-STG-PRD-DP-01'
       databricksWorkspaceName: 'dxdpseaadb001stg'
       keyVaultName: 'KEY-RG-SEA-CTRL-DX​-STG'
-      DATABRICKS_HOST: ${{ secrets.ADB_STG_DE_HOST }} 
+      DATABRICKS_HOST: ${{ secrets.ADB_STG_ML_HOST }} 
       DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
         
     steps: 
