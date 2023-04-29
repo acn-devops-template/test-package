@@ -153,7 +153,7 @@ jobs:
       - name: Generate short life Databricks Token
         run: |
           az logout
-          az login --service-principal -u ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} -p ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} -t ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }} 
+          echo ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | az login --service-principal -u ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} -t ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }} 
           echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
