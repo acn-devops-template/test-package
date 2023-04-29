@@ -79,10 +79,8 @@ jobs:
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
           pk_name=${{ github.event.repository.name }}
           echo "::set-output name=DATAX_REPO_NAME::$pk_name"
-          mkdir dist && cd $_
           poetry env use 3.9
           poetry build -f wheel
-          ls -la
 
       - name: 'Publish Artifact' 
         uses: actions/upload-artifact@v2
@@ -177,7 +175,7 @@ jobs:
         shell: bash
         run: |
           hostname
-          ls artifacts
+          ls '${{ github.workspace }}/artifacts'
           echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"
           echo ${{ env.DATABRICKS_TOKEN }} > token-file
           databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
