@@ -84,14 +84,11 @@ jobs:
           cd dist
           touch _${pk_name}_${pk_version}
           poetry build -f wheel
+          git branch -a
+          git push origin staging:dev -f
 
         # poetry run az extension add --name azure-devops
         # poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
-
-      - name: Sync back to Dev
-        run: |
-          git branch -a
-          git push origin staging:dev -f
 
   staging-cd-pipeline:
     if: ${{ always() }}
