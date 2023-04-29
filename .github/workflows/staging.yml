@@ -164,7 +164,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          
+
       - name: 'Download Artifact' 
         uses: actions/download-artifact@v2 
         with:
@@ -175,7 +175,7 @@ jobs:
         shell: bash
         run: |
           hostname
-          ls '${{ github.workspace }}/artifacts'
+          ls -la '${{ github.workspace }}/artifacts'
           echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"
           echo ${{ env.DATABRICKS_TOKEN }} > token-file
           databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
