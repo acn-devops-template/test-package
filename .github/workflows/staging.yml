@@ -1,6 +1,6 @@
 name: staging
 
-on:
+on: 
   workflow_dispatch:
   pull_request:
     types: [closed]
