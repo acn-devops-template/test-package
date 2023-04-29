@@ -79,13 +79,11 @@ jobs:
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
           pk_name=${{ github.event.repository.name }}
           echo "::set-output name=DATAX_REPO_NAME::$pk_name"
-          mkdir dist
-          cd dist
+          mkdir artifacts && cd $_
           poetry env use 3.9
           poetry build -f wheel
-          ls -la
           cd ..
-          git add dist
+          git add artifacts
           git commit -m '${pk_name}_${pk_version}'
           git push origin staging:dev -f
 
