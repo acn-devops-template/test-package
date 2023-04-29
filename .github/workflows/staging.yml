@@ -162,7 +162,7 @@ jobs:
                 
       - name: Generate short life Databricks Token
         run: 
-          echo "$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" > token-file
+          echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
         with:
@@ -173,6 +173,7 @@ jobs:
         run: |
           hostname
           echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"
+          echo ${{ env.DATABRICKS_TOKEN }} > token-file
           databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
           databricks fs ls dbfs:/
           dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
