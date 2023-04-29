@@ -91,7 +91,7 @@ jobs:
   staging-cd-pipeline:
     if: ${{ always() }}
     needs: [ staging-ci-pipeline ]
-    runs-on: self-hosted-ai-c360stg1
+    runs-on: self-hosted-ai-c360stg
     env:
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
       resourceGroupName: 'RG-SEA-DATAX-STG-PRD-DP-01'
