@@ -72,7 +72,7 @@ jobs:
           echo "DBX deploy"
           echo "Monitoring"
 
-      - name: Build and Upload
+      - name: Build Artifact
         id: version
         run: |
           pk_version=$(poetry version --dry-run -s)
@@ -82,11 +82,12 @@ jobs:
           mkdir artifacts && cd $_
           poetry env use 3.9
           poetry build -f wheel
-          cd ..
-          git add ./artifacts
-          git status
-          git commit -m '${pk_name}_${pk_version}'
-          git push origin staging:dev -f
+
+    - name: 'Publish Artifact' 
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'builded-file'
+        path: '${{ github.workspace }}/artifacts'
 
         # poetry run az extension add --name azure-devops
         # poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
@@ -161,6 +162,12 @@ jobs:
         run: 
           echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
+      - name: 'Download Artifact' 
+        uses: actions/download-artifact@v2 
+        with:
+          name: 'builded-file'
+          path: '${{ github.workspace }}/artifacts'
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -169,6 +176,7 @@ jobs:
         shell: bash
         run: |
           hostname
+          ls artifacts
           echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"
           echo ${{ env.DATABRICKS_TOKEN }} > token-file
           databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
