@@ -82,13 +82,13 @@ jobs:
           mkdir artifact && cd $_
           poetry env use 3.9
           poetry build -f wheel
-          pwd
+          ls -la
 
       - name: 'Publish Artifact' 
         uses: actions/upload-artifact@v2
         with:
           name: 'builded-file'
-          path: 'artifact'
+          path: '${{ github.workspace }}/artifact/*'
 
         # poetry run az extension add --name azure-devops
         # poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
