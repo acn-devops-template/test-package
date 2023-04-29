@@ -156,7 +156,7 @@ jobs:
           az login --service-principal \
           -u ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
           -p ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} \
-          -t 2f4a9838-26b7-47ee-be60-ccc1fdec5953 \
+          -t "2f4a9838-26b7-47ee-be60-ccc1fdec5953" \
           -o table
           echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
