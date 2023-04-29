@@ -89,7 +89,7 @@ jobs:
       - name: Sync back to Dev
         run: |
           git branch -a
-          git push origin staging:dev
+          git push origin staging:dev -f
 
   staging-cd-pipeline:
     if: ${{ always() }}
