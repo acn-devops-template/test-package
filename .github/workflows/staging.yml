@@ -13,7 +13,6 @@ jobs:
     # runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
     runs-on: self-hosted-dev
     outputs:
-      pk_name: ${{ steps.version.outputs.DATAX_REPO_NAME }}
       pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
 
     env:
@@ -77,8 +76,6 @@ jobs:
         run: |
           pk_version=$(poetry version --dry-run -s)
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
-          pk_name=${{ github.event.repository.name }}
-          echo "::set-output name=DATAX_REPO_NAME::$pk_name"
           poetry env use 3.9
           poetry build -f wheel
 
@@ -176,12 +173,13 @@ jobs:
         run: |
           hostname
           ls -la '${{ github.workspace }}/artifacts'
-          echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"
           echo ${{ env.DATABRICKS_TOKEN }} > token-file
           databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
           databricks fs ls dbfs:/
-          dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
-          dbx launch "sit-entrypoint-datax-gp-autox-secure-loan" --environment "sit" --trace
+
+      # echo "${{ github.event.repository.name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"   
+      # dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
+      # dbx launch "sit-entrypoint-datax-gp-autox-secure-loan" --environment "sit" --trace
 
       # - name: Copy init scripts & overwrite
       #  run: |
