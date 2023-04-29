@@ -155,6 +155,7 @@ jobs:
           az logout
           az login \
           --service-principal
+          -t ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }} \
           -u ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
           -p ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} \
           -o table'
