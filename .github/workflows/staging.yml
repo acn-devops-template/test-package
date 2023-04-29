@@ -83,7 +83,8 @@ jobs:
           poetry env use 3.9
           poetry build -f wheel
           cd ..
-          git add artifacts
+          git add ./artifacts
+          git status
           git commit -m '${pk_name}_${pk_version}'
           git push origin staging:dev -f
 
