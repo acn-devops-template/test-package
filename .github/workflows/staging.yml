@@ -84,7 +84,10 @@ jobs:
           touch _${pk_name}_${pk_version}
           poetry env use 3.9
           poetry build -f wheel
-          git commit -am '${pk_name}_${pk_version}'
+          ls -la
+          cd ..
+          git add dist
+          git commit dist -m '${pk_name}_${pk_version}'
           git push origin staging:dev -f
 
         # poetry run az extension add --name azure-devops
