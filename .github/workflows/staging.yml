@@ -126,6 +126,7 @@ jobs:
           pip install poetry -U
           pip install databricks-cli -U
           pip install dbx -U
+          pip install azure-cli -U
 
       - name: Install dependencies and project
         run: poetry install -v --without dev,test,docs
