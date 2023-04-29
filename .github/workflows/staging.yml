@@ -82,6 +82,7 @@ jobs:
           mkdir dist
           cd dist
           touch _${pk_name}_${pk_version}
+          poetry env use 3.9
           poetry build -f wheel
           git commit -am '${pk_name}_${pk_version}'
           git push origin staging:dev -f
