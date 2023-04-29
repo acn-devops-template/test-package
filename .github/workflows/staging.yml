@@ -154,8 +154,8 @@ jobs:
         run: |
           az logout
           param='--service-principal'
-          param+=' -t ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}' | sed 's/Tenant ID//g'
-          param+=' -u ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}' | sed 's/Tenant ID//g'
+          param+=' -t ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}'
+          param+=' -u ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}'
           param+=' -p ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}' | sed 's/Tenant ID//g'
           param+=' -o table'
           az login $param 
