@@ -173,10 +173,8 @@ jobs:
         run: |
           hostname
           echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"
-          databricks configure --token <<EOF
-          ${{ env.DATABRICKS_HOST }
-          ${{ env.DATABRICKS_TOKEN }
-          EOF
+          echo ${{ env.DATABRICKS_TOKEN } > token-file
+          databricks configure --host ${{ env.DATABRICKS_HOST } --token-file token-file
           databricks fs ls dbfs:/
           dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
           dbx launch "sit-entrypoint-datax-gp-autox-secure-loan" --environment "sit" --trace
