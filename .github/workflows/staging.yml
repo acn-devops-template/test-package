@@ -17,9 +17,6 @@ jobs:
       pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
 
     env:
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-      DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
       GH_TOKEN: ${{ secrets.GH_PAT_ADM }}
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
 
@@ -106,6 +103,8 @@ jobs:
       resourceGroupName: 'RG-SEA-DATAX-STG-PRD-DP-01'
       databricksWorkspaceName: 'dxdpseaadb001stg'
       keyVaultName: 'KEY-RG-SEA-CTRL-DX​-STG'
+      DATABRICKS_HOST: ${{ secrets.ADB_STG_DE_HOST }} 
+      DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
         
     steps: 
       - uses: actions/checkout@v2
@@ -173,8 +172,12 @@ jobs:
         shell: bash
         run: |
           hostname
-          echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}${{ needs.staging-ci-pipeline.outputs.pk_version }}"
-          echo ${{ env.DATABRICKS_TOKEN }}
+          echo "${{ needs.staging-ci-pipeline.outputs.pk_name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"
+          databricks configure --token <<EOF
+          ${{ env.DATABRICKS_HOST }
+          ${{ env.DATABRICKS_TOKEN }
+          EOF
+          databricks fs ls dbfs:/
           dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
           dbx launch "sit-entrypoint-datax-gp-autox-secure-loan" --environment "sit" --trace
 
