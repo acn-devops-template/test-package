@@ -83,7 +83,7 @@ jobs:
           cd dist
           touch _${pk_name}_${pk_version}
           poetry build -f wheel
-          git branch -a
+          git commit -am '${pk_name}_${pk_version}'
           git push origin staging:dev -f
 
         # poetry run az extension add --name azure-devops
