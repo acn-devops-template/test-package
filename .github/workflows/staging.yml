@@ -126,6 +126,7 @@ jobs:
           pip install poetry -U
           pip install databricks-cli -U
           pip install dbx -U
+          pip install azure-cli==2.4.0
 
       - name: Install dependencies and project
         run: poetry install -v --without dev,test,docs
@@ -157,7 +158,7 @@ jobs:
           -u ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
           -p ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} \
           -t ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }} \
-          -o table --only-show-errors
+          -o table 
           echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
