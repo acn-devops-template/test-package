@@ -153,8 +153,7 @@ jobs:
       - name: Generate short life Databricks Token
         run: |
           az logout
-          az login \
-          --service-principal
+          az login --service-principal \
           -u ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
           -p ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} \
           -t ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }} \
