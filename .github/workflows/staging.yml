@@ -72,7 +72,7 @@ jobs:
           echo "DBX deploy"
           echo "Monitoring"
 
-      - name: Build and Upload PEX
+      - name: Build and Upload
         id: version
         run: |
           pk_version=$(poetry version --dry-run -s)
@@ -82,8 +82,9 @@ jobs:
           pwd
           touch _${pk_name}_${pk_version}
           poetry build -f wheel
-          poetry run az extension add --name azure-devops
-          poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
+
+        # poetry run az extension add --name azure-devops
+        # poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
 
       - name: Sync back to Dev
         run: |
@@ -164,7 +165,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: deploy workflow
+      - name: Deploy workflow
         shell: bash
         run: |
           hostname
