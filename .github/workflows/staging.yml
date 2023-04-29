@@ -79,7 +79,6 @@ jobs:
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
           pk_name=${{ github.event.repository.name }}
           echo "::set-output name=DATAX_REPO_NAME::$pk_name"
-          ls 
           mkdir dist
           cd dist
           touch _${pk_name}_${pk_version}
