@@ -149,18 +149,9 @@ jobs:
           keyvault: ${{ env.keyVaultName }}
           secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
         id: databricksSecretAction
-                
-      - name: Login with Az subscription
-        uses: ./actions/azure-login
-        with:
-          client-id: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}
-          tenant-id: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}
-          subscription-id: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}
 
       - name: Generate short life Databricks Token
         run: |
-          az account show
-          az group list
           echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
@@ -198,3 +189,20 @@ jobs:
       #   run: |
       #     poetry run dbx configure --enable-inplace-jinja-support
       #     poetry run dbx deploy --jinja-variables-file=conf/orchestrator/dbx/staging_setting.yml --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows=credit-card-workflow,multiple-srcs-workflow --no-package
+
+      - name: Get access tokens for Databricks API
+        shell: bash
+        run: |
+          accessToken=$(curl -X POST https://login.microsoftonline.com/$tenant_id/oauth2/token \
+            -F resource=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d \
+            -F client_id=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
+            -F grant_type=client_credentials \
+            -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output) 
+          managementToken=$(curl -X POST https://login.microsoftonline.com/$tenant_id/oauth2/token \
+            -F resource=https://management.core.windows.net/ \
+            -F client_id=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
+            -F grant_type=client_credentials \
+            -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output) 
+          echo $accessToken
+          echo "####################"
+          echo $managementToken
