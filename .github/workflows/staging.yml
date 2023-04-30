@@ -191,24 +191,7 @@ jobs:
       #     poetry run dbx configure --enable-inplace-jinja-support
       #     poetry run dbx deploy --jinja-variables-file=conf/orchestrator/dbx/staging_setting.yml --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows=credit-card-workflow,multiple-srcs-workflow --no-package
 
-      - name: Get access tokens for Databricks API
-        shell: bash
-        run: |
-          echo "fw_sp='{ \
-            clientId: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}, \
-            clientSecret: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}, \
-            subscriptionId: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}, \
-            tenantId: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}, \
-            activeDirectoryEndpointUrl: https://login.microsoftonline.com, \
-            resourceManagerEndpointUrl: https://management.azure.com/, \
-            activeDirectoryGraphResourceId: https://graph.windows.net/, \
-            sqlManagementEndpointUrl: https://management.core.windows.net:8443/, \
-            galleryEndpointUrl: https://gallery.azure.com/, \
-            managementEndpointUrl: https://management.core.windows.net/ \
-          }'" >> $GITHUB_ENV
-
         - name: Login via Az module
           uses: ./actions/azure-login
           with:
-            creds: |
-              ${{ env.fw_sp }}
+            creds: {"clientId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}
