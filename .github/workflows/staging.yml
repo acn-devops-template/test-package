@@ -142,6 +142,12 @@ jobs:
         with:
           creds: |
             ${{ secrets.C360_SP_STG }}
+          
+      - name: Check Tenant ID
+        shell: bash
+        run: |
+          az account show --subscription a... | jq -r '.tenantId'
+          az account list | jq -r '.[].tenantId'
 
       - name: Download secret from KeyVault Secrets
         uses: ./actions/keyvault-module
