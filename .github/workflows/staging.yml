@@ -88,6 +88,38 @@ jobs:
         # poetry run az extension add --name azure-devops
         # poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
 
+      - name: Checkout on shared marketplace repo
+        uses: actions/checkout@v2
+        with:
+            repository: 'Share-Module/market-place-module'
+            token: ${{ secrets.GH_PAT_ADM }}
+            path: actions
+
+      - name: Login via Az module
+        uses: ./actions/azure-login
+        with:
+          creds: |
+            ${{ secrets.C360_SP_STG }}
+
+      - name: Download secret from KeyVault Secrets
+        uses: ./actions/keyvault-module
+        with:
+          keyvault: ${{ env.keyVaultName }}
+          secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
+        id: databricksSecretAction
+
+      - name: Install dependencies
+        run: |
+          az logout
+          az login \
+          --service-principal \
+          --tenant ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-tenantid }} \
+          --username ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-appid }} \
+          --password ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-secretkey }} \
+          --output table
+          echo "token=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
+
+
   staging-cd-pipeline:
     if: ${{ always() }}
     needs: [ staging-ci-pipeline ]
