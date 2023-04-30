@@ -150,9 +150,17 @@ jobs:
           secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
         id: databricksSecretAction
                 
+      - name: Login with Az subscription
+        uses: ./actions/azure-login
+        with:
+          client-id: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}
+          tenant-id: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}
+          subscription-id: ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}
+
       - name: Generate short life Databricks Token
         run: |
-          echo ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | az login --service-principal -u ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} -t ${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }} 
+          az account show
+          az group list
           echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
