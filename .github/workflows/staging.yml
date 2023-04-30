@@ -169,9 +169,10 @@ jobs:
         run: |
           hostname
           ls -la '${{ github.workspace }}/artifacts'
-          echo ${{ env.DATABRICKS_TOKEN }} > token-file
-          databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
-          databricks fs ls dbfs:/
+
+        # echo ${{ env.DATABRICKS_TOKEN }} > token-file
+        # databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
+        # databricks fs ls dbfs:/
 
       # echo "${{ github.event.repository.name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"   
       # dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
@@ -204,7 +205,9 @@ jobs:
             -F grant_type=client_credentials \
             -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output)" >> $GITHUB_ENV  
           echo ${{ env.accessToken }} > accetoken-file
+          cat accetoken-file
           echo ${{ env.managementToken }} > mgmttoken-file
+          cat mgmttoken-file
           databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file accetoken-file
           databricks fs ls dbfs:/
           databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file mgmttoken-file
