@@ -88,38 +88,6 @@ jobs:
         # poetry run az extension add --name azure-devops
         # poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
 
-      - name: Checkout on shared marketplace repo
-        uses: actions/checkout@v2
-        with:
-            repository: 'Share-Module/market-place-module'
-            token: ${{ secrets.GH_PAT_ADM }}
-            path: actions
-
-      - name: Login via Az module
-        uses: ./actions/azure-login
-        with:
-          creds: |
-            ${{ secrets.C360_SP_STG }}
-
-      - name: Download secret from KeyVault Secrets
-        uses: ./actions/keyvault-module
-        with:
-          keyvault: ${{ env.keyVaultName }}
-          secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
-        id: databricksSecretAction
-
-      - name: Install dependencies
-        run: |
-          az logout
-          az login \
-          --service-principal \
-          --tenant ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-tenantid }} \
-          --username ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-appid }} \
-          --password ${{ steps.databricksSecretAction.outputs.dxardevopsfrmwk-secretkey }} \
-          --output table
-          echo "token=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
-
-
   staging-cd-pipeline:
     if: ${{ always() }}
     needs: [ staging-ci-pipeline ]
@@ -226,21 +194,21 @@ jobs:
       - name: Get access tokens for Databricks API
         shell: bash
         run: |
-          echo "accessToken=$(curl -X POST https://login.microsoftonline.com/$tenant_id/oauth2/token \
-            -F resource=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d \
-            -F client_id=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
-            -F grant_type=client_credentials \
-            -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output)" >> $GITHUB_ENV
-          echo "managementToken=$(curl -X POST https://login.microsoftonline.com/$tenant_id/oauth2/token \
-            -F resource=https://management.core.windows.net/ \
-            -F client_id=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
-            -F grant_type=client_credentials \
-            -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output)" >> $GITHUB_ENV  
-          echo ${{ env.accessToken }} > accetoken-file
-          cat accetoken-file
-          echo ${{ env.managementToken }} > mgmttoken-file
-          cat mgmttoken-file
-          databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file accetoken-file
-          databricks clusters list --output JSON | jq '[ .clusters[] | { name: .cluster_name, id: .cluster_id } ]'
-          databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file mgmttoken-file
-          databricks clusters list --output JSON | jq '[ .clusters[] | { name: .cluster_name, id: .cluster_id } ]'
+          echo "fw_sp='{\
+            \"clientId\": \"${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}\",\
+            \"clientSecret\": \"${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}\",\
+            \"subscriptionId\": \"${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}\",\
+            \"tenantId\": \"${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}\",\
+            \"activeDirectoryEndpointUrl\": \"https://login.microsoftonline.com\",\
+            \"resourceManagerEndpointUrl\": \"https://management.azure.com/\",\
+            \"activeDirectoryGraphResourceId\": \"https://graph.windows.net/\",\
+            \"sqlManagementEndpointUrl\": \"https://management.core.windows.net:8443/\",\
+            \"galleryEndpointUrl\": \"https://gallery.azure.com/\",\
+            \"managementEndpointUrl\": \"https://management.core.windows.net/\"\
+          }'" >> $GITHUB_ENV
+
+        - name: Login via Az module
+          uses: ./actions/azure-login
+          with:
+            creds: |
+              ${{ env.fw_sp }}
