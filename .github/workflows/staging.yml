@@ -193,17 +193,21 @@ jobs:
       - name: Get access tokens for Databricks API
         shell: bash
         run: |
-          pip install jq -U
-          accessToken=$(curl -X POST https://login.microsoftonline.com/$tenant_id/oauth2/token \
+          echo "accessToken=$(curl -X POST https://login.microsoftonline.com/$tenant_id/oauth2/token \
             -F resource=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d \
             -F client_id=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
             -F grant_type=client_credentials \
-            -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output) 
-          managementToken=$(curl -X POST https://login.microsoftonline.com/$tenant_id/oauth2/token \
+            -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output)" >> $GITHUB_ENV
+          echo "managementToken=$(curl -X POST https://login.microsoftonline.com/$tenant_id/oauth2/token \
             -F resource=https://management.core.windows.net/ \
             -F client_id=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
             -F grant_type=client_credentials \
-            -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output)  
-          echo $accessToken
+            -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output)" >> $GITHUB_ENV  
+          echo ${{ env.accessToken }}
           echo "####################"
-          echo $managementToken
+          echo ${{ env.managementToken }}
+          curl -X POST https://login.microsoftonline.com/$tenant_id/oauth2/token \
+            -F resource=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d \
+            -F client_id=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }} \
+            -F grant_type=client_credentials \
+            -F client_secret=${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }} | jq .access_token --raw-output)
