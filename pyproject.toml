@@ -1,0 +1,2 @@
+[tool.poetry.group.release.dependencies]
+azure-cli = { version = "^2.40.0", source = "PyPI" }
