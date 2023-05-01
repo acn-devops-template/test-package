@@ -139,9 +139,6 @@ jobs:
         with:
           creds: |
             ${{ secrets.C360_SP_DEV }}
-
-      - name: Env check
-        run: echo ${{ env.keyVaultName }}
         
       - name: Download secret from KeyVault Secrets
         uses: ./actions/keyvault-module
