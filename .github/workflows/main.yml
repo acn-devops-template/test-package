@@ -147,7 +147,7 @@ jobs:
       - name: Download secret from KeyVault Secrets
         uses: ./actions/keyvault-module
         with:
-          keyvault: 'KEY-RG-SEA-CTRL-DX-PRD'
+          keyvault: '${{ env.keyVaultName }}'
           secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
         id: databricksSecretAction
 
