@@ -2,13 +2,11 @@ name: main
 
 on: 
   workflow_dispatch:
-  pull_request:
 
 jobs:
   main-ci-pipeline: 
-    # if: github.event.pull_request.merged == true
-    # runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
-    runs-on: self-hosted-dev
+    # This workflow is using for PRODUCTION deployment.
+    runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
     outputs:
       pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
 
@@ -140,21 +138,18 @@ jobs:
         with:
           creds: |
             ${{ secrets.C360_SP_PRD }}
-
-      - name: Env check
-        run: echo ${{ env.keyVaultName }}
         
-      - name: Download secret from KeyVault Secrets
-        uses: ./actions/keyvault-module
-        with:
-          keyvault: '${{ env.keyVaultName }}'
-          secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
-        id: databricksSecretAction
+      # - name: Download secret from KeyVault Secrets
+      #   uses: ./actions/keyvault-module
+      #   with:
+      #     keyvault: ${{ env.keyVaultName }}
+      #     secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
+      #   id: databricksSecretAction
 
-      - name: Login Framework
-        uses: ./actions/azure-login
-        with:
-          creds: '{"clientId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}'
+      # - name: Login Framework
+      #   uses: ./actions/azure-login
+      #   with:
+      #     creds: '{"clientId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}'
         
       - name: Generate short life Databricks Token
         run: |
@@ -178,6 +173,6 @@ jobs:
           databricks fs ls dbfs:/
           dbx --version
 
-      # echo "${{ github.event.repository.name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"   
+      # echo "${{ github.event.repository.name }}_${{ needs.main-ci-pipeline.outputs.pk_version }}"   
       # dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
       # dbx launch "sit-entrypoint-datax-gp-autox-secure-loan" --environment "sit" --trace
