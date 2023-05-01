@@ -173,21 +173,8 @@ jobs:
           echo ${{ env.DATABRICKS_TOKEN }} > token-file
           databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
           databricks fs ls dbfs:/
+          dbx --version
 
       # echo "${{ github.event.repository.name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"   
       # dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
       # dbx launch "sit-entrypoint-datax-gp-autox-secure-loan" --environment "sit" --trace
-
-      # - name: Copy init scripts & overwrite
-      #  run: |
-      #    databricks fs cp -r ./setup/dlt_deployment/init_scripts dbfs:/databricks/scripts/${{ github.event.repository.name }}/init-scripts --overwrite
-
-      # - name: Update the relevant notebook sources
-      #   run: |
-      #     databricks repos update --path="/Repos/datax-gp-cardx-credit-card/setup/dlt_deployment/notebooks/" --branch="${{ github.event.pull_request.base.ref }}"
-
-      # - name: Job deployment
-      #   run: |
-      #     poetry run dbx configure --enable-inplace-jinja-support
-      #     poetry run dbx deploy --jinja-variables-file=conf/orchestrator/dbx/staging_setting.yml --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows=credit-card-workflow,multiple-srcs-workflow --no-package
-
