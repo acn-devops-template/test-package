@@ -152,10 +152,10 @@ jobs:
           secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
         id: databricksSecretAction
 
-      # - name: Login Framework
-      #   uses: ./actions/azure-login
-      #   with:
-      #     creds: '{"clientId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}'
+      - name: Login Framework
+        uses: ./actions/azure-login
+        with:
+          creds: '{"clientId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}'
         
       - name: Generate short life Databricks Token
         run: |
