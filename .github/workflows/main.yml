@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  staging-ci-pipeline: 
+  main-ci-pipeline: 
     # if: github.event.pull_request.merged == true
     # runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
     runs-on: self-hosted-dev
@@ -85,7 +85,7 @@ jobs:
         # poetry run az extension add --name azure-devops
         # poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
 
-  staging-cd-pipeline:
+  main-cd-pipeline:
     if: ${{ always() }}
     needs: [ staging-ci-pipeline ]
     runs-on: self-hosted-ai-c360prd
@@ -141,17 +141,20 @@ jobs:
           creds: |
             ${{ secrets.C360_SP_PRD }}
 
-      # - name: Download secret from KeyVault Secrets
-      #   uses: ./actions/keyvault-module
-      #   with:
-      #     keyvault: ${{ env.keyVaultName }}
-      #     secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
-      #   id: databricksSecretAction
+      - name: Env check
+        run: echo ${{ env.keyVaultName }}
+        
+      - name: Download secret from KeyVault Secrets
+        uses: ./actions/keyvault-module
+        with:
+          keyvault: 'KEY-RG-SEA-CTRL-DX-PRD'
+          secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
+        id: databricksSecretAction
 
-      # - name: Login Framework
-      #   uses: ./actions/azure-login
-      #   with:
-      #     creds: '{"clientId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}'
+      - name: Login Framework
+        uses: ./actions/azure-login
+        with:
+          creds: '{"clientId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}'
         
       - name: Generate short life Databricks Token
         run: |
