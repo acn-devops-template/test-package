@@ -1,95 +1,193 @@
-name: main
+name: staging
 
-on:
+on: 
   workflow_dispatch:
-  # pull_request:
-  #   types: [opened, reopened]
-  #   branches:
-  #     - main
+  pull_request:
 
 jobs:
-  cd-pipeline:
-    runs-on: ubuntu-latest
+  staging-ci-pipeline:
+    # if: github.event.pull_request.merged == true
+    # runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
+    runs-on: self-hosted-dev
+    outputs:
+      pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
 
     env:
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-      DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
-      GH_TOKEN: ${{ secrets.GH_PAT }}
-      REPOSITORY_USERNAME: smith.simargool
-      REPOSITORY_PASSWORD: ${{ secrets.AZURE_ARTIFACTS_PAT }}
-      AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_ARTIFACTS_PAT }}
+      GH_TOKEN: ${{ secrets.GH_PAT_ADM }}
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          ref: staging
 
-      - uses: fregante/setup-git-user@v1
+      - name: Checkout tools repo
+        uses: actions/checkout@v2
+        with:
+          repository: analytics-products-customer360/customer360-dp
+          token: ${{ secrets.GH_PAT_ADM }}
+          path: actions
+
+      - uses: ./actions/ssh-agent
+        with:
+          ssh-private-key: |
+            ${{ secrets.SEMANTIC_RELEASE_SSH_KEY }}
+            ${{ secrets.UTILS_DATA_LAYER_SSH_KEY }}
+            ${{ secrets.DEPLOYMENT_HELPER_SSH_KEY }}
+
+      - uses: ./actions/setup-git-user
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: "3.9"
 
       - name: Install pip & pex
         run: |
-          pip install --upgrade pip
-          pip install pex
+          pip install pip -U
+          pip install pipenv -U
+          pip install virtualenv -U
 
       - name: Install poetry
-        uses: snok/install-poetry@v1
+        uses: ./actions/install-poetry
 
       - name: Install dependencies and project
         run: |
           poetry config http-basic.pk_repo_prod gh_actions ${{ secrets.AZURE_ARTIFACTS_PAT }}
-          poetry install -v --without test
+          poetry install -v --without dev,test,docs
           poetry run pip list --format=freeze --exclude=pip > requirements.txt
 
-      - name: Semantic Release Prerelease
-        run: |
-          poetry run semantic-release publish --prerelease -D repository_url=${{ secrets.AZURE_ARTIFACTS_UPLOAD }} -v DEBUG
+      # - name: Semantic Release Prerelease
+      #   run: |
+      #     poetry run semantic-release publish -D branch="${{ github.event.pull_request.base.ref }}" -D remove_dist=true --prerelease -v DEBUG
 
-      - name: import nb
+      - name: Intrgration Test
         run: |
-          pk_name=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.name)
-          pk_version=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.version)
-          poetry run databricks workspace mkdirs "/Users/smith.simargool@scb.co.th/$pk_name"
-          poetry run databricks workspace import -l PYTHON -o ./conf/py_nb.py /Users/smith.simargool@scb.co.th/$pk_name/dev
+          echo "Test specific package from prerelease feed"
+          echo "DBX deploy"
+          echo "Monitoring"
 
-      - name: create dlt pipeline
+      - name: Build Artifact
+        id: version
         run: |
-          poetry run python conf/dlt_pipeline.py --host ${{secrets.DATABRICKS_HOST}} --token ${{secrets.DATABRICKS_TOKEN}} --json_path ./conf/orchestrator/dlt/create-pipeline.json --mode dev
+          pk_version=$(poetry version --dry-run -s)
+          echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
+          poetry env use 3.9
+          poetry build -f wheel
 
-      - name: Job deployment
-        run: |
-          poetry run dbx configure --enable-inplace-jinja-support
-          poetry run dbx deploy --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows='dlt-from-remote-dev' --no-package --assets-only
-          poetry run dbx launch --from-assets --trace dlt-from-remote-dev
+      - name: 'Publish Artifact' 
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'builded-file'
+          path: '${{ github.workspace }}/dist'
 
-      - name: Semantic Release
-        run: |
-          poetry run semantic-release publish -D repository_url=${{ secrets.AZURE_ARTIFACTS_UPLOAD_PROD }} -D remove_dist=false -v DEBUG
+        # poetry run az extension add --name azure-devops
+        # poetry run az artifacts universal publish --organization https://dev.azure.com/dxtechops/ --project="datax" --scope project --feed C360ML --name ${pk_name}_pex --version $pk_version --description "" --path .
 
-      - name: Build and Upload PEX
-        run: |
-          pk_name=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.name)
-          pk_version=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.version)
-          pk_description=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.description)
-          pex -v --requirement=requirements.txt --sources-directory=. --output-file=dist/pex/${pk_name}_${pk_version}.pex --entry-point datax.generic_pipeline.cardx_credit_card -f dist -i https://${{ secrets.AZURE_ARTIFACTS_PAT }}@${{ secrets.PKGS_DL_PROD }} --disable-cache
-          poetry run az extension add --name azure-devops
-          poetry run az artifacts universal publish --organization https://dev.azure.com/datax-tmp/ --project="package_repo" --scope project --feed pk-repo-prod --name ${pk_name}_pex --version $pk_version --description $pk_description --path dist/pex/
+  staging-cd-pipeline:
+    if: ${{ always() }}
+    needs: [ staging-ci-pipeline ]
+    runs-on: self-hosted-ai-c360prd
+    env:
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
+      DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
+        
+    steps: 
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: staging
 
-      - name: import nb prod
-        run: |
-          pk_name=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.name)
-          pk_version=$(poetry run toml get --toml-path ./pyproject.toml tool.poetry.version)
-          poetry run databricks workspace import -l PYTHON -o ./conf/py_nb_prod.py /Users/smith.simargool@scb.co.th/$pk_name/prod
+      - name: Checkout tools repo
+        uses: actions/checkout@v2
+        with:
+          repository: analytics-products-customer360/customer360-dp
+          token: ${{ secrets.GH_PAT_ADM }}
+          path: actions
 
-      - name: create prod dlt pipeline
-        run: |
-          poetry run python conf/dlt_pipeline.py --host ${{secrets.DATABRICKS_HOST}} --token ${{secrets.DATABRICKS_TOKEN}} --json_path ./conf/orchestrator/dlt/create-pipeline-prod.json --mode prod
+      - name: Load .env file
+        uses: ./actions/dotenv
+        with:
+          path: ./actions/dotenv/operations/c360/
 
-      - name: Job deployment Prod
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install pip & etc
         run: |
-          poetry run dbx deploy --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows='dlt-from-remote-prod' --no-package
+          pip install pip -U
+          pip install pipenv -U
+          pip install virtualenv -U
+          pip install poetry -U
+          pip install databricks-cli -U
+          pip install dbx -U
+
+      - name: Install dependencies and project
+        run: poetry install -v --without dev,test,docs
+
+      - name: Checkout on shared marketplace repo
+        uses: actions/checkout@v2
+        with:
+            repository: 'Share-Module/market-place-module'
+            token: ${{ secrets.GH_PAT_ADM }}
+            path: actions
+
+      - name: Login DevOps
+        uses: ./actions/azure-login
+        with:
+          creds: |
+            ${{ secrets.C360_SP_PRD }}
+
+      # - name: Download secret from KeyVault Secrets
+      #   uses: ./actions/keyvault-module
+      #   with:
+      #     keyvault: ${{ env.keyVaultName }}
+      #     secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
+      #   id: databricksSecretAction
+
+      # - name: Login Framework
+      #   uses: ./actions/azure-login
+      #   with:
+      #     creds: '{"clientId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}'
+        
+      - name: Generate short life Databricks Token
+        run: |
+          echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: 'Download Artifact' 
+        uses: actions/download-artifact@v2 
+        with:
+          name: 'builded-file'
+          path: '${{ github.workspace }}/artifacts'
+
+      - name: Deploy workflow
+        shell: bash
+        run: |
+          echo ${{ env.DATABRICKS_TOKEN }} > token-file
+          databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
+          databricks fs ls dbfs:/
+
+      # echo "${{ github.event.repository.name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"   
+      # dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
+      # dbx launch "sit-entrypoint-datax-gp-autox-secure-loan" --environment "sit" --trace
+
+      # - name: Copy init scripts & overwrite
+      #  run: |
+      #    databricks fs cp -r ./setup/dlt_deployment/init_scripts dbfs:/databricks/scripts/${{ github.event.repository.name }}/init-scripts --overwrite
+
+      # - name: Update the relevant notebook sources
+      #   run: |
+      #     databricks repos update --path="/Repos/datax-gp-cardx-credit-card/setup/dlt_deployment/notebooks/" --branch="${{ github.event.pull_request.base.ref }}"
+
+      # - name: Job deployment
+      #   run: |
+      #     poetry run dbx configure --enable-inplace-jinja-support
+      #     poetry run dbx deploy --jinja-variables-file=conf/orchestrator/dbx/staging_setting.yml --deployment-file=./conf/orchestrator/dbx/deployment.yml.j2 --workflows=credit-card-workflow,multiple-srcs-workflow --no-package
+
