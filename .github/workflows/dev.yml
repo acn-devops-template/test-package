@@ -85,7 +85,7 @@ jobs:
 
   dev-cd-pipeline:
     if: ${{ always() }}
-    needs: [ main-ci-pipeline ]
+    needs: [ dev-ci-pipeline ]
     runs-on: self-hosted-ai-c360dev
     env:
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
