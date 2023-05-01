@@ -113,6 +113,12 @@ jobs:
           token: ${{ secrets.GH_PAT_ADM }}
           path: actions
 
+      - name: Load .env file
+        uses: ./actions/dotenv
+        with:
+          path: ./actions/dotenv/operations/c360/
+          mode: staging
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -172,12 +178,9 @@ jobs:
       - name: Deploy workflow
         shell: bash
         run: |
-          hostname
-          ls -la '${{ github.workspace }}/artifacts'
-
-        # echo ${{ env.DATABRICKS_TOKEN }} > token-file
-        # databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
-        # databricks fs ls dbfs:/
+          echo ${{ env.DATABRICKS_TOKEN }} > token-file
+          databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
+          databricks fs ls dbfs:/
 
       # echo "${{ github.event.repository.name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"   
       # dbx deploy --environment "sit" --deployment-file "./conf/orchestrator/dbx/deployment.yml.j2" --jinja-variables-file "./conf/orchestrator/dbx/inc/*.yml" --no-package
