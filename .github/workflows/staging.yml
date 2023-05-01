@@ -116,7 +116,7 @@ jobs:
       - name: Load .env file
         uses: ./actions/dotenv
         with:
-          path: ./actions/dotenv/operations/c360/
+          path: ${{ github.workspace }}/actions/dotenv/operations/c360/
           mode: staging
 
       - name: Set up Python
