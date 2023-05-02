@@ -89,7 +89,7 @@ jobs:
     runs-on: self-hosted-ai-c360stg
     env:
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
-      GH_TOKEN: ${{ secrets.PAT_ACCESS_DEV }}
+      GH_TOKEN: ${{ secrets.PAT_ACCESS_STG }}
       DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
         
     steps: 
