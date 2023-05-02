@@ -87,6 +87,7 @@ jobs:
     if: ${{ always() }}
     needs: [ dev-ci-pipeline ]
     runs-on: self-hosted-ai-c360dev
+    timeout-minutes: 5
     env:
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
       DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
