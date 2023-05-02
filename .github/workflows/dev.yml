@@ -11,7 +11,7 @@ jobs:
       pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
 
     env:
-      GH_TOKEN: ${{ secrets.GH_PAT_ADM }}
+      GH_TOKEN: ${{ secrets.PAT_ACCESS_DEV }}
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
 
     steps:
@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: analytics-products-customer360/customer360-dp
-          token: ${{ secrets.GH_PAT_ADM }}
+          token: ${{ env.GH_TOKEN }}
           path: actions
 
       - uses: ./actions/ssh-agent
@@ -90,6 +90,7 @@ jobs:
     timeout-minutes: 5
     env:
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
+      GH_TOKEN: ${{ secrets.PAT_ACCESS_DEV }}
       DATABRICKS_JOBS_API_VERSION: 2.1 # Use Job API 2.1 instead of 2.0
         
     steps: 
@@ -102,7 +103,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: analytics-products-customer360/customer360-dp
-          token: ${{ secrets.GH_PAT_ADM }}
+          token: ${{ env.GH_TOKEN }}
           path: actions
 
       - name: Load .env file
@@ -132,7 +133,7 @@ jobs:
         uses: actions/checkout@v2
         with:
             repository: 'Share-Module/market-place-module'
-            token: ${{ secrets.GH_PAT_ADM }}
+            token: ${{ env.GH_TOKEN }}
             path: actions
 
       - name: Login DevOps
