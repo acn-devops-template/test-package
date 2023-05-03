@@ -1,4 +1,4 @@
-name: subdev # for subdev or feat branch, please change the pytest path.
+name: subdev # for subdev or feat branch.
 
 on:
   workflow_dispatch:
@@ -44,7 +44,7 @@ jobs:
         run: |
           poetry run pre-commit run --all-files -vv
 
-      - name: Run unit tests # change pytest path here
+      - name: Run unit tests
         run: |
           echo "Launching unit tests"
           poetry run pytest tests/

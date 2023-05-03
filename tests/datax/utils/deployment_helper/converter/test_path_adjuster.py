@@ -4,12 +4,14 @@
 import json
 import pathlib
 import unittest
-from typing import List
 
 # import: datax in-house
 from datax.utils.deployment_helper.converter.path_adjuster import find_conf_path
 from datax.utils.deployment_helper.converter.path_adjuster import get_pipeline_conf_files
 from datax.utils.deployment_helper.converter.path_adjuster import read_conf_all
+from datax.utils.deployment_helper.converter.path_adjuster import (
+    recursive_read_pipeline_conf,
+)
 from datax.utils.deployment_helper.converter.path_adjuster import replace_conf_reference
 
 # import: external
@@ -170,3 +172,22 @@ class TestReadConfAll(unittest.TestCase):
         self.assertEqual(conf_result["app"], expected_app)
         self.assertEqual(conf_result["spark"], expected_spark)
         self.assertEqual(conf_result["logger"], expected_logger)
+
+
+def test_recursive_read_pipeline_conf():
+    """
+    Test recursive_read_pipeline_conf function by reading the prepared config files
+    and compare the result with the expected one.
+    """
+    git_repo = git.Repo(__file__, search_parent_directories=True)
+    git_repo = git_repo.git.rev_parse("--show-toplevel")
+    test_conf_path = f"{git_repo}/tests/resources/test_path_adjuster"
+    test_conf_module = "TestRecursive"
+
+    result_conf_dict = recursive_read_pipeline_conf(test_conf_path, test_conf_module)
+
+    expected_output = {
+        "app": {"TestRecursive": {"key": "value"}, "AnotherSection": {"key": "value"}},
+        "audit": {"test": {"key": "value"}, "deequ": {"check": None}},
+    }
+    assert result_conf_dict == expected_output

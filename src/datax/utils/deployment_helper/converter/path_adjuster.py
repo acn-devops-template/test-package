@@ -2,6 +2,7 @@
 # import: standard
 import os
 import pathlib
+from collections.abc import Iterable
 from typing import Any
 from typing import Dict
 from typing import List
@@ -149,6 +150,7 @@ def get_pipeline_conf_files(
 
     Args:
         conf_path (str): A config folder path.
+        module_name (str): A module name.
 
     Returns:
         List[str]: A list of conf paths from the pipeline dir.
@@ -198,3 +200,66 @@ def read_conf_all(conf_files: Union[str, List]) -> Dict[str, Any]:
         config.update(each_conf)
 
     return config
+
+
+def recursive_read_conf_files(path_list: Iterable) -> dict:
+    """
+        Read config files recursively by storing their values in a dictionary using folder/file names as keys and configurations as values.
+
+    Args:
+        path_list (Iterable): A list containing paths of config files.
+    Returns:
+        dict: A dictionary containing config values.
+    """
+    # cast Path and separate files and folders
+    all_paths = [pathlib.Path(path) for path in path_list]
+    file_paths = [path for path in all_paths if path.is_file()]
+    dir_paths = [path for path in all_paths if path.is_dir()]
+
+    # read all files
+    conf_dict = read_conf_all(file_paths) if file_paths else {}
+
+    # recursively call this function for folders
+    for each_dir in dir_paths:
+        each_dir_content = pathlib.Path(each_dir).iterdir()
+
+        dir_name = pathlib.Path(each_dir).name
+        conf_dict[dir_name] = recursive_read_conf_files(each_dir_content)
+
+    return conf_dict
+
+
+def recursive_read_pipeline_conf(
+    conf_path: str,
+    module_name: str,
+) -> dict:
+    """
+        A function to read all pipeline config files
+
+    It uses the glob pattern to find pipeline config files then recursively read all files
+    by storing them in a dictionary using folder/file names as keys and configurations as values.
+
+    Args:
+        conf_path (str): A config folder path.
+        module_name (str): A module name.
+
+    Returns:
+        dict: A dictionary containing all pipeline config values.
+
+    """
+
+    # pipeline conf file glob pattern
+    pl_glob = f"**/*pipeline*/**/{module_name}/*"
+
+    # for testing via Databricks and use DBFS path
+    conf_dir = conf_path.replace("dbfs:", "/dbfs") if "dbfs:" in conf_path else conf_path
+
+    # get paths of both dir and files.
+    all_conf_list = [path.as_posix() for path in pathlib.Path(conf_dir).glob(pl_glob)]
+
+    if not all_conf_list:
+        raise FileNotFoundError(
+            f"Cannot find the pipeline conf in {conf_dir} with {pl_glob}"
+        )
+
+    return recursive_read_conf_files(all_conf_list)

@@ -13,8 +13,9 @@ from pyspark.conf import SparkConf
 from pyspark.sql import SparkSession
 
 # import: datax in-house
-from datax.utils.deployment_helper.converter.path_adjuster import get_pipeline_conf_files
-from datax.utils.deployment_helper.converter.path_adjuster import read_conf_all
+from datax.utils.deployment_helper.converter.path_adjuster import (
+    recursive_read_pipeline_conf,
+)
 from datax.utils.deployment_helper.converter.path_adjuster import replace_conf_reference
 
 
@@ -56,7 +57,7 @@ class Task(ABC):
         * self.conf_app provides application configuration of the job.
         * self.conf_spark is a spark configuration if provided.
         * self.conf_logger is a logger configuration if provided.
-        * self.conf_deequ is a deequ configuration if provided.
+        * self.conf_audit is a audit configuration if provided.
 
     """
 
@@ -68,11 +69,11 @@ class Task(ABC):
         init_conf_app: Optional[Dict] = None,
         init_conf_spark: Optional[Dict] = None,
         init_conf_logger: Optional[Dict] = None,
-        init_conf_deequ: Optional[Dict] = None,
+        init_conf_audit: Optional[Dict] = None,
     ) -> None:
         """__init__ function of Task class.
 
-        Set following useful objects: self.spark, self.logger, self.dbutils, self.conf_app, self.conf_spark, self.conf_logger, self.conf_deequ.
+        Set following useful objects: self.spark, self.logger, self.dbutils, self.conf_app, self.conf_spark, self.conf_logger, self.conf_audit.
 
         Args:
             module_name (str): Use this input as self.module_name.
@@ -81,7 +82,7 @@ class Task(ABC):
             init_conf_app (Optional[Dict]): If provided, use this input as self.conf_all["app"].
             init_conf_spark (Optional[Dict]): If provided, use this input as self.conf_all["spark"], otherwise None.
             init_conf_logger (Optional[Dict]): If provided, use this input as self.conf_all["logger"], otherwise None.
-            init_conf_deequ (Optional[Dict]): If provided, use this input as self.conf_all["deequ"], otherwise None.
+            init_conf_audit (Optional[Dict]): If provided, use this input as self.conf_all["audit"], otherwise None.
 
         """
         self.module_name = module_name
@@ -92,7 +93,7 @@ class Task(ABC):
 
         conf_all["spark"] = init_conf_spark or conf_all.get("spark", {})
         conf_all["logger"] = init_conf_logger or conf_all.get("logger", {})
-        conf_all["deequ"] = init_conf_deequ or conf_all.get("deequ", {})
+        conf_all["audit"] = init_conf_audit or conf_all.get("audit", {})
 
         # Set conf to attributes
         self.conf_all = conf_all
@@ -193,9 +194,7 @@ class Task(ABC):
 
         """
 
-        conf_files = get_pipeline_conf_files(conf_path, self.module_name)
-        conf_dict = read_conf_all(conf_files)
-
+        conf_dict = recursive_read_pipeline_conf(conf_path, self.module_name)
         replaced_dict = replace_conf_reference(conf_dict, conf_path)
         return replaced_dict
 
