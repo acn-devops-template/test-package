@@ -7,6 +7,7 @@ jobs:
   staging-ci-pipeline:
     # This workflow is using for Staging deployment.
     runs-on: ${{ github.event.pull_request.merged && fromJSON('ubuntu-20.04') || 'self-hosted-dev' }}
+    timeout-minutes: 5 
     outputs:
       pk_version: ${{ steps.version.outputs.DATAX_PACKAGE_VERSION }}
 
@@ -46,6 +47,7 @@ jobs:
           pip install pip -U
           pip install pipenv -U
           pip install virtualenv -U
+          pip install twine keyring artifacts-keyring -U
 
       - name: Install poetry
         uses: ./actions/install-poetry
@@ -54,7 +56,7 @@ jobs:
         run: |
           poetry config http-basic.pk_repo_prod gh_actions ${{ secrets.AZURE_ARTIFACTS_PAT }}
           poetry install -v --without dev,test,docs
-          poetry run pip list --format=freeze --exclude=pip > requirements.txt
+      # poetry run pip list --format=freeze --exclude=pip > requirements.txt
 
       # - name: Semantic Release Prerelease
       #   run: |
@@ -69,10 +71,17 @@ jobs:
       - name: Build Artifact
         id: version
         run: |
+          echo "[distutils]" > ~/.pypirc
+          echo "index-servers =" >> ~/.pypirc
+          echo "    C360ML" >> ~/.pypirc
+          echo "" >> ~/.pypirc
+          echo "[C360ML]" >> ~/.pypirc
+          echo "Repository = https://pkgs.dev.azure.com/dxtechops/_packaging/C360ML/pypi/upload/" >> ~/.pypirc
           pk_version=$(poetry version --dry-run -s)
           echo "::set-output name=DATAX_PACKAGE_VERSION::$pk_version"
           poetry env use 3.9
           poetry build -f wheel
+          poetry run twine upload -r C360ML dist/* -u datax-ai -p ${{ secrets.AZURE_ARTIFACTS_PAT }} --verbose
 
       - name: 'Publish Artifact' 
         uses: actions/upload-artifact@v2
@@ -87,6 +96,7 @@ jobs:
     if: ${{ always() }}
     needs: [ staging-ci-pipeline ]
     runs-on: self-hosted-ai-c360stg
+    timeout-minutes: 5 
     env:
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
       GH_TOKEN: ${{ secrets.PAT_ACCESS_STG }}
@@ -125,9 +135,6 @@ jobs:
           pip install databricks-cli -U
           pip install dbx -U
 
-      - name: Install dependencies and project
-        run: poetry install -v --without dev,test,docs
-
       - name: Checkout on shared marketplace repo
         uses: actions/checkout@v2
         with:
@@ -145,16 +152,21 @@ jobs:
         uses: ./actions/keyvault-module
         with:
           keyvault: "${{ env.keyVaultName }}"
-          secrets: 'dxdpmlardevopsfrmwk-appid,dxdpmlardevopsfrmwk-secretkey,dxdpmlardevopsfrmwk-tenantid,dxdpmlardevopsfrmwk-subscriptionid'
+          secrets: 'dxdparadbadls-appid,dxdparadbadls-secretkey,dxdparadbadls-tenantid,dxdparadbadls-subscriptionid'
         id: databricksSecretAction
+
+      - name: Logout DevOps
+        run: | 
+          az logout
 
       - name: Login Framework
         uses: ./actions/azure-login
         with:
-          creds: '{"clientId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdpmlardevopsfrmwk-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}'
+          creds: '{"clientId": "${{ steps.databricksSecretAction.outputs.dxdparadbadls-appid }}", "clientSecret": "${{ steps.databricksSecretAction.outputs.dxdparadbadls-secretkey }}", "subscriptionId": "${{ steps.databricksSecretAction.outputs.dxdparadbadls-subscriptionid }}", "tenantId": "${{ steps.databricksSecretAction.outputs.dxdparadbadls-tenantid }}", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/"}'
         
       - name: Generate short life Databricks Token
         run: |
+          az ad sp show --id ${{ steps.databricksSecretAction.outputs.dxdparadbadls-appid }}
           echo "DATABRICKS_TOKEN=$(az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query "accessToken" --output tsv)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
@@ -171,8 +183,8 @@ jobs:
         shell: bash
         run: |
           echo ${{ env.DATABRICKS_TOKEN }} > token-file
-          databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
-          databricks fs ls dbfs:/
+          poetry run databricks configure --host ${{ env.DATABRICKS_HOST }} --token-file token-file
+          poetry run databricks fs ls dbfs:/
           dbx --version
 
       # echo "${{ github.event.repository.name }}_${{ needs.staging-ci-pipeline.outputs.pk_version }}"   
