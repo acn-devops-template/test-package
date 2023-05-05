@@ -12,6 +12,7 @@ from datax.utils.deployment_helper.validation.common import (
 
 # import: external
 from pydantic import BaseModel
+from pydantic import Extra
 from pydantic import FilePath
 from pydantic import validator
 from pydantic.class_validators import root_validator
@@ -51,13 +52,14 @@ def check_profiling_source(cls: Callable, values: dict) -> dict:
     return values
 
 
-class DeequProfilerCommandlineArgumentsValidator(BaseModel):
+class DeequProfilerCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
     """Pydantic class for validating profiler commandline arguments.
 
     For checking deequ profiler commandline arguments.
 
     Args:
         BaseModel: pydantic BaseModel.
+        extra: pydantic Extra.allow
 
     """
 
