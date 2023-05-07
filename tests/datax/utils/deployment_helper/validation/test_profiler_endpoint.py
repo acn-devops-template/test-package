@@ -11,7 +11,6 @@ from datax.utils.deployment_helper.validation.profiler_endpoint import (
 
 # import: external
 import pytest
-from pydantic import FilePath
 from pydantic import ValidationError
 
 
@@ -20,8 +19,10 @@ def test_DeequProfilerCommandlineArgumentsValidator() -> None:
 
     To validate the arguments are correctly validated and converted.
 
-    Raises:
-        AssertionError: If any of the test assertions fail.
+    Assertion statement:
+        1. Validate `module` and `data_source` arguments are correctly validated.
+        2. Validate that the module correctly sets the `is_adhoc` variable to True
+            since `data_source` argument is provided.
     """
     test_dict = {
         "module": "test_module",
@@ -40,8 +41,13 @@ def test_DeequProfilerCommandlineArgumentsValidator_adhoc_profiling() -> None:
 
     To validate the arguments are correctly validated and converted for adhoc-profiling run.
 
-    Raises:
-        AssertionError: If any of the test assertions fail.
+    Assertion statement:
+        1. Validate `module`, `database`, `table`, and `date_column` arguments are correctly validated.
+        2. Validate `conf_profile_path` is checked for existence and converted to a Path object.
+        3. Validate `start_date` and `end_date` arguments are correctly validated
+            and converted to the correct format.
+        4. Validate that the module correctly sets the `is_adhoc` variable to True
+            since `data_source` argument is not provided.
     """
     test_dict = {
         "module": "test_module",
@@ -68,10 +74,8 @@ def test_DeequProfilerCommandlineArgumentsValidator_adhoc_profiling() -> None:
 def test_DeequProfilerCommandlineArgumentsValidator_wrong_conf_profile_path() -> None:
     """Test the `DeequProfilerCommandlineArgumentsValidator` class.
 
-    To validate that a `ValidationError` is raised when a non-existent profile path is passed.
-
-    Raises:
-        AssertionError: If any of the test assertions fail.
+    Assertion statement:
+        1. Validate if a `ValidationError` is raised when a non-existent profile path is passed.
     """
     test_dict = {
         "module": "test_module",
@@ -92,11 +96,9 @@ def test_DeequProfilerCommandlineArgumentsValidator_check_profiling_without_sour
 ):
     """Test the `DeequProfilerCommandlineArgumentsValidator` class.
 
-    To validate that a `ValidationError` is raised when neither `data_source` nor
-    adhoc-profiling inputs are provided.
-
-    Raises:
-        AssertionError: If any of the test assertions fail.
+    Assertion statement:
+        1. Validate if a `ValidationError` is raised when neither `data_source` nor
+            adhoc-profiling inputs are provided.
     """
     input_dict = {
         "module": "test_module",
