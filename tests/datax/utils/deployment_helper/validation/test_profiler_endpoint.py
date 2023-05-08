@@ -21,7 +21,7 @@ def test_DeequProfilerCommandlineArgumentsValidator() -> None:
 
     Assertion statement:
         1. Validate `module` and `data_source` arguments are correctly validated.
-        2. Validate that the module correctly sets the `is_adhoc` variable to True
+        2. Validate that the module correctly sets the `is_adhoc` variable to False
             since `data_source` argument is provided.
     """
     test_dict = {

@@ -1,4 +1,4 @@
-"""profile-endpoint validation muodule"""
+"""profiler-endpoint validation module"""
 
 # import: standard
 from typing import Callable
