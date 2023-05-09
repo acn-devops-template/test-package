@@ -53,7 +53,7 @@ def check_start_date_is_before_end_date(cls: Callable, values: Dict) -> Dict:
 
     """
     start_date, end_date = values.get("start_date"), values.get("end_date")
-    if all([start_date is not None, end_date is not None, start_date > end_date]):
+    if start_date is not None and end_date is not None and start_date > end_date:
         raise ValueError(
             f"{start_date} > {end_date}. `start_date` must be before `end_date`"
         )
@@ -67,7 +67,7 @@ def check_date_format(cls: Callable, v: str) -> datetime:
 
     Args:
         cls (Callable): cls.
-        values (str): An input str.
+        v (str): An input str.
 
     Returns:
         datetime: An input str casted into datetime.
@@ -76,13 +76,15 @@ def check_date_format(cls: Callable, v: str) -> datetime:
         ValueError: If incorrect date format (YYYY-MM-DD).
 
     """
-    try:
-        parsed_date = datetime.strptime(v, "%Y-%m-%d")
-        return parsed_date
-    except ValueError:
-        raise ValueError(
-            f"Incorrect date format for `{v}`, the date should have format of YYYY-MM-DD"
-        )
+    if v is not None:
+        try:
+            parsed_date = datetime.strptime(v, "%Y-%m-%d")
+            return parsed_date
+        except ValueError:
+            raise ValueError(
+                f"Incorrect date format for `{v}`, the date should have format of YYYY-MM-DD"
+            )
+    return v
 
 
 class CommandlineArgumentValidator(BaseModel):
