@@ -1,0 +1,31 @@
+{
+    "version": 1,
+    "formatters": {
+        "base": {
+            "format": "%(asctime)s ----- %(levelname)s ------ %(name)s ----- %(filename)s  -- %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S%z"
+        }
+    },
+    "handlers": {
+        "show-on-screen": {
+            "class": "logging.StreamHandler",
+            "formatter": "base",
+            "level": "INFO",
+            "stream": "ext://sys.stdout"
+        },
+        "make-me-file": {
+            "class": "logging.FileHandler",
+            "formatter": "base",
+            "level": "INFO",
+            "filename": "from_json_{{ ENV }}.log",
+            "mode": "w"
+        }
+    },
+    "root": {
+        "level": "INFO",
+        "handlers": [
+            "show-on-screen",
+            "make-me-file"
+        ]
+    }
+}

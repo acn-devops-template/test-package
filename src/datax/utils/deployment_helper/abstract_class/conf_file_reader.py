@@ -13,7 +13,7 @@ from typing import Union
 
 # import: external
 import yaml
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Template
 
 
 class ConfFileReader(ABC):
@@ -63,6 +63,19 @@ class ConfFileReader(ABC):
         """Base method for reading config files."""
         pass
 
+    @abstractmethod
+    def read_content(self, content: str, mapping: Dict = {}) -> Union[str, Dict]:
+        """Base method for reading config contents.
+
+        Args:
+            content (str): content of configuration
+            mapping (Dict, optional): mapping for key values used only in J2Reader. Defaults to {}.
+
+        Returns:
+            Dict: output config
+        """
+        pass
+
 
 class YAMLReader(ConfFileReader):
     """Subclass that inherits from ConfFileReader class."""
@@ -86,10 +99,22 @@ class YAMLReader(ConfFileReader):
         for each_file in conf_files:
             file_name = os.path.basename(each_file).split(".")[0]
             conf_txt = pathlib.Path(each_file).read_text()
-            config = yaml.safe_load(conf_txt)
+            config = self.read_content(content=conf_txt)
             yaml_dict[file_name] = config
 
         return yaml_dict
+
+    def read_content(self, content: str, mapping: Dict = {}) -> Union[str, Dict]:
+        """Base method for reading config contents.
+
+        Args:
+            content (str): content of configuration
+            mapping (Dict, optional): mapping for key values used only in J2Reader. Defaults to {}.
+
+        Returns:
+            Dict: output config
+        """
+        return yaml.safe_load(content)
 
 
 class JSONReader(ConfFileReader):
@@ -115,11 +140,23 @@ class JSONReader(ConfFileReader):
             # extract file name without extension
             file_name = os.path.basename(each_file).split(".")[0]
             conf_txt = pathlib.Path(each_file).read_text()
-            config = json.loads(conf_txt)
+            config = self.read_content(content=conf_txt)
             json_dict[file_name] = config
 
         return json_dict
-    
+
+    def read_content(self, content: str, mapping: Dict = {}) -> Union[str, Dict]:
+        """Base method for reading config contents.
+
+        Args:
+            content (str): content of configuration
+            mapping (Dict, optional): mapping for key values used only in J2Reader. Defaults to {}.
+
+        Returns:
+            Dict: output config
+        """
+        return json.loads(content)
+
 
 class J2Reader(ConfFileReader):
     """Subclass that inherits from ConfFileReader class."""
@@ -139,14 +176,29 @@ class J2Reader(ConfFileReader):
 
         j2_dict = {}
         for each_file in conf_files:
-            template_dir = os.path.dirname(each_file)
-            file_name = os.path.basename(each_file).split(".")[0]
+            file_name_components = os.path.basename(each_file).split(".")
+            content = pathlib.Path(each_file).read_text()
+            conf_txt = self.read_content(content=content, mapping=dict(os.environ))
+            conf_txt = str(conf_txt)
 
-            env = Environment(loader=FileSystemLoader(template_dir))
-            template = env.get_template(os.path.basename(each_file))
-            conf_txt = template.render(os.environ)
-
-            config = yaml.safe_load(conf_txt)
-            j2_dict[file_name] = config
+            if file_name_components[1] in ["yml", "yaml"]:
+                config = YAMLReader([]).read_content(content=conf_txt)
+                j2_dict[file_name_components[0]] = config
+            elif file_name_components[1] in ["json"]:
+                config = JSONReader([]).read_content(content=conf_txt)
+                j2_dict[file_name_components[0]] = config
 
         return j2_dict
+
+    def read_content(self, content: str, mapping: Dict = {}) -> Union[str, Dict]:
+        """Base method for reading config contents.
+
+        Args:
+            content (str): content of configuration
+            mapping (Dict, optional): mapping for key values used only in J2Reader. Defaults to {}.
+
+        Returns:
+            Dict: output config
+        """
+        template = Template(content)
+        return template.render(mapping)
