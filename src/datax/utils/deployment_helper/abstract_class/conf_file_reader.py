@@ -13,6 +13,7 @@ from typing import Union
 
 # import: external
 import yaml
+from jinja2 import Environment, FileSystemLoader
 
 
 class ConfFileReader(ABC):
@@ -118,3 +119,34 @@ class JSONReader(ConfFileReader):
             json_dict[file_name] = config
 
         return json_dict
+    
+
+class J2Reader(ConfFileReader):
+    """Subclass that inherits from ConfFileReader class."""
+
+    def read_file(self) -> Dict:
+        """Read a J2 template file and return a dictionary of configuration parameters
+        with keys as file extension names and values as the config dict.
+
+        Returns:
+            Dict: A dictionary of configuration parameters.
+
+        """
+
+        conf_files = self.postfix_file_dict.get("j2", [])
+        if not conf_files:
+            return {}
+
+        j2_dict = {}
+        for each_file in conf_files:
+            template_dir = os.path.dirname(each_file)
+            file_name = os.path.basename(each_file).split(".")[0]
+
+            env = Environment(loader=FileSystemLoader(template_dir))
+            template = env.get_template(os.path.basename(each_file))
+            conf_txt = template.render(os.environ)
+
+            config = yaml.safe_load(conf_txt)
+            j2_dict[file_name] = config
+
+        return j2_dict
