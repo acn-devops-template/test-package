@@ -20,4 +20,4 @@ def test_dynamic_endpoint_caller_with_default_arg() -> None:
         ]
     )
 
-    assert output.returncode == 1
+    assert output.returncode == 0
