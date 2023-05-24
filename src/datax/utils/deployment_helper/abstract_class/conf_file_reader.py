@@ -64,7 +64,7 @@ class ConfFileReader(ABC):
         pass
 
     @abstractmethod
-    def read_content(self) -> Union[str, Dict]:
+    def read_content(self, *args, **kwargs) -> Union[str, Dict]:
         """Base method for reading config contents.
 
         Args:
