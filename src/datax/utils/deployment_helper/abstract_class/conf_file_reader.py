@@ -64,7 +64,7 @@ class ConfFileReader(ABC):
         pass
 
     @abstractmethod
-    def read_content(self, *args: Any, **kwargs: Dict[str, Any]) -> Union[str, Dict]:
+    def read_content(self, content: str, mapping: Dict = {}) -> Union[str, Dict]:
         """Base method for reading config contents.
 
         Args:
@@ -104,7 +104,7 @@ class YAMLReader(ConfFileReader):
 
         return yaml_dict
 
-    def read_content(self, content: str) -> Union[str, Dict]:
+    def read_content(self, content: str, mapping: Dict = {}) -> Union[str, Dict]:
         """Method for reading YAML configuration string.
 
         Args:
@@ -145,7 +145,7 @@ class JSONReader(ConfFileReader):
 
         return json_dict
 
-    def read_content(self, content: str) -> Union[str, Dict]:
+    def read_content(self, content: str, mapping: Dict = {}) -> Union[str, Dict]:
         """Method for reading JSON configuration string.
 
         Args:
@@ -193,7 +193,7 @@ class J2Reader(ConfFileReader):
 
         return j2_dict
 
-    def read_content(self, content: str, mapping: Dict) -> Union[str, Dict]:
+    def read_content(self, content: str, mapping: Dict = {}) -> Union[str, Dict]:
         """Method for reading J2 configuration template and rendering the template.
 
         Args:
