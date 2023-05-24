@@ -18,7 +18,7 @@ pyyaml = {version = "^6.0", source = "PyPI"}
 pre-commit = { version = "^2.20.0", source = "PyPI" }
 pytest = { version = "^7.0.0", source = "PyPI" }
 pytest-mock = { version = "^3.7.0", source = "PyPI" }
-GitPython = { version = "^3.1.29", source = "PyPI" }
+GitPython = { version = "^3.1.30", source = "PyPI" }
 pytest-cov = { version = "^4.0.0", source = "PyPI" }
 
 [tool.poetry.group.release.dependencies]
