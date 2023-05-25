@@ -1,4 +1,4 @@
-"""validation test of DeequProfilerCommandlineArgumentsValidator module"""
+"""validation test of BackdateLoadingCommandlineArgumentValidator module"""
 
 # import: standard
 from datetime import datetime
