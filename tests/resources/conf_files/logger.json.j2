@@ -17,7 +17,7 @@
             "class": "logging.FileHandler",
             "formatter": "base",
             "level": "INFO",
-            "filename": "from_json_{{ ENV }}.log",
+            "filename": "from_json_{{ env["ENVIRONMENT"] }}.log",
             "mode": "w"
         }
     },

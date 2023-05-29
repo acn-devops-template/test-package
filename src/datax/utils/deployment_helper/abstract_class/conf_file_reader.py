@@ -181,7 +181,7 @@ class J2Reader(ConfFileReader):
             original_file_format = file_name_components[1]
             
             content = pathlib.Path(each_file).read_text()
-            conf_txt = self.read_content(content=content, mapping=dict(os.environ))
+            conf_txt = self.read_content(content=content, mapping={"env":dict(os.environ)})
             conf_txt = str(conf_txt)
 
             if original_file_format in ["yml", "yaml"]:
