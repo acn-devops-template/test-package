@@ -57,7 +57,7 @@ class TestJ2Reader(unittest.TestCase):
     def test_j2_reader(self) -> None:
         """Test reading Jinja2 files."""
         os.environ["ENVIRONMENT"] = "STG"
-
+        mapping_dict = {"env": dict(os.environ)}
         j2_paths = [
             "tests/resources/conf_files/app.yml.j2",
             "tests/resources/conf_files/logger.json.j2",
@@ -67,12 +67,12 @@ class TestJ2Reader(unittest.TestCase):
 
         app_conf_content = pathlib.Path(j2_paths[0]).read_text()
         template = Template(app_conf_content)
-        app_conf = template.render({"env": os.environ})
+        app_conf = template.render(mapping_dict)
         app_config = yaml.safe_load(app_conf)
 
         logger_conf_content = pathlib.Path(j2_paths[1]).read_text()
         template = Template(logger_conf_content)
-        logger_conf = template.render({"env": os.environ})
+        logger_conf = template.render(mapping_dict)
         logger_config = json.loads(logger_conf)
 
         self.assertEqual(j2_conf, {"app": app_config, "logger": logger_config})
