@@ -179,7 +179,7 @@ class J2Reader(ConfFileReader):
             file_name_components = os.path.basename(each_file).split(".")
             file_name = file_name_components[0]
             original_file_format = file_name_components[1]
-            
+
             content = pathlib.Path(each_file).read_text()
             conf_txt = self.read_content(content=content, mapping={"env":dict(os.environ)})
             conf_txt = str(conf_txt)
