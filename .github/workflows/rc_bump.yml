@@ -1,0 +1,88 @@
+name: rc_bump # bump rc if that tag already exists
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - "release/**"
+
+jobs:
+  staging-ci-pipeline:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: checkout for PR
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }} # DO NOT USE PAT FOR THIS, WILL LOOP FOREVER
+
+      - name: checkout
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }} # DO NOT USE PAT FOR THIS, WILL LOOP FOREVER
+
+      - uses: fregante/setup-git-user@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install poetry-bumpversion
+        run: |
+          poetry self add poetry-bumpversion
+
+      - name: Check project version for rc label
+        id: check-rc-release
+        run: |
+          echo "RC_RELEASE_BOOL=false" >> $GITHUB_OUTPUT
+
+          pk_version=$(poetry version --dry-run -s)
+          echo $pk_version
+          echo "PROJECT_PACKAGE_VERSION=$pk_version" >> $GITHUB_OUTPUT
+
+          rc_release_regex="[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+"
+          if [[ $pk_version =~ $rc_release_regex ]]
+          then
+              echo "RC_RELEASE_BOOL=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bump for rc
+        if: steps.check-rc-release.outputs.RC_RELEASE_BOOL == 'true'
+        run: |
+          version_number=${{ steps.check-rc-release.outputs.PROJECT_PACKAGE_VERSION }}
+          version_number_with_v="v${version_number}"
+          echo $version_number_with_v
+
+          if [[ $(git ls-remote --tags origin -l ${version_number_with_v}) ]] 
+          then
+              echo "This version already exists, do auto-rc"
+              
+              ver_main="$(echo ${version_number} | cut -d'-' -f1)"
+              ver_tag="$(echo ${version_number} | cut -d'-' -f2)"
+              
+              rc_current_num="${ver_tag:0-1}"
+              rc_next_num="$((rc_current_num + 1))"
+              next_rc_ver="${ver_main}-rc${rc_next_num}"
+              echo $next_rc_ver
+
+              poetry version $next_rc_ver
+              git add -A
+              git commit -m "chore: 🔖 Auto bump to ${next_rc_ver}"
+              git push
+              
+          else
+              echo "This version tag does not exist, skip auto-rc"
+          fi
