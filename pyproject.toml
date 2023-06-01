@@ -9,21 +9,21 @@ packages = [{ include = "datax", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pyspark = { version = "^3.3.0", source = "PyPI" }
 pydantic = { version = "^1.10.2", source = "PyPI" }
 python-dateutil = {version = "^2.8.2", source = "PyPI"}
 pyyaml = {version = "^6.0", source = "PyPI"}
 jinja2 = {version = "^3.1.2", source = "PyPI"}
 
-[tool.poetry.group.test.dependencies]
+[tool.poetry.group.dev.dependencies]
+pyspark = { version = "3.3.0", source = "PyPI" }
 pre-commit = { version = "^2.20.0", source = "PyPI" }
 pytest = { version = "^7.0.0", source = "PyPI" }
 pytest-mock = { version = "^3.7.0", source = "PyPI" }
 GitPython = { version = "^3.1.30", source = "PyPI" }
 pytest-cov = { version = "^4.0.0", source = "PyPI" }
 
-[tool.poetry.group.release.dependencies]
-datax-semantic-release = { git = "https://github.com/datax-tmp/datax-semantic-release.git" }
+[tool.poetry.group.interactive.dependencies]
+jupyter = { version = "^1.0.0", source = "PyPI" }
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = { version = "^1.4.2", source = "PyPI" }
@@ -38,9 +38,6 @@ mkdocs-gen-files = { version = "^0.4.0", source = "PyPI" }
 mike = { version = "^1.1.2", source = "PyPI" }
 mkdocs-table-reader-plugin = { version = "^1.2", source = "PyPI" }
 interrogate = { version = "^1.5.0", source = "PyPI" }
-
-[tool.poetry.group.dev.dependencies]
-jupyter = { version = "^1.0.0", source = "PyPI" }
 
 [build-system]
 requires = ["poetry-core"]
@@ -79,16 +76,6 @@ skip_glob = ["docs/*", "conf/*", "experiments/*", "setup/*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-
-[tool.semantic_release]
-version_variable = ["src/datax/utils/deployment_helper/__init__.py:__version__"]
-version_toml = "pyproject.toml:tool.poetry.version"
-changelog_file = "CHANGELOG.md"
-build_command = "poetry build -f wheel"
-major_on_zero = false
-upload_to_release = true
-upload_to_repository = false
-branch = "main"
 
 [tool.flakeheaven]
 max-line-length = 90
@@ -160,3 +147,6 @@ omit-covered-files = false                                  # Omit reporting fil
 ignore-regex = []
 # generate-badge = "./interrogate_badge.svg"                  # Generate a shields.io status badge (an SVG image) in at a given file or directory.
 # badge-format = "svg"
+
+[tool.poetry_bumpversion.file."src/datax/utils/deployment_helper/__init__.py"]
+# Duplicate the line above to add more files
