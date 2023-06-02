@@ -2,6 +2,9 @@ name: release # on release branches
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "release/**"
   pull_request:
     types: [closed]
     branches:
@@ -9,7 +12,7 @@ on:
 
 jobs:
   staging-ci-pipeline:
-    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' || github.event.created }}
     runs-on: ubuntu-20.04
 
     steps:
