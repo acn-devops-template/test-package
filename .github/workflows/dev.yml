@@ -1,4 +1,4 @@
-name: dev # on feature and dev branches
+name: dev # on feature and dev branch
 
 on:
   workflow_dispatch:
