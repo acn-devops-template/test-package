@@ -1,4 +1,4 @@
-name: release # on release branches
+name: release # on release branch
 
 on:
   workflow_dispatch:
