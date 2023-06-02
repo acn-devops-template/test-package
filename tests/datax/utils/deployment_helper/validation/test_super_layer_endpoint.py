@@ -53,8 +53,13 @@ def test_BackdateLoadingCommandlineArgumentValidator_with_date() -> None:
     arguments = BackdateLoadingCommandlineArgumentValidator(**test_dict)
 
     assert arguments.module == test_dict["module"]
-    assert arguments.start_date == datetime.strptime(test_dict["start_date"], "%Y-%m-%d")
-    assert arguments.end_date == datetime.strptime(test_dict["end_date"], "%Y-%m-%d")
+    assert (
+        arguments.start_date
+        == datetime.strptime(test_dict["start_date"], "%Y-%m-%d").date()
+    )
+    assert (
+        arguments.end_date == datetime.strptime(test_dict["end_date"], "%Y-%m-%d").date()
+    )
 
 
 def test_BackdateLoadingCommandlineArgumentValidator_with_date_wrong_format() -> None:

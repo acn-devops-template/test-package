@@ -58,10 +58,12 @@ class Test_CommandlineArgumentValidator(unittest.TestCase):
 
         self.assertEqual(arguments.module, test_dict["module"])
         self.assertEqual(
-            arguments.start_date, datetime.strptime(test_dict["start_date"], "%Y-%m-%d")
+            arguments.start_date,
+            datetime.strptime(test_dict["start_date"], "%Y-%m-%d").date(),
         )
         self.assertEqual(
-            arguments.end_date, datetime.strptime(test_dict["end_date"], "%Y-%m-%d")
+            arguments.end_date,
+            datetime.strptime(test_dict["end_date"], "%Y-%m-%d").date(),
         )
         self.assertRaises(ValueError, CommandlineArgumentValidator, **test_wrong_dict_1)
         self.assertRaises(ValueError, CommandlineArgumentValidator, **test_wrong_dict_2)
