@@ -79,7 +79,7 @@ def check_date_format(cls: Callable, v: str) -> date:
     """
     if v is not None:
         try:
-            parsed_date = datetime.strptime(v, "%Y-%m-%d")
+            parsed_date = datetime.strptime(v, "%Y-%m-%d").date()
             return parsed_date
         except ValueError:
             raise ValueError(

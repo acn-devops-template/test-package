@@ -66,8 +66,13 @@ def test_DeequProfilerCommandlineArgumentsValidator_adhoc_profiling() -> None:
     assert arguments.table == test_dict["table"]
     assert arguments.date_column == test_dict["date_column"]
     assert isinstance(arguments.conf_profile_path, Path)
-    assert arguments.start_date == datetime.strptime(test_dict["start_date"], "%Y-%m-%d")
-    assert arguments.end_date == datetime.strptime(test_dict["end_date"], "%Y-%m-%d")
+    assert (
+        arguments.start_date
+        == datetime.strptime(test_dict["start_date"], "%Y-%m-%d").date()
+    )
+    assert (
+        arguments.end_date == datetime.strptime(test_dict["end_date"], "%Y-%m-%d").date()
+    )
     assert arguments.is_adhoc is True
 
 
