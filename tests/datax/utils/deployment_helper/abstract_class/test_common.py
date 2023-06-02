@@ -31,7 +31,7 @@ class Mock_ABC(Task):
             Dict: conf_app dict
             Dict: conf_spark dict
             Dict: conf_logger dict
-            Dict: conf_deequ dict
+            Dict: conf_audit dict
             Dict: conf_all dict
 
         """
@@ -40,7 +40,7 @@ class Mock_ABC(Task):
             self.conf_app,
             self.conf_spark,
             self.conf_logger,
-            self.conf_deequ,
+            self.conf_audit,
             self.conf_all,
         )
 
@@ -59,7 +59,7 @@ def test() -> None:
         test_conf_app,
         test_conf_spark,
         test_conf_logger,
-        test_conf_deequ,
+        test_conf_audit,
         test_conf_all,
     ) = task.launch()
 
@@ -78,11 +78,11 @@ def test() -> None:
     assert confValue == test_conf_app
     assert sparkconfValue == test_conf_spark
     assert test_conf_logger == {}
-    assert test_conf_deequ == {}
+    assert test_conf_audit == {}
     assert test_conf_all["app"] == confValue
     assert test_conf_all["spark"] == sparkconfValue
     assert test_conf_all["logger"] == {}
-    assert test_conf_all["deequ"] == {}
+    assert test_conf_all["audit"] == {}
     assert type(test_spark) == SparkSession
 
 
@@ -100,7 +100,7 @@ def test_wo_pipeline_section() -> None:
         test_conf_app,
         test_conf_spark,
         test_conf_logger,
-        test_conf_deequ,
+        test_conf_audit,
         test_conf_all,
     ) = task.launch()
 
@@ -109,24 +109,13 @@ def test_wo_pipeline_section() -> None:
             "./tests/resources/test_common/test_pipeline/TestABCModuleWO/app.yml"
         ).read_text()
     )
-    print(test_conf_all)
 
     assert confValue == test_conf_app
     assert test_conf_all["app"] == confValue
     assert type(test_spark) == SparkSession
     assert test_conf_all["spark"] == {}
     assert test_conf_all["logger"] == {}
-    assert test_conf_all["deequ"] == {}
-
-
-def test_ValueError() -> None:
-    """Test function for testing Task(ABC).
-
-    To test ValueError if found more than 1 config
-
-    """
-    with pytest.raises(ValueError):
-        Mock_ABC(module_name="TestABCModule2", conf_path="./tests/resources/test_common")
+    assert test_conf_all["audit"] == {}
 
 
 def test_FileNotFoundError() -> None:

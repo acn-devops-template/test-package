@@ -1,0 +1,16 @@
+CreditCardPipeline:
+  data_processor_name: "datax"
+  main_transformation_name: "tmp_credit_card"
+  database: "default"
+  table: "testing_pipeline"
+  output_data_path: "spark-warehouse/resources/people"
+  output_schema_path: "outputs/output_schema.json"
+CreditCardAgg:
+  var_A: "test_A"
+  var_B: "test_B"
+  var_C: "test_C"
+  var_D: 100
+  data_source:
+    # input_data_endpoint: "dbfs:/FileStore/shared_uploads/smith.simargool@data-x.ai/resources/people.json"
+    input_data_endpoint: "resources/people.json"
+    ref_schema_path: "conf:/column_registry/input/people_schema.json"

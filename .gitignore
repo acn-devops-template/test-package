@@ -167,3 +167,5 @@ cython_debug/
 
 # autodoc structure
 docs/source/api/_autosummary/
+
+.DS_Store

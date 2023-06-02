@@ -1,0 +1,69 @@
+name: release # on release branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "release/**"
+  pull_request:
+    types: [closed]
+    branches:
+      - "release/**"
+
+jobs:
+  staging-ci-pipeline:
+    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' || github.event.created }}
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: checkout for PR
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: checkout
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: fregante/setup-git-user@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+
+      - name: Check project version for rc label
+        id: check-rc-release
+        run: |
+          pk_version=$(poetry version --dry-run -s)
+          echo $pk_version
+          echo "PROJECT_PACKAGE_VERSION=$pk_version" >> $GITHUB_OUTPUT
+
+          rc_release_regex="[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+"
+          if [[ $pk_version =~ $rc_release_regex ]]
+          then
+              echo "RC_RELEASE_BOOL=true" >> $GITHUB_OUTPUT
+          else
+              echo "RC_RELEASE_BOOL=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Tag for rc
+        if: steps.check-rc-release.outputs.RC_RELEASE_BOOL == 'true'
+        run: |
+          version_number=v${{ steps.check-rc-release.outputs.PROJECT_PACKAGE_VERSION }}
+          echo ${version_number}
+          git tag -a -m ${version_number} ${version_number}
+          git push origin --tags
