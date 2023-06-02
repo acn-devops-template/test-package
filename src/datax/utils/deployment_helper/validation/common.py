@@ -2,6 +2,7 @@
 
 # import: standard
 import os
+from datetime import date
 from datetime import datetime
 from typing import Callable
 from typing import Dict
@@ -60,7 +61,7 @@ def check_start_date_is_before_end_date(cls: Callable, values: Dict) -> Dict:
     return values
 
 
-def check_date_format(cls: Callable, v: str) -> datetime:
+def check_date_format(cls: Callable, v: str) -> date:
     """Function to check if start_date and end_date are in the correct format.
 
     Check if the input str is in a correct datetime format (YYYY-MM-DD)
@@ -70,7 +71,7 @@ def check_date_format(cls: Callable, v: str) -> datetime:
         v (str): An input str.
 
     Returns:
-        datetime: An input str casted into datetime.
+        date: An input str casted into date.
 
     Raises:
         ValueError: If incorrect date format (YYYY-MM-DD).
