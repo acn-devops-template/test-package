@@ -1,4 +1,4 @@
-name: subdev # on feature branches
+name: subdev # on feature branch
 
 on:
   workflow_dispatch:
