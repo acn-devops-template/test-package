@@ -2,6 +2,7 @@
 
 # import: standard
 import os
+import re
 from datetime import date
 from datetime import datetime
 from typing import Callable
@@ -86,6 +87,27 @@ def check_date_format(cls: Callable, v: str) -> date:
                 f"Incorrect date format for `{v}`, the date should have format of YYYY-MM-DD"
             )
     return v
+
+
+def check_semantic_release_format(cls: Callable, v: str) -> str:
+    """Function to check if release version format is in the format (X.Y.Z)
+
+    Args:
+        cls (Callable): cls.
+        v (str): An input str.
+
+    Returns:
+        str: An input str of release version.
+
+    Raises:
+        ValueError: Invalid release version format (X.Y.Z)
+
+    """
+    pattern = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
+    if re.match(pattern, v):
+        return v
+    else:
+        raise ValueError("Invalid release version format (X.Y.Z)")
 
 
 class CommandlineArgumentValidator(BaseModel):

@@ -12,8 +12,10 @@ from datax.utils.deployment_helper.validation.common import (
 from datax.utils.deployment_helper.validation.common import (
     TransformationConfigArgumentValidator,
 )
+from datax.utils.deployment_helper.validation.common import check_semantic_release_format
 
 # import: external
+import pytest
 from pydantic import ValidationError
 
 
@@ -162,3 +164,24 @@ class Test_TransformationConfigArgumentValidator(unittest.TestCase):
         self.assertRaises(
             ValidationError, TransformationConfigArgumentValidator, **test_wrong_dict_2
         )
+
+
+def test_check_semantic_release_format() -> None:
+    """Test function to check if release version format is in the format X.Y.Z
+
+    Assertion statement:
+        1. To check if release version format is correct
+    """
+    valid_versions = ["1.0.0", "0.1.0", "10.20.30"]
+    invalid_versions = ["1.0", "2.3.4.5", "1.2.a"]
+
+    for version in valid_versions:
+        assert (
+            check_semantic_release_format(None, version) == version
+        ), "Invalid release version format (X.Y.Z)"
+
+    for version in invalid_versions:
+        with pytest.raises(ValueError):
+            check_semantic_release_format(
+                None, version
+            ), "Method does not raise error when incorrect format"
