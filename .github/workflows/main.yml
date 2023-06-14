@@ -32,6 +32,8 @@ jobs:
 
       - name: Install poetry
         uses: snok/install-poetry@v1
+        with:
+          version: 1.4.2
 
       - name: Check project version for prod release
         id: check-prod-release
@@ -59,7 +61,7 @@ jobs:
       
   main-docs-pipeline:
     needs: cd-pipeline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
@@ -80,6 +82,8 @@ jobs:
 
       - name: Install poetry
         uses: snok/install-poetry@v1
+        with:
+          version: 1.4.2
 
       - name: Install dependencies and project
         run: |
