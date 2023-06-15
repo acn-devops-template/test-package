@@ -1,6 +1,5 @@
 """Common Argument Parser Module"""
 
-
 # import: external
 from tap import Tap
 
