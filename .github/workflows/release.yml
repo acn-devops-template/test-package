@@ -50,6 +50,8 @@ jobs:
       - name: Check project version for rc label
         id: check-rc-release
         run: |
+          echo "RC_RELEASE_BOOL=false" >> $GITHUB_OUTPUT
+
           pk_version=$(poetry version --dry-run -s)
           echo $pk_version
           echo "PROJECT_PACKAGE_VERSION=$pk_version" >> $GITHUB_OUTPUT
@@ -58,8 +60,6 @@ jobs:
           if [[ $pk_version =~ $rc_release_regex ]]
           then
               echo "RC_RELEASE_BOOL=true" >> $GITHUB_OUTPUT
-          else
-              echo "RC_RELEASE_BOOL=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Tag for rc
