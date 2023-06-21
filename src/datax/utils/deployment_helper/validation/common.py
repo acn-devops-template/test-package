@@ -90,7 +90,7 @@ def check_date_format(cls: Callable, v: str) -> date:
 
 
 def check_semantic_release_format(cls: Callable, v: str) -> str:
-    """Function to check if release version format is in the format (X.Y.Z)
+    """Function to check if release version format respects Sematic Versioning (MAJOR.MINOR.PATCH)
 
     Args:
         cls (Callable): cls.

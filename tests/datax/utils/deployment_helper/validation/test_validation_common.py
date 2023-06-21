@@ -172,8 +172,8 @@ def test_check_semantic_release_format() -> None:
     Assertion statement:
         1. To check if release version format is correct
     """
-    valid_versions = ["1.0.0", "0.1.0", "10.20.30"]
-    invalid_versions = ["1.0", "2.3.4.5", "1.2.a"]
+    valid_versions = ["1.0.0", "0.1.0", "10.20.30", "0.1.0-rc1"]
+    invalid_versions = ["1.0", "2.3.4.5", "1.2.a", "version1", "x.y.z", "1_2_3"]
 
     for version in valid_versions:
         assert (
