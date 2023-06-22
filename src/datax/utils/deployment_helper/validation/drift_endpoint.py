@@ -55,8 +55,8 @@ class DriftEndpointCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
     """
 
     module: str
-    start_date: Optional[str]
-    end_date: Optional[str]
+    start_date: str
+    end_date: str
     data_source: Optional[str]
     conf_profile_path: Optional[FilePath]
 

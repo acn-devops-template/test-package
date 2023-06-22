@@ -20,7 +20,7 @@ def test_DriftEndpointCommandlineArgumentsValidator() -> None:
     To validate the arguments are correctly validated and converted.
 
     Assertion statement:
-        1. Validate `module`,`data_source` and `version` arguments are correctly validated.
+        1. Validate `module`,`data_source`, `start_date`, `end_date` and `version` arguments are correctly validated.
         2. Validate that the module correctly sets the `is_adhoc` variable to False
             since `data_source` argument is provided.
     """
@@ -28,6 +28,8 @@ def test_DriftEndpointCommandlineArgumentsValidator() -> None:
         "module": "test_module",
         "data_source": "MockMLopsPipeline",
         "version": "1.0.0",
+        "start_date": "2022-01-01",
+        "end_date": "2022-01-02",
     }
 
     arguments = DriftEndpointCommandlineArgumentsValidator(**test_dict)
@@ -35,6 +37,13 @@ def test_DriftEndpointCommandlineArgumentsValidator() -> None:
     assert arguments.module == test_dict["module"]
     assert arguments.data_source == test_dict["data_source"]
     assert arguments.version == test_dict["version"]
+    assert (
+        arguments.start_date
+        == datetime.strptime(test_dict["start_date"], "%Y-%m-%d").date()
+    )
+    assert (
+        arguments.end_date == datetime.strptime(test_dict["end_date"], "%Y-%m-%d").date()
+    )
     assert arguments.is_adhoc is False
 
 
