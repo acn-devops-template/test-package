@@ -225,6 +225,10 @@ def test_recursive_read_pipeline_conf_parent_dir_name(parent_dir_name, expected_
     Test recursive_read_pipeline_conf function by reading the prepared config files
     with specified parent_dir_name.
 
+    Args:
+        parent_dir_name (str): Input parent directory name.
+        expected_output (dict): The expected return config files dictionary.
+
     Assertion statement:
         1. Validate if the function return config files correctly with provided
             parent_dir_name for each case.
