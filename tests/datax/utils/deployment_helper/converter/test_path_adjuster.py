@@ -16,6 +16,7 @@ from datax.utils.deployment_helper.converter.path_adjuster import replace_conf_r
 
 # import: external
 import git
+import pytest
 import yaml
 
 
@@ -191,3 +192,52 @@ def test_recursive_read_pipeline_conf():
         "audit": {"test": {"key": "value"}, "deequ": {"check": None}},
     }
     assert result_conf_dict == expected_output
+
+
+@pytest.mark.parametrize(
+    "parent_dir_name, expected_output",
+    [
+        (
+            None,
+            {
+                "app": {
+                    "TestRecursive": {"key": "value"},
+                    "AnotherSection": {"key": "value"},
+                },
+                "audit": {"test": {"key": "value"}, "deequ": {"check": None}},
+                "data_profiling": {
+                    "deequ": {"example_analyzer": {"Analyzer": {"key": "value"}}}
+                },
+            },
+        ),
+        (
+            "workflow",
+            {
+                "data_profiling": {
+                    "deequ": {"example_analyzer": {"Analyzer": {"key": "value"}}}
+                },
+            },
+        ),
+    ],
+)
+def test_recursive_read_pipeline_conf_parent_dir_name(parent_dir_name, expected_output):
+    """
+    Test recursive_read_pipeline_conf function by reading the prepared config files
+    with specified parent_dir_name.
+
+    Assertion statement:
+        1. Validate if the function return config files correctly with provided
+            parent_dir_name for each case.
+    """
+    git_repo = git.Repo(__file__, search_parent_directories=True)
+    git_repo = git_repo.git.rev_parse("--show-toplevel")
+    test_conf_path = f"{git_repo}/tests/resources/test_path_adjuster"
+    test_conf_module = "TestRecursive"
+
+    result_conf_dict = recursive_read_pipeline_conf(
+        test_conf_path, test_conf_module, parent_dir_name
+    )
+
+    assert (
+        result_conf_dict == expected_output
+    ), f"The result {result_conf_dict} did not match the expected {expected_output}"

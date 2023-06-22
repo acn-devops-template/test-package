@@ -232,6 +232,7 @@ def recursive_read_conf_files(path_list: Iterable) -> dict:
 def recursive_read_pipeline_conf(
     conf_path: str,
     module_name: str,
+    parent_dir_name: str = "pipeline",
 ) -> dict:
     """
         A function to read all pipeline config files
@@ -242,6 +243,7 @@ def recursive_read_pipeline_conf(
     Args:
         conf_path (str): A config folder path.
         module_name (str): A module name.
+        parent_dir_name (str, optional): A parent directory name. Defaults to "pipeline".
 
     Returns:
         dict: A dictionary containing all pipeline config values.
@@ -249,7 +251,11 @@ def recursive_read_pipeline_conf(
     """
 
     # pipeline conf file glob pattern
-    pl_glob = f"**/*pipeline*/**/{module_name}/*"
+    pl_glob = (
+        f"**/*{parent_dir_name}*/**/{module_name}/*"
+        if parent_dir_name
+        else f"**/{module_name}/*"
+    )
 
     # for testing via Databricks and use DBFS path
     conf_dir = conf_path.replace("dbfs:", "/dbfs") if "dbfs:" in conf_path else conf_path
