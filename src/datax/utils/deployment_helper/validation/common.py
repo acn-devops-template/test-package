@@ -89,25 +89,25 @@ def check_date_format(cls: Callable, v: str) -> date:
     return v
 
 
-def check_semantic_release_format(cls: Callable, v: str) -> str:
-    """Function to check if release version format respects Sematic Versioning (MAJOR.MINOR.PATCH)
+def check_semantic_version_format(cls: Callable, v: str) -> str:
+    """Function to check if version format respects Sematic Versioning (MAJOR.MINOR.PATCH)
 
     Args:
         cls (Callable): cls.
         v (str): An input str.
 
     Returns:
-        str: An input str of release version.
+        str: An input str of version.
 
     Raises:
-        ValueError: Invalid release version format (X.Y.Z)
+        ValueError: Invalid semantic version format (X.Y.Z)
 
     """
-    pattern = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
+    pattern = r"^(\d+!)?(\d+)(\.\d+)+([\.\-\_])?((a(lpha)?|b(eta)?|c|r(c|ev)?|pre(view)?)\d*)?(\.?(post|dev)\d*)?$"
     if re.match(pattern, v):
         return v
     else:
-        raise ValueError("Invalid release version format (X.Y.Z)")
+        raise ValueError("Invalid semantic version format (X.Y.Z)")
 
 
 class CommandlineArgumentValidator(BaseModel):
