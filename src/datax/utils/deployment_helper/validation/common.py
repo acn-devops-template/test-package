@@ -2,6 +2,7 @@
 
 # import: standard
 import os
+import re
 from datetime import date
 from datetime import datetime
 from typing import Callable
@@ -86,6 +87,27 @@ def check_date_format(cls: Callable, v: str) -> date:
                 f"Incorrect date format for `{v}`, the date should have format of YYYY-MM-DD"
             )
     return v
+
+
+def check_semantic_version_format(cls: Callable, v: str) -> str:
+    """Function to check if version format respects Sematic Versioning (MAJOR.MINOR.PATCH)
+
+    Args:
+        cls (Callable): cls.
+        v (str): An input str.
+
+    Returns:
+        str: An input str of version.
+
+    Raises:
+        ValueError: Invalid semantic version format (X.Y.Z)
+
+    """
+    pattern = r"^(\d+!)?(\d+)(\.\d+)+([\.\-\_])?((a(lpha)?|b(eta)?|c|r(c|ev)?|pre(view)?)\d*)?(\.?(post|dev)\d*)?$"
+    if re.match(pattern, v):
+        return v
+    else:
+        raise ValueError("Invalid semantic version format (X.Y.Z)")
 
 
 class CommandlineArgumentValidator(BaseModel):
