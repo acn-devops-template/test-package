@@ -39,6 +39,8 @@ jobs:
 
       - name: Install poetry
         uses: snok/install-poetry@v1
+        with:
+          version: 1.4.2
 
       - name: Install poetry-bumpversion
         run: |
