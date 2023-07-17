@@ -42,18 +42,14 @@ def test_DeequProfilerCommandlineArgumentsValidator_adhoc_profiling() -> None:
     To validate the arguments are correctly validated and converted for adhoc-profiling run.
 
     Assertion statement:
-        1. Validate `module`, `database`, `table`, and `date_column` arguments are correctly validated.
-        2. Validate `conf_profile_path` is checked for existence and converted to a Path object.
-        3. Validate `start_date` and `end_date` arguments are correctly validated
+        1. Validate `conf_profile_path` is checked for existence and converted to a Path object.
+        2. Validate `module`, `start_date` and `end_date` arguments are correctly validated
             and converted to the correct format.
-        4. Validate that the module correctly sets the `is_adhoc` variable to True
+        3. Validate that the module correctly sets the `is_adhoc` variable to True
             since `data_source` argument is not provided.
     """
     test_dict = {
         "module": "test_module",
-        "database": "test_database",
-        "table": "test_table",
-        "date_column": "dl_data_dt",
         "conf_profile_path": "tests/resources/people.json",
         "start_date": "2022-01-01",
         "end_date": "2022-01-02",
@@ -62,9 +58,6 @@ def test_DeequProfilerCommandlineArgumentsValidator_adhoc_profiling() -> None:
     arguments = DeequProfilerCommandlineArgumentsValidator(**test_dict)
 
     assert arguments.module == test_dict["module"]
-    assert arguments.database == test_dict["database"]
-    assert arguments.table == test_dict["table"]
-    assert arguments.date_column == test_dict["date_column"]
     assert isinstance(arguments.conf_profile_path, Path)
     assert (
         arguments.start_date
@@ -86,9 +79,6 @@ def test_DeequProfilerCommandlineArgumentsValidator_wrong_conf_profile_path() ->
         "module": "test_module",
         "start_date": "2022-01-01",
         "end_date": "2022-01-02",
-        "database": "test_db",
-        "table": "test_table",
-        "date_column": "dl_data_dt",
         "conf_profile_path": "mock_dir/nonexistent_folder/app.yml",
     }
 
@@ -103,7 +93,7 @@ def test_DeequProfilerCommandlineArgumentsValidator_check_profiling_without_sour
 
     Assertion statement:
         1. Validate if a `ValidationError` is raised when neither `data_source` nor
-            adhoc-profiling inputs are provided.
+            `conf_profile_path` are provided.
     """
     input_dict = {
         "module": "test_module",
@@ -116,5 +106,5 @@ def test_DeequProfilerCommandlineArgumentsValidator_check_profiling_without_sour
 
     assert (
         exc_info.value.errors()[0]["msg"]
-        == "Either data_source or adhoc-profiling inputs: database, table, date_column and conf_profile_path must be provided."
+        == "Either data_source or conf_profile_path must be provided."
     )
