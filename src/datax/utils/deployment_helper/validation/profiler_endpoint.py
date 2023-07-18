@@ -6,6 +6,7 @@ from typing import Optional
 
 # import: datax in-house
 from datax.utils.deployment_helper.validation.common import check_date_format
+from datax.utils.deployment_helper.validation.common import check_semantic_version_format
 from datax.utils.deployment_helper.validation.common import (
     check_start_date_is_before_end_date,
 )
@@ -46,10 +47,10 @@ def check_profiling_source(cls: Callable, values: dict) -> dict:
     return values
 
 
-class DeequProfilerCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
+class ProfilerCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
     """Pydantic class for validating profiler commandline arguments.
 
-    For checking deequ profiler commandline arguments.
+    For checking profiler commandline arguments.
 
     Args:
         BaseModel: pydantic BaseModel.
@@ -62,6 +63,7 @@ class DeequProfilerCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
     end_date: Optional[str]
     data_source: Optional[str]
     conf_profile_path: Optional[FilePath]
+    version: Optional[str]
 
     _check_profiling_source = root_validator(allow_reuse=True)(check_profiling_source)
     _check_date_format = validator("start_date", "end_date", allow_reuse=True)(
@@ -69,4 +71,7 @@ class DeequProfilerCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
     )
     _check_start_date_is_before_end_date = root_validator(allow_reuse=True)(
         check_start_date_is_before_end_date
+    )
+    _check_version_format = validator("version", allow_reuse=True)(
+        check_semantic_version_format
     )
