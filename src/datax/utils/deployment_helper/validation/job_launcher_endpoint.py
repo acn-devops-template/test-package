@@ -26,6 +26,11 @@ class DatabricksJobCommandlineArgumentsValidator(BaseModel):
     start_date: str
     end_date: str
     job_id: int
+    task_type: str
+    extra_params: dict
+    
+    if job_id < 0:
+        raise ValueError("job_id must be positive number.")
 
     _check_date_format = validator("start_date", "end_date", allow_reuse=True)(
         check_date_format
