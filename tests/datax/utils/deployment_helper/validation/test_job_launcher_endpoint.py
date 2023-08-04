@@ -31,7 +31,10 @@ def test_DatabricksJobCommandlineArgumentsValidator() -> None:
         "end_date": "2023-05-07",
         "job_id": 1234,
         "task_type": "notebook_task",
-        "extra_params": {"input_start_date": "2023-05-06", "input_end_date": "2023-05-07"}
+        "extra_params": {
+            "input_start_date": "2023-05-06",
+            "input_end_date": "2023-05-07",
+        },
     }
 
     arguments = DatabricksJobCommandlineArgumentsValidator(**test_dict)
