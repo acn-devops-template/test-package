@@ -30,6 +30,8 @@ def test_DatabricksJobCommandlineArgumentsValidator() -> None:
         "start_date": "2023-05-06",
         "end_date": "2023-05-07",
         "job_id": 1234,
+        "task_type": "notebook_task",
+        "extra_params": {"input_start_date": "2023-05-06", "input_end_date": "2023-05-07"}
     }
 
     arguments = DatabricksJobCommandlineArgumentsValidator(**test_dict)
@@ -38,6 +40,8 @@ def test_DatabricksJobCommandlineArgumentsValidator() -> None:
     assert arguments.start_date == datetime.date.fromisoformat(test_dict["start_date"])
     assert arguments.end_date == datetime.date.fromisoformat(test_dict["end_date"])
     assert arguments.job_id == test_dict["job_id"]
+    assert arguments.task_type == test_dict["notebook_task"]
+    assert arguments.extra_params == test_dict["extra_params"]
 
 
 def test_DatabricksJobCommandlineArgumentsValidator_wrong_job_id() -> None:
