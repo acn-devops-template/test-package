@@ -43,7 +43,7 @@ def test_DatabricksJobCommandlineArgumentsValidator() -> None:
     assert arguments.start_date == datetime.date.fromisoformat(test_dict["start_date"])
     assert arguments.end_date == datetime.date.fromisoformat(test_dict["end_date"])
     assert arguments.job_id == test_dict["job_id"]
-    assert arguments.task_type == test_dict["notebook_task"]
+    assert arguments.task_type == test_dict["task_type"]
     assert arguments.extra_params == test_dict["extra_params"]
 
 
