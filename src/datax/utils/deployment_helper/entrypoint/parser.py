@@ -7,11 +7,8 @@ from tap import Tap
 class JobStatusArguments(Tap):
     """Command-line arguments related to job status."""
 
-    activate_etl_sts_log: bool = False
-    """Activate log process to write run result into tbl_etl_sts_log."""
-
-    activate_feat_ml_sts_log: bool = False
-    """Activate log process to write run result into tbl_fp_sts_log."""
+    activate_job_status_log: bool = False
+    """Activate log process to write job execution details into job log table."""
 
     parent_id: str = None
     """Databricks workflow ID."""
@@ -26,4 +23,4 @@ class JobStatusArguments(Tap):
     """Workflow job name."""
 
     task_name: str = None
-    """Job task name"""
+    """Task name within a workflow."""
