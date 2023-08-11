@@ -71,6 +71,7 @@ class Task(ABC):
         init_conf_spark: Optional[Dict] = None,
         init_conf_logger: Optional[Dict] = None,
         init_conf_audit: Optional[Dict] = None,
+        init_conf_sensor: Optional[Dict] = None,
         activate_sensor: Optional[bool] = False,
     ) -> None:
         """__init__ function of Task class.
@@ -85,12 +86,12 @@ class Task(ABC):
             init_conf_spark (Optional[Dict]): If provided, use this input as self.conf_all["spark"], otherwise None.
             init_conf_logger (Optional[Dict]): If provided, use this input as self.conf_all["logger"], otherwise None.
             init_conf_audit (Optional[Dict]): If provided, use this input as self.conf_all["audit"], otherwise None.
+            init_conf_sensor (Optional[Dict]): If provided, use this input as self.conf_all["sensor"], otherwise None.
             activate_sensor (Optional[bool]): If provided, use this boolean input to activate sensor, otherwise False.
 
         """
         self.module_name = module_name
         conf_all = self._provide_conf_all(conf_path) if conf_path else {}
-
         if init_conf_app:
             conf_all["app"] = init_conf_app
 
@@ -99,7 +100,7 @@ class Task(ABC):
         conf_all["audit"] = init_conf_audit or conf_all.get("audit", {})
         conf_all["sensor"] = {
             "activate_sensor": activate_sensor,
-            "sensor": conf_all["app"].get(module_name).get("sensor"),
+            "sensor": init_conf_sensor or conf_all.get("sensor", {}),
         }
 
         # Set conf to attributes
