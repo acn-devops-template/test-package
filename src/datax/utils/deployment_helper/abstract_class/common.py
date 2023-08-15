@@ -58,7 +58,7 @@ class Task(ABC):
         * self.conf_spark is a spark configuration if provided.
         * self.conf_logger is a logger configuration if provided.
         * self.conf_audit is a audit configuration if provided.
-        * self.conf_sensor is a sensor configuration.
+        * self.conf_sensor is a sensor configuration if provided.
 
     """
 
@@ -72,6 +72,7 @@ class Task(ABC):
         init_conf_logger: Optional[Dict] = None,
         init_conf_audit: Optional[Dict] = None,
         init_conf_sensor: Optional[Dict] = None,
+        activate_audit: Optional[bool] = False,
         activate_sensor: Optional[bool] = False,
     ) -> None:
         """__init__ function of Task class.
@@ -87,6 +88,7 @@ class Task(ABC):
             init_conf_logger (Optional[Dict]): If provided, use this input as self.conf_all["logger"], otherwise None.
             init_conf_audit (Optional[Dict]): If provided, use this input as self.conf_all["audit"], otherwise None.
             init_conf_sensor (Optional[Dict]): If provided, use this input as self.conf_all["sensor"], otherwise None.
+            activate_audit(Optional[bool]): If provided, use this boolean input to activate audit, otherwise False.
             activate_sensor (Optional[bool]): If provided, use this boolean input to activate sensor, otherwise False.
 
         """
@@ -98,10 +100,9 @@ class Task(ABC):
         conf_all["spark"] = init_conf_spark or conf_all.get("spark", {})
         conf_all["logger"] = init_conf_logger or conf_all.get("logger", {})
         conf_all["audit"] = init_conf_audit or conf_all.get("audit", {})
-        conf_all["sensor"] = {
-            "activate_sensor": activate_sensor,
-            "sensor": init_conf_sensor or conf_all.get("sensor", {}),
-        }
+        conf_all["audit"]["activate_audit"] = activate_audit
+        conf_all["sensor"] = init_conf_sensor or conf_all.get("sensor", {})
+        conf_all["sensor"]["activate_sensor"] = activate_sensor
 
         # Set conf to attributes
         self.conf_all = conf_all
