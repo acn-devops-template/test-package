@@ -54,7 +54,10 @@ def test() -> None:
 
     """
     task = Mock_ABC(
-        module_name="TestABCModule", conf_path="./tests/resources/test_common"
+        module_name="TestABCModule",
+        conf_path="./tests/resources/test_common",
+        activate_audit=True,
+        activate_sensor=True,
     )
     (
         test_spark,
@@ -84,7 +87,7 @@ def test() -> None:
                 "./tests/resources/test_common/test_pipeline/TestABCModule/audit/deequ.yml"
             ).read_text()
         ),
-        "activate_audit": False,
+        "activate_audit": True,
     }
     sensor_conf = {
         "sensor_result_table": yaml.safe_load(
@@ -92,7 +95,7 @@ def test() -> None:
                 "./tests/resources/test_common/test_pipeline/TestABCModule/sensor/sensor_result_table.yml"
             ).read_text()
         ),
-        "activate_sensor": False,
+        "activate_sensor": True,
     }
 
     assert confValue == test_conf_app
