@@ -100,9 +100,9 @@ class Task(ABC):
         conf_all["spark"] = init_conf_spark or conf_all.get("spark", {})
         conf_all["logger"] = init_conf_logger or conf_all.get("logger", {})
         conf_all["audit"] = init_conf_audit or conf_all.get("audit", {})
-        conf_all["audit"]["activate_audit"] = activate_audit
+        conf_all["audit"]["activate"] = activate_audit
         conf_all["sensor"] = init_conf_sensor or conf_all.get("sensor", {})
-        conf_all["sensor"]["activate_sensor"] = activate_sensor
+        conf_all["sensor"]["activate"] = activate_sensor
 
         # Set conf to attributes
         self.conf_all = conf_all

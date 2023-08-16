@@ -87,7 +87,7 @@ def test() -> None:
                 "./tests/resources/test_common/test_pipeline/TestABCModule/audit/deequ.yml"
             ).read_text()
         ),
-        "activate_audit": True,
+        "activate": True,
     }
     sensor_conf = {
         "sensor_result_table": yaml.safe_load(
@@ -95,7 +95,7 @@ def test() -> None:
                 "./tests/resources/test_common/test_pipeline/TestABCModule/sensor/sensor_result_table.yml"
             ).read_text()
         ),
-        "activate_sensor": True,
+        "activate": True,
     }
 
     assert confValue == test_conf_app
@@ -141,8 +141,8 @@ def test_wo_pipeline_section() -> None:
     assert type(test_spark) == SparkSession
     assert test_conf_all["spark"] == {}
     assert test_conf_all["logger"] == {}
-    assert test_conf_all["audit"] == {"activate_audit": False}
-    assert test_conf_all["sensor"] == {"activate_sensor": False}
+    assert test_conf_all["audit"] == {"activate": False}
+    assert test_conf_all["sensor"] == {"activate": False}
 
 
 def test_FileNotFoundError() -> None:
