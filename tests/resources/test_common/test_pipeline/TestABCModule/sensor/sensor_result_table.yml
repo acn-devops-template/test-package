@@ -1,0 +1,8 @@
+- snsr_nm: anomaly_config
+  db_nm: test_db
+  tbl_nm: test_tbl1
+  dt: "${partition_date}"
+- snsr_nm: anomaly_config2
+  db_nm: dlt_test_db
+  tbl_nm: test_tbl2
+  dt: "${partition_date}"
