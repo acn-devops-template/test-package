@@ -5,7 +5,7 @@ import datetime
 
 # import: datax in-house
 from datax.utils.deployment_helper.validation.job_launcher_endpoint import (
-    DatabricksJobCommandlineArgumentsValidator,
+    JobRunByDateRangeCommandlineArgumentsValidator,
 )
 
 # import: external
@@ -13,9 +13,9 @@ import pytest
 from pydantic import ValidationError
 
 
-def test_DatabricksJobCommandlineArgumentsValidator() -> None:
+def test_JobRunByDateRangeCommandlineArgumentsValidator() -> None:
     """
-    Test the `DatabricksJobCommandlineArgumentsValidator` class.
+    Test the `JobRunByDateRangeCommandlineArgumentsValidator` class.
 
     To validate the arguments are correctly validated.
 
@@ -24,6 +24,7 @@ def test_DatabricksJobCommandlineArgumentsValidator() -> None:
         2. Validate `start_date` arguments are correctly validated.
         3. Validate `end_date` arguments are correctly validated.
         4. Validate `job_id` arguments are correctly validated.
+        4. Validate `task_type` arguments are correctly validated.
     """
     test_dict = {
         "module": "test_module",
@@ -31,25 +32,20 @@ def test_DatabricksJobCommandlineArgumentsValidator() -> None:
         "end_date": "2023-05-07",
         "job_id": 1234,
         "task_type": "notebook_task",
-        "extra_params": {
-            "input_start_date": "2023-05-06",
-            "input_end_date": "2023-05-07",
-        },
     }
 
-    arguments = DatabricksJobCommandlineArgumentsValidator(**test_dict)
+    arguments = JobRunByDateRangeCommandlineArgumentsValidator(**test_dict)
 
     assert arguments.module == test_dict["module"]
     assert arguments.start_date == datetime.date.fromisoformat(test_dict["start_date"])
     assert arguments.end_date == datetime.date.fromisoformat(test_dict["end_date"])
     assert arguments.job_id == test_dict["job_id"]
     assert arguments.task_type == test_dict["task_type"]
-    assert arguments.extra_params == test_dict["extra_params"]
 
 
-def test_DatabricksJobCommandlineArgumentsValidator_wrong_job_id() -> None:
+def test_JobRunByDateRangeCommandlineArgumentsValidator_wrong_job_id() -> None:
     """
-    Test the `DatabricksJobCommandlineArgumentsValidator` class.
+    Test the `JobRunByDateRangeCommandlineArgumentsValidator` class.
 
     Assertion statement:
         1. Validate if a `ValidationError` is raised when a wrong job_id is passed.
@@ -61,12 +57,12 @@ def test_DatabricksJobCommandlineArgumentsValidator_wrong_job_id() -> None:
         "job_id": "1234B",
     }
     with pytest.raises(ValidationError):
-        DatabricksJobCommandlineArgumentsValidator(**test_wrong_job_id_dict)
+        JobRunByDateRangeCommandlineArgumentsValidator(**test_wrong_job_id_dict)
 
 
-def test_DatabricksJobCommandlineArgumentsValidator_wrong_date_format() -> None:
+def test_JobRunByDateRangeCommandlineArgumentsValidator_wrong_date_format() -> None:
     """
-    Test the `DatabricksJobCommandlineArgumentsValidator` class.
+    Test the `JobRunByDateRangeCommandlineArgumentsValidator` class.
 
     Assertion statement:
         1. Validate if a `ValueError` is raised when a wrong date format is passed.
@@ -79,12 +75,12 @@ def test_DatabricksJobCommandlineArgumentsValidator_wrong_date_format() -> None:
     }
 
     with pytest.raises(ValueError):
-        DatabricksJobCommandlineArgumentsValidator(**test_wrong_date_format)
+        JobRunByDateRangeCommandlineArgumentsValidator(**test_wrong_date_format)
 
 
-def test_DatabricksJobCommandlineArgumentsValidator_wrong_date_config() -> None:
+def test_JobRunByDateRangeCommandlineArgumentsValidator_wrong_date_config() -> None:
     """
-    Test the `DatabricksJobCommandlineArgumentsValidator` class.
+    Test the `JobRunByDateRangeCommandlineArgumentsValidator` class.
 
     Assertion statement:
         1. Validate if a `ValidationError` is raised when a wrong date config is passed.
@@ -96,4 +92,4 @@ def test_DatabricksJobCommandlineArgumentsValidator_wrong_date_config() -> None:
         "job_id": 1234,
     }
     with pytest.raises(ValidationError):
-        DatabricksJobCommandlineArgumentsValidator(**test_wrong_date_config)
+        JobRunByDateRangeCommandlineArgumentsValidator(**test_wrong_date_config)
