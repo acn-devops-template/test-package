@@ -5,7 +5,7 @@ import datetime
 
 # import: datax in-house
 from datax.utils.deployment_helper.validation.job_launcher_endpoint import (
-    JobRunByDateRangeCommandlineArgumentsValidator,
+    DateRangeWrapperCommandlineArgumentsValidator,
 )
 
 # import: external
@@ -13,9 +13,9 @@ import pytest
 from pydantic import ValidationError
 
 
-def test_JobRunByDateRangeCommandlineArgumentsValidator() -> None:
+def test_DateRangeWrapperCommandlineArgumentsValidator() -> None:
     """
-    Test the `JobRunByDateRangeCommandlineArgumentsValidator` class.
+    Test the `DateRangeWrapperCommandlineArgumentsValidator` class.
 
     To validate the arguments are correctly validated.
 
@@ -34,7 +34,7 @@ def test_JobRunByDateRangeCommandlineArgumentsValidator() -> None:
         "task_type": "notebook_task",
     }
 
-    arguments = JobRunByDateRangeCommandlineArgumentsValidator(**test_dict)
+    arguments = DateRangeWrapperCommandlineArgumentsValidator(**test_dict)
 
     assert arguments.module == test_dict["module"]
     assert arguments.start_date == datetime.date.fromisoformat(test_dict["start_date"])
@@ -43,9 +43,9 @@ def test_JobRunByDateRangeCommandlineArgumentsValidator() -> None:
     assert arguments.task_type == test_dict["task_type"]
 
 
-def test_JobRunByDateRangeCommandlineArgumentsValidator_wrong_job_id() -> None:
+def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_job_id() -> None:
     """
-    Test the `JobRunByDateRangeCommandlineArgumentsValidator` class.
+    Test the `DateRangeWrapperCommandlineArgumentsValidator` class.
 
     Assertion statement:
         1. Validate if a `ValidationError` is raised when a wrong job_id is passed.
@@ -57,12 +57,12 @@ def test_JobRunByDateRangeCommandlineArgumentsValidator_wrong_job_id() -> None:
         "job_id": "1234B",
     }
     with pytest.raises(ValidationError):
-        JobRunByDateRangeCommandlineArgumentsValidator(**test_wrong_job_id_dict)
+        DateRangeWrapperCommandlineArgumentsValidator(**test_wrong_job_id_dict)
 
 
-def test_JobRunByDateRangeCommandlineArgumentsValidator_wrong_date_format() -> None:
+def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_format() -> None:
     """
-    Test the `JobRunByDateRangeCommandlineArgumentsValidator` class.
+    Test the `DateRangeWrapperCommandlineArgumentsValidator` class.
 
     Assertion statement:
         1. Validate if a `ValueError` is raised when a wrong date format is passed.
@@ -75,12 +75,12 @@ def test_JobRunByDateRangeCommandlineArgumentsValidator_wrong_date_format() -> N
     }
 
     with pytest.raises(ValueError):
-        JobRunByDateRangeCommandlineArgumentsValidator(**test_wrong_date_format)
+        DateRangeWrapperCommandlineArgumentsValidator(**test_wrong_date_format)
 
 
-def test_JobRunByDateRangeCommandlineArgumentsValidator_wrong_date_config() -> None:
+def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_config() -> None:
     """
-    Test the `JobRunByDateRangeCommandlineArgumentsValidator` class.
+    Test the `DateRangeWrapperCommandlineArgumentsValidator` class.
 
     Assertion statement:
         1. Validate if a `ValidationError` is raised when a wrong date config is passed.
@@ -92,4 +92,4 @@ def test_JobRunByDateRangeCommandlineArgumentsValidator_wrong_date_config() -> N
         "job_id": 1234,
     }
     with pytest.raises(ValidationError):
-        JobRunByDateRangeCommandlineArgumentsValidator(**test_wrong_date_config)
+        DateRangeWrapperCommandlineArgumentsValidator(**test_wrong_date_config)
