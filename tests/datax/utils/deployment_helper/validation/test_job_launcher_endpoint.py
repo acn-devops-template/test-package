@@ -24,7 +24,7 @@ def test_DateRangeWrapperCommandlineArgumentsValidator() -> None:
         2. Validate `start_date` arguments are correctly validated.
         3. Validate `end_date` arguments are correctly validated.
         4. Validate `job_id` arguments are correctly validated.
-        4. Validate `task_type` arguments are correctly validated.
+        5. Validate `task_type` arguments are correctly validated.
     """
     test_dict = {
         "module": "test_module",
@@ -55,6 +55,7 @@ def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_job_id() -> None:
         "start_date": "2023-05-06",
         "end_date": "2023-05-07",
         "job_id": "1234B",
+        "task_type": "notebook_task",
     }
     with pytest.raises(ValidationError):
         DateRangeWrapperCommandlineArgumentsValidator(**test_wrong_job_id_dict)
@@ -72,6 +73,7 @@ def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_format() -> No
         "start_date": "20230506",
         "end_date": "20230507",
         "job_id": 1234,
+        "task_type": "notebook_task",
     }
 
     with pytest.raises(ValueError):
@@ -90,6 +92,7 @@ def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_config() -> No
         "start_date": "2023-05-08",
         "end_date": "2023-05-07",
         "job_id": 1234,
+        "task_type": "notebook_task",
     }
     with pytest.raises(ValidationError):
         DateRangeWrapperCommandlineArgumentsValidator(**test_wrong_date_config)

@@ -17,9 +17,9 @@ from pydantic.class_validators import root_validator
 
 
 class DateRangeWrapperCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
-    """Pydantic class for validating profiler commandline arguments.
+    """Pydantic class for validating job launcher commandline arguments.
 
-    For checking deequ profiler commandline arguments.
+    For checking job launcher commandline arguments.
 
     Args:
         BaseModel: pydantic BaseModel.
