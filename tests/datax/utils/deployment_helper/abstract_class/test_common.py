@@ -1,6 +1,7 @@
 """abstract_class test of common modules"""
 
 # import: standard
+import logging
 import pathlib
 from typing import Dict
 from typing import Tuple
@@ -44,6 +45,7 @@ class Mock_ABC(Task):
             self.conf_audit,
             self.conf_sensor,
             self.conf_all,
+            self.logger,
         )
 
 
@@ -67,6 +69,7 @@ def test() -> None:
         test_conf_audit,
         test_conf_sensor,
         test_conf_all,
+        test_logger,
     ) = task.launch()
 
     confValue = yaml.safe_load(
@@ -109,6 +112,7 @@ def test() -> None:
     assert test_conf_all["audit"] == audit_conf
     assert test_conf_all["sensor"] == sensor_conf
     assert type(test_spark) == SparkSession
+    assert isinstance(test_logger, logging.Logger)
 
 
 def test_wo_pipeline_section() -> None:
@@ -128,6 +132,7 @@ def test_wo_pipeline_section() -> None:
         test_conf_audit,
         test_conf_sensor,
         test_conf_all,
+        test_logger,
     ) = task.launch()
 
     confValue = yaml.safe_load(
