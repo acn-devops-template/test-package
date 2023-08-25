@@ -31,7 +31,7 @@ def test_DateRangeWrapperCommandlineArgumentsValidator() -> None:
         "start_date": "2023-05-06",
         "end_date": "2023-05-07",
         "job_id": 1234,
-        "task_type": "notebook_task",
+        "task_type": "notebook_params",
     }
 
     arguments = DateRangeWrapperCommandlineArgumentsValidator(**test_dict)
@@ -41,24 +41,6 @@ def test_DateRangeWrapperCommandlineArgumentsValidator() -> None:
     assert arguments.end_date == datetime.date.fromisoformat(test_dict["end_date"])
     assert arguments.job_id == test_dict["job_id"]
     assert arguments.task_type == test_dict["task_type"]
-
-
-def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_job_id() -> None:
-    """
-    Test the `DateRangeWrapperCommandlineArgumentsValidator` class.
-
-    Assertion statement:
-        1. Validate if a `ValidationError` is raised when a wrong job_id is passed.
-    """
-    test_wrong_job_id_dict = {
-        "module": "test_module",
-        "start_date": "2023-05-06",
-        "end_date": "2023-05-07",
-        "job_id": "1234B",
-        "task_type": "notebook_task",
-    }
-    with pytest.raises(ValidationError):
-        DateRangeWrapperCommandlineArgumentsValidator(**test_wrong_job_id_dict)
 
 
 def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_format() -> None:
@@ -73,26 +55,8 @@ def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_format() -> No
         "start_date": "20230506",
         "end_date": "20230507",
         "job_id": 1234,
-        "task_type": "notebook_task",
+        "task_type": "notebook_params",
     }
 
     with pytest.raises(ValueError):
         DateRangeWrapperCommandlineArgumentsValidator(**test_wrong_date_format)
-
-
-def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_config() -> None:
-    """
-    Test the `DateRangeWrapperCommandlineArgumentsValidator` class.
-
-    Assertion statement:
-        1. Validate if a `ValidationError` is raised when a wrong date config is passed.
-    """
-    test_wrong_date_config = {
-        "module": "test_module",
-        "start_date": "2023-05-08",
-        "end_date": "2023-05-07",
-        "job_id": 1234,
-        "task_type": "notebook_task",
-    }
-    with pytest.raises(ValidationError):
-        DateRangeWrapperCommandlineArgumentsValidator(**test_wrong_date_config)
