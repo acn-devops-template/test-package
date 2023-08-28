@@ -10,7 +10,6 @@ from datax.utils.deployment_helper.validation.job_launcher_endpoint import (
 
 # import: external
 import pytest
-from pydantic import ValidationError
 
 
 def test_DateRangeWrapperCommandlineArgumentsValidator() -> None:
@@ -24,14 +23,14 @@ def test_DateRangeWrapperCommandlineArgumentsValidator() -> None:
         2. Validate `start_date` arguments are correctly validated.
         3. Validate `end_date` arguments are correctly validated.
         4. Validate `job_id` arguments are correctly validated.
-        5. Validate `task_type` arguments are correctly validated.
+        5. Validate `param_type` arguments are correctly validated.
     """
     test_dict = {
         "module": "test_module",
         "start_date": "2023-05-06",
         "end_date": "2023-05-07",
         "job_id": 1234,
-        "task_type": "notebook_params",
+        "param_type": "notebook_params",
     }
 
     arguments = DateRangeWrapperCommandlineArgumentsValidator(**test_dict)
@@ -40,7 +39,7 @@ def test_DateRangeWrapperCommandlineArgumentsValidator() -> None:
     assert arguments.start_date == datetime.date.fromisoformat(test_dict["start_date"])
     assert arguments.end_date == datetime.date.fromisoformat(test_dict["end_date"])
     assert arguments.job_id == test_dict["job_id"]
-    assert arguments.task_type == test_dict["task_type"]
+    assert arguments.param_type == test_dict["param_type"]
 
 
 def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_format() -> None:
@@ -55,7 +54,7 @@ def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_format() -> No
         "start_date": "20230506",
         "end_date": "20230507",
         "job_id": 1234,
-        "task_type": "notebook_params",
+        "param_type": "notebook_params",
     }
 
     with pytest.raises(ValueError):

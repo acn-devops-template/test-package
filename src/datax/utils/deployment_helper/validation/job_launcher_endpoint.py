@@ -1,8 +1,5 @@
 """profiler-endpoint validation module"""
 
-# import: standard
-from typing import Optional
-
 # import: datax in-house
 from datax.utils.deployment_helper.validation.common import check_date_format
 from datax.utils.deployment_helper.validation.common import (
@@ -31,7 +28,7 @@ class DateRangeWrapperCommandlineArgumentsValidator(BaseModel, extra=Extra.allow
     start_date: str
     end_date: str
     job_id: int
-    task_type: str
+    param_type: str
 
     _check_date_format = validator("start_date", "end_date", allow_reuse=True)(
         check_date_format
