@@ -8,17 +8,19 @@ from datax.utils.deployment_helper.validation.common import (
 
 # import: external
 from pydantic import BaseModel
+from pydantic import Extra
 from pydantic import validator
 from pydantic.class_validators import root_validator
 
 
-class DatabricksJobCommandlineArgumentsValidator(BaseModel):
-    """Pydantic class for validating profiler commandline arguments.
+class DateRangeWrapperCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
+    """Pydantic class for validating job launcher commandline arguments.
 
-    For checking deequ profiler commandline arguments.
+    For checking job launcher commandline arguments.
 
     Args:
         BaseModel: pydantic BaseModel.
+        extra: pydantic Extra.allow
 
     """
 
@@ -26,6 +28,7 @@ class DatabricksJobCommandlineArgumentsValidator(BaseModel):
     start_date: str
     end_date: str
     job_id: int
+    param_type: str
 
     _check_date_format = validator("start_date", "end_date", allow_reuse=True)(
         check_date_format
