@@ -7,6 +7,9 @@ from datetime import datetime
 # import: datax in-house
 from datax.utils.deployment_helper.validation.common import CommandlineArgumentValidator
 from datax.utils.deployment_helper.validation.common import (
+    OptionalDateCommandlineArgumentValidator,
+)
+from datax.utils.deployment_helper.validation.common import (
     PipelineConfigArgumentValidators,
 )
 from datax.utils.deployment_helper.validation.common import (
@@ -200,3 +203,68 @@ def test_check_semantic_version_format_invalid() -> None:
             check_semantic_version_format(
                 None, version
             ), "Method does not raise error when incorrect format"
+
+
+def test_OptionalDateCommandlineArgumentValidator_without_date() -> None:
+    """Test the `OptionalDateCommandlineArgumentValidator` class.
+
+    To validate if not inputting 'start_date' and 'end_date' is allowed.
+
+    Assertion statement:
+        1. Validate that the `module` argument is correctly validated.
+        2. Validate that the 'start_date' and 'end_date' pass the validation and return 'None'
+
+    """
+    test_dict = {
+        "module": "test_module",
+        "start_date": None,
+        "end_date": None,
+    }
+
+    arguments = OptionalDateCommandlineArgumentValidator(**test_dict)
+
+    assert arguments.module == test_dict["module"]
+    assert arguments.start_date == test_dict["start_date"]
+    assert arguments.end_date == test_dict["end_date"]
+
+
+def test_OptionalDateCommandlineArgumentValidator_with_date() -> None:
+    """Test the `OptionalDateCommandlineArgumentValidator` class.
+
+    Assertion statement:
+        1. Validate that the `module` argument is correctly validated.
+        2. Validate that the 'start_date' and 'end_date' are validated and converted to datetime
+
+    """
+    test_dict = {
+        "module": "test_module",
+        "start_date": "2023-01-01",
+        "end_date": "2023-01-02",
+    }
+
+    arguments = OptionalDateCommandlineArgumentValidator(**test_dict)
+
+    assert arguments.module == test_dict["module"]
+    assert (
+        arguments.start_date
+        == datetime.strptime(test_dict["start_date"], "%Y-%m-%d").date()
+    )
+    assert (
+        arguments.end_date == datetime.strptime(test_dict["end_date"], "%Y-%m-%d").date()
+    )
+
+
+def test_OptionalDateCommandlineArgumentValidator_with_date_wrong_format() -> None:
+    """Test the `OptionalDateCommandlineArgumentValidator` class.
+
+    Assertion statement:
+        1. Validate if a `ValidationError` is raised when 'start_date' or 'end_date' is input in an incorrect format.
+
+    """
+    test_dict = {
+        "module": "test_module",
+        "start_date": "2023-01",
+        "end_date": "2023-02",
+    }
+    with pytest.raises(ValidationError):
+        OptionalDateCommandlineArgumentValidator(**test_dict)
