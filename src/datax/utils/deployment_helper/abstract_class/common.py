@@ -1,6 +1,8 @@
 """abstract_class common module"""
 
 # import: standard
+import logging
+import logging.config
 from abc import ABC
 from abc import abstractmethod
 from typing import Any
@@ -207,17 +209,31 @@ class Task(ABC):
         replaced_dict = replace_conf_reference(conf_dict, conf_path)
         return replaced_dict
 
-    def _prepare_logger(self) -> Any:
-        """Function to get a logger.
+    def _prepare_logger(self) -> logging.Logger:
+        """Get a logger instance.
 
-        Return a log4j logger.
+        If logger config file `conf_logger` is provided, the logging configuration will be
+        based on it using `dictConfig`. Otherwise, a default logging configuration will be
+        used with an `INFO` log level, a specific format, and a `StreamHandler` for output.
 
         Returns:
-            Log4j logger from self.spark.
-
+            logging.Logger: A logger instance for logging messages.
         """
-        log4j_logger = self.spark._jvm.org.apache.log4j  # noqa
-        return log4j_logger.LogManager.getLogger(self.__class__.__name__)
+        logger = logging.getLogger(
+            f"{self.__class__.__module__}.{self.__class__.__qualname__}"
+        )
+
+        if self.conf_logger:  # type: ignore
+            logging.config.dictConfig(self.conf_logger)  # type: ignore
+        else:
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s ----- %(levelname)s ----- %(name)s ----- %(filename)s -- %(message)s",
+                datefmt="%Y-%m-%dT%H:%M:%S%z",
+                handlers=[logging.StreamHandler()],
+            )
+
+        return logger
 
     def _log_conf(self) -> None:
         """Function to log the detail of conf.
