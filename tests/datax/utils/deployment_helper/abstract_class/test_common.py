@@ -1,6 +1,7 @@
 """abstract_class test of common modules"""
 
 # import: standard
+import logging
 import pathlib
 from typing import Dict
 from typing import Tuple
@@ -32,6 +33,7 @@ class Mock_ABC(Task):
             Dict: conf_spark dict
             Dict: conf_logger dict
             Dict: conf_audit dict
+            Dict: conf_sensor dict
             Dict: conf_all dict
 
         """
@@ -41,7 +43,9 @@ class Mock_ABC(Task):
             self.conf_spark,
             self.conf_logger,
             self.conf_audit,
+            self.conf_sensor,
             self.conf_all,
+            self.logger,
         )
 
 
@@ -52,7 +56,10 @@ def test() -> None:
 
     """
     task = Mock_ABC(
-        module_name="TestABCModule", conf_path="./tests/resources/test_common"
+        module_name="TestABCModule",
+        conf_path="./tests/resources/test_common",
+        activate_audit=True,
+        activate_sensor=True,
     )
     (
         test_spark,
@@ -60,7 +67,9 @@ def test() -> None:
         test_conf_spark,
         test_conf_logger,
         test_conf_audit,
+        test_conf_sensor,
         test_conf_all,
+        test_logger,
     ) = task.launch()
 
     confValue = yaml.safe_load(
@@ -75,15 +84,35 @@ def test() -> None:
         ).read_text()
     )
 
+    audit_conf = {
+        "deequ": yaml.safe_load(
+            pathlib.Path(
+                "./tests/resources/test_common/test_pipeline/TestABCModule/audit/deequ.yml"
+            ).read_text()
+        ),
+        "activate": True,
+    }
+    sensor_conf = {
+        "sensor_result_table": yaml.safe_load(
+            pathlib.Path(
+                "./tests/resources/test_common/test_pipeline/TestABCModule/sensor/sensor_result_table.yml"
+            ).read_text()
+        ),
+        "activate": True,
+    }
+
     assert confValue == test_conf_app
     assert sparkconfValue == test_conf_spark
     assert test_conf_logger == {}
-    assert test_conf_audit == {}
+    assert test_conf_audit == audit_conf
+    assert test_conf_sensor == sensor_conf
     assert test_conf_all["app"] == confValue
     assert test_conf_all["spark"] == sparkconfValue
     assert test_conf_all["logger"] == {}
-    assert test_conf_all["audit"] == {}
+    assert test_conf_all["audit"] == audit_conf
+    assert test_conf_all["sensor"] == sensor_conf
     assert type(test_spark) == SparkSession
+    assert isinstance(test_logger, logging.Logger)
 
 
 def test_wo_pipeline_section() -> None:
@@ -101,7 +130,9 @@ def test_wo_pipeline_section() -> None:
         test_conf_spark,
         test_conf_logger,
         test_conf_audit,
+        test_conf_sensor,
         test_conf_all,
+        test_logger,
     ) = task.launch()
 
     confValue = yaml.safe_load(
@@ -115,7 +146,8 @@ def test_wo_pipeline_section() -> None:
     assert type(test_spark) == SparkSession
     assert test_conf_all["spark"] == {}
     assert test_conf_all["logger"] == {}
-    assert test_conf_all["audit"] == {}
+    assert test_conf_all["audit"] == {"activate": False}
+    assert test_conf_all["sensor"] == {"activate": False}
 
 
 def test_FileNotFoundError() -> None:
