@@ -1,13 +1,14 @@
 # import: standard
 import logging
-from logging import Handler, LogRecord
+from logging import Handler
+from logging import LogRecord
 
 # import: pyspark
 from pyspark.sql import SparkSession
 
 
 class Log4JProxyHandler(Handler):
-    """Handler to forward messages to log4j."""    
+    """Handler to forward messages to log4j."""
 
     def __init__(self, spark_session: SparkSession) -> None:
         """Initialize handler with a log4j logger."""
