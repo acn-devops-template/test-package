@@ -211,21 +211,22 @@ class Task(ABC):
         return replaced_dict
 
     def _prepare_logger(self) -> logging.Logger:
-        """Get a logger instance.
+        """The method for getting a logger instance.
 
-        If logger config file `conf_logger` is provided, the logging configuration will be
-        based on it using `dictConfig`. Otherwise, a default logging configuration will be
-        used with an `INFO` log level, a specific format, and a `StreamHandler` for output.
+        The log4j handler is added to root of the logging.
+        This handler serves as a transmitter that helps forward Python logging messages to the log4j.
+        As a result, logging messages are always displayed on both the Standard console and the Log4j console.
+
+        Moreover, this method allows users to pass the logger configuration file `conf_logger`.
+        If logger config file `conf_logger` is provided, the logging configuration will be based on it using `dictConfig`.
+        Otherwise, a default logging configuration will be used with an `INFO` log level, a specific format, and a `StreamHandler` for output.
 
         Returns:
             logging.Logger: A logger instance for logging messages.
         """
-
-        # log4j handler is added to root of logging.
         log4j_handler = Log4JProxyHandler(self.spark)
         logging.root.addHandler(log4j_handler)
 
-        # Now you can log stuff into log4j.
         logger = logging.getLogger(
             f"{self.__class__.__module__}.{self.__class__.__qualname__}"
         )
