@@ -231,7 +231,7 @@ class Task(ABC):
         )
 
         # Set logging configuration.
-        if self.conf_logger is not None:  # type: ignore
+        if self.conf_logger:  # type: ignore
             logging.config.dictConfig(self.conf_logger)  # type: ignore
         else:
             logging.basicConfig(
