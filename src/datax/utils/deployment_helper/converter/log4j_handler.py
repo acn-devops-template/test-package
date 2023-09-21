@@ -8,15 +8,21 @@ from pyspark.sql import SparkSession
 
 
 class Log4JProxyHandler(Handler):
-    """Handler to forward messages to log4j."""
+    """Handler Class to forward messages from Python logging to log4j."""
 
-    def __init__(self, spark_session: SparkSession) -> None:
-        """Initialize handler with a log4j logger."""
+    def __init__(self, spark: SparkSession) -> None:
+        """The initialize method of the handler is initialized with a log4j logger.
+        Args:
+            spark (SparkSession): An input SparkSession.
+        """
         Handler.__init__(self)
-        self.Logger = spark_session._jvm.org.apache.log4j.Logger
+        self.Logger = spark._jvm.org.apache.log4j.Logger
 
     def emit(self, record: LogRecord) -> None:
-        """Emit a log message."""
+        """The method for forwarding a log message in log4j.
+        Args:
+            record (LogRecord): A log record from Python logging.
+        """
         logger = self.Logger.getLogger(record.name)
         if record.levelno >= logging.CRITICAL:
             logger.fatal(record.getMessage())
@@ -30,4 +36,4 @@ class Log4JProxyHandler(Handler):
             logger.debug(record.getMessage())
 
     def close(self) -> None:
-        """Close the logger."""
+        """The method for closing the log4j handler."""

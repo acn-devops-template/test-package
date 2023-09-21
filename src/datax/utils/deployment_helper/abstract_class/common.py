@@ -15,7 +15,7 @@ from pyspark.conf import SparkConf
 from pyspark.sql import SparkSession
 
 # import: datax in-house
-from datax.utils.deployment_helper.converter.log4j4py import Log4JProxyHandler
+from datax.utils.deployment_helper.converter.log4j_handler import Log4JProxyHandler
 from datax.utils.deployment_helper.converter.path_adjuster import (
     recursive_read_pipeline_conf,
 )
@@ -221,7 +221,7 @@ class Task(ABC):
             logging.Logger: A logger instance for logging messages.
         """
 
-        # Replace the default handlers with the log4j forwarder.
+        # log4j handler is added to root of logging.
         log4j_handler = Log4JProxyHandler(self.spark)
         logging.root.addHandler(log4j_handler)
 
