@@ -1,0 +1,13 @@
+result:
+  retain_metrics_repos: true
+  metrics_repos_path: /storage_path/pipeline/paht/test.json
+definition:
+  check_sample:
+    - check_level: Error
+      check:
+        - method: satisfies
+          param:
+            columnCondition: 
+              sample_col IS NULL
+            constraintName: check_has_min
+            assertion: 'lambda x:x == 1'
