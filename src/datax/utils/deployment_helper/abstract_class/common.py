@@ -1,8 +1,6 @@
 """abstract_class common module"""
 
 # import: standard
-import logging
-import logging.config
 from abc import ABC
 from abc import abstractmethod
 from typing import Any
@@ -60,7 +58,6 @@ class Task(ABC):
         * self.conf_spark is a spark configuration if provided.
         * self.conf_logger is a logger configuration if provided.
         * self.conf_audit is a audit configuration if provided.
-        * self.conf_sensor is a sensor configuration if provided.
 
     """
 
@@ -73,13 +70,10 @@ class Task(ABC):
         init_conf_spark: Optional[Dict] = None,
         init_conf_logger: Optional[Dict] = None,
         init_conf_audit: Optional[Dict] = None,
-        init_conf_sensor: Optional[Dict] = None,
-        activate_audit: Optional[bool] = False,
-        activate_sensor: Optional[bool] = False,
     ) -> None:
         """__init__ function of Task class.
 
-        Set following useful objects: self.spark, self.logger, self.dbutils, self.conf_app, self.conf_spark, self.conf_logger, self.conf_audit, self.conf_sensor.
+        Set following useful objects: self.spark, self.logger, self.dbutils, self.conf_app, self.conf_spark, self.conf_logger, self.conf_audit.
 
         Args:
             module_name (str): Use this input as self.module_name.
@@ -89,22 +83,17 @@ class Task(ABC):
             init_conf_spark (Optional[Dict]): If provided, use this input as self.conf_all["spark"], otherwise None.
             init_conf_logger (Optional[Dict]): If provided, use this input as self.conf_all["logger"], otherwise None.
             init_conf_audit (Optional[Dict]): If provided, use this input as self.conf_all["audit"], otherwise None.
-            init_conf_sensor (Optional[Dict]): If provided, use this input as self.conf_all["sensor"], otherwise None.
-            activate_audit(Optional[bool]): If provided, use this boolean input to activate audit, otherwise False.
-            activate_sensor (Optional[bool]): If provided, use this boolean input to activate sensor, otherwise False.
 
         """
         self.module_name = module_name
         conf_all = self._provide_conf_all(conf_path) if conf_path else {}
+
         if init_conf_app:
             conf_all["app"] = init_conf_app
 
         conf_all["spark"] = init_conf_spark or conf_all.get("spark", {})
         conf_all["logger"] = init_conf_logger or conf_all.get("logger", {})
         conf_all["audit"] = init_conf_audit or conf_all.get("audit", {})
-        conf_all["audit"]["activate"] = activate_audit
-        conf_all["sensor"] = init_conf_sensor or conf_all.get("sensor", {})
-        conf_all["sensor"]["activate"] = activate_sensor
 
         # Set conf to attributes
         self.conf_all = conf_all
@@ -209,31 +198,17 @@ class Task(ABC):
         replaced_dict = replace_conf_reference(conf_dict, conf_path)
         return replaced_dict
 
-    def _prepare_logger(self) -> logging.Logger:
-        """Get a logger instance.
+    def _prepare_logger(self) -> Any:
+        """Function to get a logger.
 
-        If logger config file `conf_logger` is provided, the logging configuration will be
-        based on it using `dictConfig`. Otherwise, a default logging configuration will be
-        used with an `INFO` log level, a specific format, and a `StreamHandler` for output.
+        Return a log4j logger.
 
         Returns:
-            logging.Logger: A logger instance for logging messages.
+            Log4j logger from self.spark.
+
         """
-        logger = logging.getLogger(
-            f"{self.__class__.__module__}.{self.__class__.__qualname__}"
-        )
-
-        if self.conf_logger:  # type: ignore
-            logging.config.dictConfig(self.conf_logger)  # type: ignore
-        else:
-            logging.basicConfig(
-                level=logging.INFO,
-                format="%(asctime)s ----- %(levelname)s ----- %(name)s ----- %(filename)s -- %(message)s",
-                datefmt="%Y-%m-%dT%H:%M:%S%z",
-                handlers=[logging.StreamHandler()],
-            )
-
-        return logger
+        log4j_logger = self.spark._jvm.org.apache.log4j  # noqa
+        return log4j_logger.LogManager.getLogger(self.__class__.__name__)
 
     def _log_conf(self) -> None:
         """Function to log the detail of conf.

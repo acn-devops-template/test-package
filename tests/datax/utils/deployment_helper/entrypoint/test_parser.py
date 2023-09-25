@@ -13,7 +13,7 @@ def test_JobStatusArguments():
     """
     args = JobStatusArguments().parse_args(
         [
-            "--activate_job_status_log",
+            "--activate_etl_sts_log",
             "--parent_id",
             "46247807586690",
             "--job_name",
@@ -23,7 +23,8 @@ def test_JobStatusArguments():
         ]
     )
 
-    assert args.activate_job_status_log is True
+    assert args.activate_etl_sts_log is True
+    assert args.activate_feat_ml_sts_log is False
     assert args.parent_id == "46247807586690"
     assert args.run_id is None
     assert args.job_name == "example_job"

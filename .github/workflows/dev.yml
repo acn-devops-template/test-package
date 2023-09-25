@@ -9,7 +9,6 @@ on:
 
 jobs:
   dev-ci-pipeline:
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.event.created }}
     runs-on: ubuntu-20.04
 
     steps:

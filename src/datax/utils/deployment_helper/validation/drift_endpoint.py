@@ -6,7 +6,6 @@ from typing import Optional
 
 # import: datax in-house
 from datax.utils.deployment_helper.validation.common import check_date_format
-from datax.utils.deployment_helper.validation.common import check_semantic_version_format
 from datax.utils.deployment_helper.validation.common import (
     check_start_date_is_before_end_date,
 )
@@ -20,27 +19,26 @@ from pydantic.class_validators import root_validator
 
 
 def check_drift_profiling_source(cls: Callable, values: dict) -> dict:
-    """Function to check drift profiling source, data_source name or adhoc-profiling input conf_profile_path.
-
-    If data_source (data pipeline module) is provided, set `is_adhoc` flag to False.
-    Otherwise, `is_adhoc` flag is True.
-
+    """Function to check if data_source is provided or input for adhoc profiling
+    including database, table and partition_col and conf_profile_path are provided.
     Args:
-        cls (Callable): cls.
         values (dict): Dictionary containing validated values.
-
     Returns:
         dict: Dictionary containing validated values.
-
     Raises:
-        ValueError: If neither data_source nor conf_profile_path are provided.
-
+        ValueError: If neither data_source nor database, table, partition_col and
+        conf_profile_path are provided.
     """
     data_source = values.get("data_source")
+    version = values.get("version")
     conf_profile_path = values.get("conf_profile_path")
+    if not (version):
+        raise ValueError("version must be provided.")
 
-    if not data_source and not conf_profile_path:
-        raise ValueError("Either data_source or conf_profile_path must be provided.")
+    if not (data_source or (conf_profile_path)):
+        raise ValueError(
+            "Either data_source or adhoc-profiling inputs: conf_profile_path must be provided."
+        )
 
     values["is_adhoc"] = False if data_source is not None else True
 
@@ -59,7 +57,6 @@ class DriftEndpointCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
     module: str
     start_date: str
     end_date: str
-    version: str
     data_source: Optional[str]
     conf_profile_path: Optional[FilePath]
 
@@ -71,7 +68,4 @@ class DriftEndpointCommandlineArgumentsValidator(BaseModel, extra=Extra.allow):
     )
     _check_start_date_is_before_end_date = root_validator(allow_reuse=True)(
         check_start_date_is_before_end_date
-    )
-    _check_version_format = validator("version", allow_reuse=True)(
-        check_semantic_version_format
     )

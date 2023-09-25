@@ -56,7 +56,7 @@ jobs:
           echo $pk_version
           echo "PROJECT_PACKAGE_VERSION=$pk_version" >> $GITHUB_OUTPUT
 
-          rc_release_regex="^[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+"
+          rc_release_regex="[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+"
           if [[ $pk_version =~ $rc_release_regex ]]
           then
               echo "RC_RELEASE_BOOL=true" >> $GITHUB_OUTPUT
