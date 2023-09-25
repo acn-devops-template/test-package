@@ -120,5 +120,27 @@ def test_DriftEndpointCommandlineArgumentsValidator_check_profiling_without_sour
 
     assert (
         exc_info.value.errors()[0]["msg"]
-        == "Either data_source or conf_profile_path must be provided."
+        == "Either data_source or adhoc-profiling inputs: conf_profile_path must be provided."
     )
+
+
+def test_DriftEndpointCommandlineArgumentsValidator_check_profiling_without_version_inputs() -> (
+    None
+):
+    """Test the `DriftEndpointCommandlineArgumentsValidator` class.
+
+    Assertion statement:
+        1. Validate if a `ValidationError` is raised when neither `data_source` nor
+            adhoc-profiling inputs are provided.
+    """
+    input_dict = {
+        "module": "test_module",
+        "data_source": "MockMLopsPipeline",
+        "start_date": "2022-01-01",
+        "end_date": "2022-01-02",
+    }
+
+    with pytest.raises(ValidationError) as exc_info:
+        DriftEndpointCommandlineArgumentsValidator(**input_dict)
+
+    assert exc_info.value.errors()[0]["msg"] == "version must be provided."

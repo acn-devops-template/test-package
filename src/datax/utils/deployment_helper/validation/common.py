@@ -7,7 +7,6 @@ from datetime import date
 from datetime import datetime
 from typing import Callable
 from typing import Dict
-from typing import Optional
 
 # import: external
 from pydantic import BaseModel
@@ -171,26 +170,3 @@ class TransformationConfigArgumentValidator(BaseModel, extra=Extra.allow):  # ty
     _check_path_endswith_dot_json = validator(
         "input_schema_path", "ref_schema_path", allow_reuse=True
     )(check_path_endswith_dot_json)
-
-
-class OptionalDateCommandlineArgumentValidator(BaseModel, extra=Extra.allow):
-    """Pydantic class for validating pipeline with dates as optional input's commandline arguments.
-
-    For example, streaming pipeline will not require start_date and end_date and will only validate if there are inputs.
-
-    Args:
-        BaseModel: pydantic BaseModel.
-        extra: pydantic Extra.allow
-
-    """
-
-    module: str
-    start_date: Optional[str]
-    end_date: Optional[str]
-
-    _check_date_format = validator("start_date", "end_date", allow_reuse=True)(
-        check_date_format
-    )
-    _check_start_date_is_before_end_date = root_validator(allow_reuse=True)(
-        check_start_date_is_before_end_date
-    )

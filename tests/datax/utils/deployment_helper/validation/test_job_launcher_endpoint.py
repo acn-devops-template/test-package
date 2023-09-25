@@ -5,16 +5,17 @@ import datetime
 
 # import: datax in-house
 from datax.utils.deployment_helper.validation.job_launcher_endpoint import (
-    DateRangeWrapperCommandlineArgumentsValidator,
+    DatabricksJobCommandlineArgumentsValidator,
 )
 
 # import: external
 import pytest
+from pydantic import ValidationError
 
 
-def test_DateRangeWrapperCommandlineArgumentsValidator() -> None:
+def test_DatabricksJobCommandlineArgumentsValidator() -> None:
     """
-    Test the `DateRangeWrapperCommandlineArgumentsValidator` class.
+    Test the `DatabricksJobCommandlineArgumentsValidator` class.
 
     To validate the arguments are correctly validated.
 
@@ -23,28 +24,42 @@ def test_DateRangeWrapperCommandlineArgumentsValidator() -> None:
         2. Validate `start_date` arguments are correctly validated.
         3. Validate `end_date` arguments are correctly validated.
         4. Validate `job_id` arguments are correctly validated.
-        5. Validate `param_type` arguments are correctly validated.
     """
     test_dict = {
         "module": "test_module",
         "start_date": "2023-05-06",
         "end_date": "2023-05-07",
         "job_id": 1234,
-        "param_type": "notebook_params",
     }
 
-    arguments = DateRangeWrapperCommandlineArgumentsValidator(**test_dict)
+    arguments = DatabricksJobCommandlineArgumentsValidator(**test_dict)
 
     assert arguments.module == test_dict["module"]
     assert arguments.start_date == datetime.date.fromisoformat(test_dict["start_date"])
     assert arguments.end_date == datetime.date.fromisoformat(test_dict["end_date"])
     assert arguments.job_id == test_dict["job_id"]
-    assert arguments.param_type == test_dict["param_type"]
 
 
-def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_format() -> None:
+def test_DatabricksJobCommandlineArgumentsValidator_wrong_job_id() -> None:
     """
-    Test the `DateRangeWrapperCommandlineArgumentsValidator` class.
+    Test the `DatabricksJobCommandlineArgumentsValidator` class.
+
+    Assertion statement:
+        1. Validate if a `ValidationError` is raised when a wrong job_id is passed.
+    """
+    test_wrong_job_id_dict = {
+        "module": "test_module",
+        "start_date": "2023-05-06",
+        "end_date": "2023-05-07",
+        "job_id": "1234B",
+    }
+    with pytest.raises(ValidationError):
+        DatabricksJobCommandlineArgumentsValidator(**test_wrong_job_id_dict)
+
+
+def test_DatabricksJobCommandlineArgumentsValidator_wrong_date_format() -> None:
+    """
+    Test the `DatabricksJobCommandlineArgumentsValidator` class.
 
     Assertion statement:
         1. Validate if a `ValueError` is raised when a wrong date format is passed.
@@ -54,8 +69,24 @@ def test_DateRangeWrapperCommandlineArgumentsValidator_wrong_date_format() -> No
         "start_date": "20230506",
         "end_date": "20230507",
         "job_id": 1234,
-        "param_type": "notebook_params",
     }
 
     with pytest.raises(ValueError):
-        DateRangeWrapperCommandlineArgumentsValidator(**test_wrong_date_format)
+        DatabricksJobCommandlineArgumentsValidator(**test_wrong_date_format)
+
+
+def test_DatabricksJobCommandlineArgumentsValidator_wrong_date_config() -> None:
+    """
+    Test the `DatabricksJobCommandlineArgumentsValidator` class.
+
+    Assertion statement:
+        1. Validate if a `ValidationError` is raised when a wrong date config is passed.
+    """
+    test_wrong_date_config = {
+        "module": "test_module",
+        "start_date": "2023-05-08",
+        "end_date": "2023-05-07",
+        "job_id": 1234,
+    }
+    with pytest.raises(ValidationError):
+        DatabricksJobCommandlineArgumentsValidator(**test_wrong_date_config)

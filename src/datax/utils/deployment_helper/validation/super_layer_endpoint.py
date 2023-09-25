@@ -1,4 +1,7 @@
-"""profiler-endpoint validation module"""
+"""Backdate-loading-endpoint validation module"""
+
+# import: standard
+from typing import Optional
 
 # import: datax in-house
 from datax.utils.deployment_helper.validation.common import check_date_format
@@ -8,24 +11,25 @@ from datax.utils.deployment_helper.validation.common import (
 
 # import: external
 from pydantic import BaseModel
+from pydantic import Extra
 from pydantic import validator
 from pydantic.class_validators import root_validator
 
 
-class DatabricksJobCommandlineArgumentsValidator(BaseModel):
-    """Pydantic class for validating profiler commandline arguments.
+class BackdateLoadingCommandlineArgumentValidator(BaseModel, extra=Extra.allow):
+    """Pydantic class for validating BackdateLoading pipeline's commandline arguments.
 
-    For checking deequ profiler commandline arguments.
+    BackdateLoading pipeline will not require start_date and end_date and will only validate if there are inputs.
 
     Args:
         BaseModel: pydantic BaseModel.
+        extra: pydantic Extra.allow
 
     """
 
     module: str
-    start_date: str
-    end_date: str
-    job_id: int
+    start_date: Optional[str]
+    end_date: Optional[str]
 
     _check_date_format = validator("start_date", "end_date", allow_reuse=True)(
         check_date_format
