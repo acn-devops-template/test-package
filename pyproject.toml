@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "datax-utils-deployment-helper"
-version = "0.10.0"
+version = "0.10.1"
 description = "common lib for deployment-related"
 authors = ["DataX Analytics Machine Learning Engineering <analytics.mle@data-x.ai>", 
 		   "DataX Analytics Products DataHub <analytics.products.datahub@data-x.ai>"]
