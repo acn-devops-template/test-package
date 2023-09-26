@@ -3,6 +3,7 @@
 # import: standard
 import logging
 import logging.config
+import sys
 from abc import ABC
 from abc import abstractmethod
 from typing import Any
@@ -15,6 +16,7 @@ from pyspark.conf import SparkConf
 from pyspark.sql import SparkSession
 
 # import: datax in-house
+from datax.utils.deployment_helper.converter.log4j_handler import Log4JProxyHandler
 from datax.utils.deployment_helper.converter.path_adjuster import (
     recursive_read_pipeline_conf,
 )
@@ -210,11 +212,15 @@ class Task(ABC):
         return replaced_dict
 
     def _prepare_logger(self) -> logging.Logger:
-        """Get a logger instance.
+        """The method for getting a logger instance.
 
-        If logger config file `conf_logger` is provided, the logging configuration will be
-        based on it using `dictConfig`. Otherwise, a default logging configuration will be
-        used with an `INFO` log level, a specific format, and a `StreamHandler` for output.
+        The log4j handler is added to root of the logging.
+        This handler serves as a transmitter that helps forward Python logging messages to the log4j.
+        As a result, logging messages are always displayed on both the Standard console and the Log4j console.
+
+        Moreover, this method allows users to pass the logger configuration file `conf_logger`.
+        If logger config file `conf_logger` is provided, the logging configuration will be based on it using `dictConfig`.
+        Otherwise, a default logging configuration will be used with an `INFO` log level, a specific format, and a `StreamHandler` for output.
 
         Returns:
             logging.Logger: A logger instance for logging messages.
@@ -223,14 +229,24 @@ class Task(ABC):
             f"{self.__class__.__module__}.{self.__class__.__qualname__}"
         )
 
+        # Set logging configuration.
         if self.conf_logger:  # type: ignore
             logging.config.dictConfig(self.conf_logger)  # type: ignore
         else:
+
+            stdout_handler = logging.StreamHandler(stream=sys.stdout)
+            stdout_handler.setLevel(logging.INFO)
+
+            stderr_handler = logging.StreamHandler(stream=sys.stderr)
+            stderr_handler.setLevel(logging.ERROR)
+
+            log4j_handler = Log4JProxyHandler(self.spark)
+
             logging.basicConfig(
                 level=logging.INFO,
                 format="%(asctime)s ----- %(levelname)s ----- %(name)s ----- %(filename)s -- %(message)s",
                 datefmt="%Y-%m-%dT%H:%M:%S%z",
-                handlers=[logging.StreamHandler()],
+                handlers=[stderr_handler, stdout_handler, log4j_handler],
             )
 
         return logger
