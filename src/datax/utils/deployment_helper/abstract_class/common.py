@@ -3,6 +3,7 @@
 # import: standard
 import logging
 import logging.config
+import sys
 from abc import ABC
 from abc import abstractmethod
 from typing import Any
@@ -224,9 +225,6 @@ class Task(ABC):
         Returns:
             logging.Logger: A logger instance for logging messages.
         """
-        log4j_handler = Log4JProxyHandler(self.spark)
-        logging.root.addHandler(log4j_handler)
-
         logger = logging.getLogger(
             f"{self.__class__.__module__}.{self.__class__.__qualname__}"
         )
@@ -235,11 +233,20 @@ class Task(ABC):
         if self.conf_logger:  # type: ignore
             logging.config.dictConfig(self.conf_logger)  # type: ignore
         else:
+
+            stdout_handler = logging.StreamHandler(stream=sys.stdout)
+            stdout_handler.setLevel(logging.INFO)
+
+            stderr_handler = logging.StreamHandler(stream=sys.stderr)
+            stderr_handler.setLevel(logging.ERROR)
+
+            log4j_handler = Log4JProxyHandler(self.spark)
+
             logging.basicConfig(
                 level=logging.INFO,
                 format="%(asctime)s ----- %(levelname)s ----- %(name)s ----- %(filename)s -- %(message)s",
                 datefmt="%Y-%m-%dT%H:%M:%S%z",
-                handlers=[logging.StreamHandler()],
+                handlers=[stderr_handler, stdout_handler, log4j_handler],
             )
 
         return logger
