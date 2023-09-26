@@ -83,7 +83,7 @@ jobs:
       - name: Install poetry
         uses: snok/install-poetry@v1
         with:
-          version: 1.4.2
+          version: 1.6.1
 
       - name: Install dependencies and project
         run: |
