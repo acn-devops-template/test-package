@@ -9,36 +9,42 @@ packages = [{ include = "datax", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pydantic = { version = "^1.10.2", source = "PyPI" }
-python-dateutil = {version = "^2.8.2", source = "PyPI"}
-pyyaml = {version = "^6.0", source = "PyPI"}
-jinja2 = {version = "^3.1.2", source = "PyPI"}
-typed-argument-parser = {version = "^1.8.0", source = "PyPI"}
+pydantic = { version = "^1.10.2" }
+python-dateutil = {version = "^2.8.2" }
+pyyaml = {version = "^6.0" }
+jinja2 = {version = "^3.1.2" }
+typed-argument-parser = {version = "^1.8.0" }
 
 [tool.poetry.group.dev.dependencies]
-pyspark = { version = "3.3.0", source = "PyPI" }
-pre-commit = { version = "^2.20.0", source = "PyPI" }
-pytest = { version = "^7.0.0", source = "PyPI" }
-pytest-mock = { version = "^3.7.0", source = "PyPI" }
-GitPython = { version = "^3.1.30", source = "PyPI" }
-pytest-cov = { version = "^4.0.0", source = "PyPI" }
+pyspark = { version = "3.3.0" }
+pre-commit = { version = "^2.20.0" }
+pytest = { version = "^7.0.0" }
+pytest-mock = { version = "^3.7.0" }
+GitPython = { version = "^3.1.30" }
+pytest-cov = { version = "^4.0.0" }
 
 [tool.poetry.group.interactive.dependencies]
-jupyter = { version = "^1.0.0", source = "PyPI" }
+jupyter = { version = "^1.0.0" }
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = { version = "^1.4.2", source = "PyPI" }
-mkdocs-material = { version = "^8.5.9", source = "PyPI" }
-mkdocs-git-revision-date-localized-plugin = { version = "^1.1.0", source = "PyPI" }
-mknotebooks = { version = "^0.7.1", source = "PyPI" }
-mkdocstrings = { version = "0.19.0", source = "PyPI" }
-mkdocstrings-python = { version = "^0.7.1", source = "PyPI" }
-mkdocs-section-index = { version = "^0.3.4", source = "PyPI" }
-mkdocs-literate-nav = { version = "^0.5.0", source = "PyPI" }
-mkdocs-gen-files = { version = "^0.4.0", source = "PyPI" }
-mike = { version = "^1.1.2", source = "PyPI" }
-mkdocs-table-reader-plugin = { version = "^1.2", source = "PyPI" }
-interrogate = { version = "^1.5.0", source = "PyPI" }
+mkdocs = { version = "^1.4.2" }
+mkdocs-material = { version = "^8.5.9" }
+mkdocs-git-revision-date-localized-plugin = { version = "^1.1.0" }
+mknotebooks = { version = "^0.7.1" }
+mkdocstrings = { version = "0.19.0" }
+mkdocstrings-python = { version = "^0.7.1" }
+mkdocs-section-index = { version = "^0.3.4" }
+mkdocs-literate-nav = { version = "^0.5.0" }
+mkdocs-gen-files = { version = "^0.4.0" }
+mike = { version = "^1.1.2" }
+mkdocs-table-reader-plugin = { version = "^1.2" }
+interrogate = { version = "^1.5.0" }
+
+
+[[tool.poetry.source]]
+name = "C360ML"
+url = "https://pkgs.dev.azure.com/dxtechops/_packaging/C360ML/pypi/simple/"
+priority = "default"
 
 [build-system]
 requires = ["poetry-core"]
