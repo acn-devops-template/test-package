@@ -20,6 +20,7 @@ jobs:
       - name: Install pip
         run: |
           pip install --upgrade pip
+          pip install setuptools wheel twine
 
       - name: Install poetry
         uses: snok/install-poetry@v1
@@ -32,8 +33,15 @@ jobs:
 
       - name: Build package
         run: |
+          #poetry run setup.py sdist bdist_wheel
+          poetry build -f wheel
+          poetry run twine upload dist/*
           echo "Building package"
-
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.AZURE_ARTIFACTS_PAT }}
+          TWINE_REPOSITORY_URL: https://pkgs.dev.azure.com/kBank-MDF-SANDBOX/MDF/_packaging/kBank-MDF-SANDBOX/pypi/upload
+          
       - name: Publish package to Azure Artifact
         run: |
           echo "Publishing package"
