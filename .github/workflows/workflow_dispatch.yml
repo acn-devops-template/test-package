@@ -20,7 +20,8 @@ jobs:
       - name: Install pip
         run: |
           pip install --upgrade pip
-          pip install setuptools wheel twine
+          #pip install setuptools wheel twine
+          pip install twine
 
       - name: Install poetry
         uses: snok/install-poetry@v1
@@ -33,7 +34,6 @@ jobs:
 
       - name: Build package
         run: |
-          #poetry run setup.py sdist bdist_wheel
           poetry build -f wheel
           poetry run twine upload dist/*
           echo "Building package"
