@@ -37,8 +37,12 @@ jobs:
 
       - name: Build package
         run: |
-          echo "Building package"
+          poetry build -f wheel
 
       - name: Publish package to Azure Artifact
         run: |
-          echo "Publishing package"
+          poetry run twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.AZURE_ARTIFACTS_PAT }}
+          TWINE_REPOSITORY_URL: https://pkgs.dev.azure.com/kBank-MDF-SANDBOX/_packaging/kBank-MDF-SANDBOX/pypi/upload
