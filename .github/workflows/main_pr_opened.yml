@@ -41,7 +41,7 @@ jobs:
       - name: Run unit tests
         run: |
           echo "Launching unit tests"
-          poetry run pytest tests/unit/
+          poetry run pytest tests/
 
       - name: Scan source code
         run: |
