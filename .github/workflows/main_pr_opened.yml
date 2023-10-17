@@ -34,10 +34,15 @@ jobs:
         run: |
           poetry install -v --without interactive,docs
 
-      - name: Build package
+      - name: Linting
         run: |
-          echo "Building package"
+          poetry run pre-commit run --all-files
 
-      - name: Publish package to Azure Artifact
+      - name: Run unit tests
         run: |
-          echo "Publishing package"
+          echo "Launching unit tests"
+          poetry run pytest tests/unit/
+
+      - name: Scan source code
+        run: |
+          echo "Scaning source code"
