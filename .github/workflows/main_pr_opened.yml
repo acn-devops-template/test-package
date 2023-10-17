@@ -2,7 +2,8 @@ name: main_pr_opened
 
 on:
   pull_request:
-    types: opened
+    types: 
+      - opened
     branches:
       - main
 
@@ -10,7 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-20.04
 
-   steps:
+    steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
