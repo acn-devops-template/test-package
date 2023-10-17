@@ -1,21 +1,16 @@
-name: subdev # on feature branch
+name: main_pr_opened
 
 on:
-  workflow_dispatch:
-  push:
-    branches-ignore:
-      - dev
-      - staging
+  pull_request:
+    types: opened
+    branches:
       - main
-      - gh-pages
-      - "docs/**"
-      - "release/**"
 
 jobs:
-  subdev-pipeline:
+  build:
     runs-on: ubuntu-20.04
 
-    steps:
+   steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -23,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: 3.9
 
       - name: Install pip
         run: |
@@ -38,11 +33,10 @@ jobs:
         run: |
           poetry install -v --without interactive,docs
 
-      - name: Linting
+      - name: Build package
         run: |
-          poetry run pre-commit run --all-files
+          echo "Building package"
 
-      - name: Run unit tests
+      - name: Publish package to Azure Artifact
         run: |
-          echo "Launching unit tests"
-          poetry run pytest tests/
+          echo "Publishing package"

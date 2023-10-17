@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "datax-utils-deployment-helper"
-version = "0.10.2"
+name = "test-utils"
+version = "0.1.0"
 description = "common lib for deployment-related"
 authors = ["DataX Analytics Machine Learning Engineering <analytics.mle@data-x.ai>", 
 		   "DataX Analytics Products DataHub <analytics.products.datahub@data-x.ai>"]
@@ -41,10 +41,10 @@ mkdocs-table-reader-plugin = { version = "^1.2" }
 interrogate = { version = "^1.5.0" }
 
 
-[[tool.poetry.source]]
-name = "C360ML"
-url = "https://pkgs.dev.azure.com/dxtechops/_packaging/C360ML/pypi/simple/"
-priority = "default"
+#[[tool.poetry.source]]
+#name = "C360ML"
+#url = "https://pkgs.dev.azure.com/dxtechops/_packaging/C360ML/pypi/simple/"
+#priority = "default"
 
 [build-system]
 requires = ["poetry-core"]

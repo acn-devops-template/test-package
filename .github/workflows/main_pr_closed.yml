@@ -1,0 +1,48 @@
+name: main_pr_closed
+
+on:
+  pull_request:
+    types: closed
+    branches:
+      - main
+
+jobs:
+  build:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-20.04
+
+   steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.6.1
+
+      - name: Install dependencies and project
+        run: |
+          poetry install -v --without interactive,docs
+
+      - name: Linting
+        run: |
+          poetry run pre-commit run --all-files
+
+      - name: Run unit tests
+        run: |
+          echo "Launching unit tests"
+          poetry run pytest tests/unit/
+
+      - name: Scan source code
+        run: |
+          echo "Scaning source code"
