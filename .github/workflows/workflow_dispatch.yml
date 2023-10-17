@@ -40,7 +40,7 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.AZURE_ARTIFACTS_PAT }}
-          TWINE_REPOSITORY_URL: https://pkgs.dev.azure.com/kBank-MDF-SANDBOX/MDF/_packaging/kBank-MDF-SANDBOX/pypi/upload
+          TWINE_REPOSITORY_URL: https://pkgs.dev.azure.com/kBank-MDF-SANDBOX/_packaging/kBank-MDF-SANDBOX/pypi/upload
           
       - name: Publish package to Azure Artifact
         run: |
