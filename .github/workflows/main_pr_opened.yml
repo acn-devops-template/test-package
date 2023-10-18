@@ -1,6 +1,9 @@
 name: main_pr_opened
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types: 
       - opened
@@ -8,44 +11,6 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      - name: Install pip
-        run: |
-          pip install --upgrade pip
-
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.6.1
-
-      - name: Install dependencies and project
-        run: |
-          poetry install -v --without interactive,docs
-
-      - name: Linting
-        run: |
-          poetry run pre-commit run --all-files
-
-      - name: Run unit tests
-        run: |
-          echo "Launching unit tests"
-          poetry run pytest tests/
-
-      #- name: Scan source code
-      #  run: |
-      #    echo "Scaning source code"
   analyze:
     name: Analyze
     # Runner size impacts CodeQL analysis time. To learn more, please see:
@@ -68,6 +33,35 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    - name: Install pip
+      run: |
+        pip install --upgrade pip
+
+    - name: Install poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.6.1
+
+    - name: Install dependencies and project
+      run: |
+        poetry install -v --without interactive,docs
+
+    - name: Linting
+      run: |
+        poetry run pre-commit run --all-files
+
+    - name: Run unit tests
+      run: |
+        echo "Launching unit tests"
+        poetry run pytest tests/
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
