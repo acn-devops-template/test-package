@@ -2,10 +2,8 @@ name: main_pr_closed
 
 on:
   pull_request:
-    types: 
-      - closed
-    branches:
-      - main
+    types: [ closed ]
+    branches: [ main ]
 
 jobs:
   build:
